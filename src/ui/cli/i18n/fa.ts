@@ -30,6 +30,14 @@ export const fa = {
     budget:
       'سقف مصرف این جلسه پر شد؛ کار Agent متوقف شد.',
   },
+  tools: {
+    unknownTool: (name: string) => `ابزار «${name}» وجود ندارد.`,
+    invalidInput: (name: string) => `ورودی ابزار «${name}» نامعتبر است.`,
+    readTitle: (name: string) => `اجرای ابزار فقط‌خواندنی «${name}»`,
+    readImpact: 'فقط اطلاعات خوانده می‌شود؛ چیزی تغییر نمی‌کند.',
+    noRollback: 'نیازی به برگشت نیست.',
+    defaultReason: 'درخواست Agent',
+  },
   llm: {
     allModelsFailed: 'هیچ‌کدام از مدل‌های زبانی این نقش پاسخ ندادند؛ کمی بعد دوباره تلاش کنید.',
     toolsNeedJsonProtocol: 'مدل این نقش از فراخوانی مستقیم ابزار پشتیبانی نمی‌کند؛ باید از پروتکل JSON استفاده شود.',
