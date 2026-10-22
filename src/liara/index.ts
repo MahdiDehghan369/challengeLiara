@@ -6,4 +6,5 @@ export * from './cli.js';
 export * from './cli-parsers.js';
 export * from './env.js';
 export * from './db.js';
+export * from './dns.js';
 export * from './api/index.js';
