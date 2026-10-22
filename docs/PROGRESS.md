@@ -25,7 +25,7 @@
 | Task | Status | Commit | Notes |
 |------|--------|--------|-------|
 | T0.1 | ✅ | e488163 | Team docs were already in docs/liara/. All 5 specs + 2 pages downloaded to specs/. paas.yaml: 41 ops; 4 **spec-only**: app details `GET /v1/projects/{name}` (incl. envs), release list `GET /v1/projects/{name}/releases` (state, sourceAvailable), applets, domain check → OQ-8..OQ-11. dbaas.yaml has DB connection details (OQ-12, may close G7). billing.yaml gives billing field names (OQ-4). Re-run offline: `pnpm tsx scripts/fetch-specs.ts --offline`. |
-| T0.2 | ⛔ | (script: see git log `T0.2:`) | **Blocked: needs `BOXAPI_API_KEY` in `.env`** (user chose to skip for now on 2026-10-22). `scripts/llm-smoke.ts` is written, typechecks and lints. When the key exists: `pnpm tsx scripts/llm-smoke.ts` → writes docs/LLM_COMPAT.md + config/models.json (role picking is automatic; review it). Blocks T3.1. |
+| T0.2 | ✅ | (see git log `T0.2:`) | Ran `pnpm tsx scripts/llm-smoke.ts` on 2026-10-22: 10 models × 4 checks → `docs/LLM_COMPAT.md` (all 6 columns) + `config/models.json` (zod-valid). Native tools work on gpt-5.x (5-mini, 5.4-mini, 5.6-luna/terra/sol); gpt-6.x reject tools with reasoning_effort; gpt-5.3-codex unsupported on Chat Completions (OQ-26). Roles: chat=gpt-5.4-mini (native-tools), reasoning=gpt-6.1-sol (json), code=gpt-6.1-sol (json), cheap=gpt-5-mini (native-tools). |
 | T0.3 | ✅ | 5fbd061 | Skeleton per 01-ANALYSIS §3. tsc build (rootDir src → dist), NodeNext ESM (imports use `.js`). ESLint 8.57 + `.eslintrc.cjs`; vitest forces LIARA_MODE/LLM_MODE=mock; e2e via `vitest.e2e.config.ts`. Also committed the planning docs and the user's README.md deletion. |
 | T0.4 | ✅ | b147f50 | zod 4, pino 9, dotenv 17. Config exposed as `getConfig()` (memoized, loads .env) + pure `loadConfig(env)` — see D-004. Logger: pino `redact` paths + deep case-insensitive key scrub + `token=` URL scrub in objects and messages. Seed `src/ui/cli/i18n/fa.ts` created (T9.1 expands). `config/models.json` schema: `{baseUrl, roles:{chat,reasoning,code,cheap:{model,fallbackProtocol,fallbacks[]}}}`. |
 | T0.5 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN |
@@ -124,7 +124,7 @@
 | T9.6 | ⬜ | - | |
 | T9.7 | ⬜ | - | |
 | T9.8 | ⬜ | - | |
-| T9.9 | ✅ | (see git log `T9.9:`) | `src/ui/cli/errors.ts`: `explainError(err)` → `{code, whatFa, doFa, command?, technical, stack?}`. Mapped: missing token/key (config), 401, network/timeout, 429 (Persian wait time from Retry-After), CLI not installed (install command), low balance (402 / text), 409 name taken, deploy/wait timeout (`siavash logs <app>`), APP_NOT_FOUND (keeps the closest-name suggestion), denied, budget, generic, unknown. `formatError(err, {verbose})`: what + do + command on its own line; technical details + stack only with `--verbose`; always redacted. |
+| T9.9 | ✅ | 237fc0b | `src/ui/cli/errors.ts`: `explainError(err)` → `{code, whatFa, doFa, command?, technical, stack?}`. Mapped: missing token/key (config), 401, network/timeout, 429 (Persian wait time from Retry-After), CLI not installed (install command), low balance (402 / text), 409 name taken, deploy/wait timeout (`siavash logs <app>`), APP_NOT_FOUND (keeps the closest-name suggestion), denied, budget, generic, unknown. `formatError(err, {verbose})`: what + do + command on its own line; technical details + stack only with `--verbose`; always redacted. |
 | T9.10 | ⬜ | - | |
 | T10.1 | ⬜ | - | |
 | T10.2 | ⬜ | - | |
@@ -162,6 +162,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T0.2:** docs/LLM_COMPAT.md, config/models.json, docs/OPEN_QUESTIONS.md (OQ-26).
 - **T9.9:** src/ui/cli/{errors.ts,i18n/fa.ts}, tests/unit/ui/errors.test.ts.
 - **T6.8:** src/ops/{delete,index}.ts, src/ui/cli/i18n/fa.ts (opsDelete), tests/unit/ops/delete.test.ts.
 - **T6.7:** src/ops/{settings,index}.ts, src/ui/cli/i18n/fa.ts (opsSettings), tests/unit/ops/settings-ops.test.ts.

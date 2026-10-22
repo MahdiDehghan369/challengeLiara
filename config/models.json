@@ -1,0 +1,37 @@
+{
+  "baseUrl": "https://ai.boxapi.ir/ai/v1",
+  "roles": {
+    "chat": {
+      "model": "gpt-5.4-mini",
+      "fallbackProtocol": "native-tools",
+      "fallbacks": [
+        "gpt-5.6-terra",
+        "gpt-5.6-luna"
+      ]
+    },
+    "reasoning": {
+      "model": "gpt-6.1-sol",
+      "fallbackProtocol": "json",
+      "fallbacks": [
+        "gpt-6-sol",
+        "gpt-5.6-sol"
+      ]
+    },
+    "code": {
+      "model": "gpt-6.1-sol",
+      "fallbackProtocol": "json",
+      "fallbacks": [
+        "gpt-6-sol",
+        "gpt-5.4-mini"
+      ]
+    },
+    "cheap": {
+      "model": "gpt-5-mini",
+      "fallbackProtocol": "native-tools",
+      "fallbacks": [
+        "gpt-5.4-mini",
+        "gpt-6-luna"
+      ]
+    }
+  }
+}
