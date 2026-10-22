@@ -1,0 +1,233 @@
+/**
+ * T0.2 — Smoke-tests every BoxAPI chat model and records capabilities.
+ *
+ * Usage: pnpm tsx scripts/llm-smoke.ts [--models a,b,c]
+ * Needs BOXAPI_API_KEY in .env (never printed). Not run in CI.
+ * Writes docs/LLM_COMPAT.md and config/models.json (validated with the zod schema in src/config/models.ts).
+ */
+import { mkdirSync, writeFileSync } from 'node:fs';
+import dotenv from 'dotenv';
+import OpenAI from 'openai';
+import { DEFAULT_MODELS_PATH, parseModelsConfig, type ModelsConfig } from '../src/config/models.js';
+
+const BASE_URL = 'https://ai.boxapi.ir/ai/v1';
+const CHAT_MODELS = [
+  'gpt-6.1-sol',
+  'gpt-6-astra',
+  'gpt-6-luna',
+  'gpt-6-sol',
+  'gpt-5-mini',
+  'gpt-5.6-luna',
+  'gpt-5.6-terra',
+  'gpt-5.6-sol',
+  'gpt-5.4-mini',
+  'gpt-5.3-codex',
+];
+const TIMEOUT_MS = 90_000;
+
+interface Check {
+  ok: boolean;
+  ms: number;
+  note: string;
+}
+interface ModelResult {
+  model: string;
+  persian: Check;
+  tools: Check;
+  json: Check;
+  stream: Check;
+}
+
+const PERSIAN_RE = /[؀-ۿ]/;
+
+function short(s: string, n = 90): string {
+  const one = s.replace(/\s+/g, ' ').trim();
+  return one.length > n ? `${one.slice(0, n)}…` : one;
+}
+
+function errNote(e: unknown): string {
+  if (e instanceof OpenAI.APIError) return short(`HTTP ${e.status ?? '?'}: ${e.message}`);
+  return short(e instanceof Error ? e.message : String(e));
+}
+
+async function timed(fn: () => Promise<string>, check: (r: string) => boolean): Promise<Check> {
+  const t0 = performance.now();
+  try {
+    const note = await fn();
+    return { ok: check(note), ms: Math.round(performance.now() - t0), note: short(note) };
+  } catch (e) {
+    return { ok: false, ms: Math.round(performance.now() - t0), note: errNote(e) };
+  }
+}
+
+async function testModel(client: OpenAI, model: string): Promise<ModelResult> {
+  const persian = await timed(
+    async () => {
+      const r = await client.chat.completions.create({
+        model,
+        messages: [{ role: 'user', content: 'سلام! در یک جملهٔ کوتاه فارسی بگو امروز چه روزی از هفته را دوست داری.' }],
+      });
+      return r.choices[0]?.message.content ?? '';
+    },
+    (s) => PERSIAN_RE.test(s),
+  );
+
+  const tools = await timed(
+    async () => {
+      const r = await client.chat.completions.create({
+        model,
+        messages: [{ role: 'user', content: 'What is the weather in Tehran right now? Use the tool.' }],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'get_weather',
+              description: 'Get the current weather for a city',
+              parameters: {
+                type: 'object',
+                properties: { city: { type: 'string' } },
+                required: ['city'],
+              },
+            },
+          },
+        ],
+        tool_choice: 'auto',
+      });
+      const call = r.choices[0]?.message.tool_calls?.[0];
+      if (!call || call.type !== 'function') return `no tool call; content=${r.choices[0]?.message.content ?? ''}`;
+      const args = JSON.parse(call.function.arguments) as { city?: string };
+      return `TOOL_OK ${call.function.name}(${JSON.stringify(args)})`;
+    },
+    (s) => s.startsWith('TOOL_OK get_weather'),
+  );
+
+  const json = await timed(
+    async () => {
+      const r = await client.chat.completions.create({
+        model,
+        messages: [
+          { role: 'system', content: 'Reply with a JSON object only.' },
+          { role: 'user', content: 'Return {"status":"ok","n":3} as JSON.' },
+        ],
+        response_format: { type: 'json_object' },
+      });
+      const content = r.choices[0]?.message.content ?? '';
+      const parsed = JSON.parse(content) as unknown;
+      return parsed && typeof parsed === 'object' ? `JSON_OK ${content}` : `not an object: ${content}`;
+    },
+    (s) => s.startsWith('JSON_OK'),
+  );
+
+  const stream = await timed(
+    async () => {
+      const s = await client.chat.completions.create({
+        model,
+        messages: [{ role: 'user', content: 'Count from 1 to 5.' }],
+        stream: true,
+      });
+      let chunks = 0;
+      let text = '';
+      for await (const c of s) {
+        chunks++;
+        text += c.choices[0]?.delta?.content ?? '';
+      }
+      return `chunks=${chunks} text=${text}`;
+    },
+    (s) => /^chunks=([2-9]|\d{2,})/.test(s) && !s.endsWith('text='),
+  );
+
+  return { model, persian, tools, json, stream };
+}
+
+const mark = (c: Check) => (c.ok ? '✅' : '❌');
+
+function writeCompat(results: ModelResult[]): void {
+  const rows = results.map((r) => {
+    const errors = [r.persian, r.tools, r.json, r.stream]
+      .map((c, i) => (c.ok ? '' : `${['persian', 'tools', 'json', 'stream'][i]}: ${c.note}`))
+      .filter(Boolean)
+      .join('<br>')
+      .replace(/\|/g, '\\|');
+    return `| ${r.model} | ${mark(r.persian)} | ${mark(r.tools)} | ${mark(r.json)} | ${mark(r.stream)} | ${r.persian.ms} | ${errors || '—'} |`;
+  });
+  const md = [
+    '# LLM compatibility — BoxAPI',
+    '',
+    `> Generated by \`pnpm tsx scripts/llm-smoke.ts\` on ${new Date().toISOString()}. Base URL: \`${BASE_URL}\`.`,
+    '> Columns: (1) plain Persian reply · (2) `tools` + `tool_choice:auto` with `get_weather` · (3) `response_format: json_object` · (4) `stream: true` · (5) latency of the plain reply in ms · (6) error messages for failed checks.',
+    '',
+    '| Model | Persian | Tools | JSON mode | Stream | Latency (ms) | Errors |',
+    '|---|---|---|---|---|---|---|',
+    ...rows,
+    '',
+    '## Per-check latency (ms)',
+    '',
+    '| Model | Persian | Tools | JSON | Stream |',
+    '|---|---|---|---|---|',
+    ...results.map((r) => `| ${r.model} | ${r.persian.ms} | ${r.tools.ms} | ${r.json.ms} | ${r.stream.ms} |`),
+    '',
+  ].join('\n');
+  writeFileSync('docs/LLM_COMPAT.md', md, 'utf8');
+}
+
+/** Picks a model per role from preference lists, using only models that answered at all. */
+function chooseRoles(results: ModelResult[]): ModelsConfig {
+  const alive = results.filter((r) => r.persian.ok || r.json.ok || r.tools.ok);
+  const byName = new Map(alive.map((r) => [r.model, r]));
+  const fastest = [...alive].sort((a, b) => a.persian.ms - b.persian.ms).map((r) => r.model);
+
+  const pick = (prefs: string[], need: (r: ModelResult) => boolean = () => true) => {
+    const ordered = [...prefs, ...fastest].filter((m, i, a) => a.indexOf(m) === i && byName.has(m));
+    const good = ordered.filter((m) => need(byName.get(m) as ModelResult));
+    const chosen = good[0] ?? ordered[0];
+    if (!chosen) throw new Error('No BoxAPI model answered; cannot build config/models.json');
+    const r = byName.get(chosen) as ModelResult;
+    return {
+      model: chosen,
+      fallbackProtocol: r.tools.ok ? ('native-tools' as const) : ('json' as const),
+      fallbacks: ordered.filter((m) => m !== chosen).slice(0, 2),
+    };
+  };
+
+  const toolsAndJson = (r: ModelResult) => r.tools.ok && r.persian.ok;
+  return parseModelsConfig({
+    baseUrl: BASE_URL,
+    roles: {
+      chat: pick(fastest, toolsAndJson),
+      reasoning: pick(['gpt-6.1-sol', 'gpt-6-sol', 'gpt-5.6-sol', 'gpt-6-astra'], (r) => r.persian.ok),
+      code: pick(['gpt-5.3-codex', 'gpt-6.1-sol', 'gpt-6-sol'], (r) => r.json.ok || r.tools.ok),
+      cheap: pick(['gpt-5-mini', 'gpt-5.4-mini', 'gpt-6-luna', 'gpt-5.6-luna'], (r) => r.persian.ok),
+    },
+  });
+}
+
+async function main(): Promise<void> {
+  dotenv.config({ quiet: true });
+  const apiKey = process.env.BOXAPI_API_KEY;
+  if (!apiKey) {
+    console.error('BOXAPI_API_KEY is not set (.env). Aborting.');
+    process.exit(1);
+  }
+  const arg = process.argv.indexOf('--models');
+  const models = arg > -1 ? (process.argv[arg + 1] ?? '').split(',').filter(Boolean) : CHAT_MODELS;
+
+  const client = new OpenAI({ apiKey, baseURL: BASE_URL, timeout: TIMEOUT_MS, maxRetries: 0 });
+  console.log(`testing ${models.length} models…`);
+  const results = await Promise.all(
+    models.map(async (m) => {
+      const r = await testModel(client, m);
+      console.log(`${m}: persian=${mark(r.persian)} tools=${mark(r.tools)} json=${mark(r.json)} stream=${mark(r.stream)} ${r.persian.ms}ms`);
+      return r;
+    }),
+  );
+  results.sort((a, b) => models.indexOf(a.model) - models.indexOf(b.model));
+
+  writeCompat(results);
+  const cfg = chooseRoles(results);
+  mkdirSync('config', { recursive: true });
+  writeFileSync(DEFAULT_MODELS_PATH, `${JSON.stringify(cfg, null, 2)}\n`, 'utf8');
+  console.log('wrote docs/LLM_COMPAT.md and config/models.json');
+  console.log(JSON.stringify(cfg.roles, null, 2));
+}
+
+await main();
