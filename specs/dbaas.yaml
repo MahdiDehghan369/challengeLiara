@@ -1,0 +1,902 @@
+openapi: 3.0.1
+info:
+  title: DBaaS
+  description: |-
+    Manage your databases using our API
+
+    Parameters:
+    - `teamID`: To access services in a team
+    
+  termsOfService: '#'
+  contact:
+    email: info@liara.ir
+  version: 1.0.0
+externalDocs:
+  description: Find out more about DBaaS
+  url: http://liara.ir
+servers:
+- url: https://api.liara.ir
+security:
+- jwt: []
+- bearerAuth: []
+tags:
+  - name: Databases
+    description: Everything about your Databases
+  - name: Backups
+    description: Backups endpoints
+  - name: Reports
+    description: Reports of your app
+paths:
+  '/v1/databases/{id}':
+    get:
+      tags:
+      - Databases
+      summary: Get a database
+      description: get a database that user owns
+      operationId: getDatabase
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DB-details'
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+    delete:
+      tags:
+      - Databases
+      summary: Delete a database
+      description: delete a database that user owns
+      operationId: deleteDatabase
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content: {}
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+  /v1/databases:
+    get:
+      tags:
+      - Databases
+      summary: Get all databases
+      description: get all databases that user owns
+      operationId: getListDatabases
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DBs-details'
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+    post:
+      tags:
+      - Databases
+      summary: Create a database
+      description: create a database that user owns
+      operationId: createDatabase
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Create-databases'
+        required: true
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  databaseID:
+                    type: string
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        409:
+          description: Conflict
+          content: {}
+      x-codegen-request-body-name: Create a databases
+  '/v1/databases/{id}/actions/scale':
+    post:
+      tags:
+      - Databases
+      summary: Power on or power off a database
+      description: power on or power off a database that user owns
+      operationId: TurnDatabase
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: 1 for power on or 0 for power off
+        content:
+          application/json:
+            schema:
+              required:
+              - scale
+              type: object
+              properties:
+                scale:
+                  type: number
+        required: true
+      responses:
+        200:
+          description: Successful operation
+          content: {}
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+      x-codegen-request-body-name: scale
+  '/v1/databases/{id}/resize':
+    post:
+      tags:
+      - Databases
+      summary: Resize a database
+      description: resize a database that user owns
+      operationId: resizeDatabase
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - planID
+              type: object
+              properties:
+                disk:
+                  type: boolean
+                planID:
+                  type: string
+        required: true
+      responses:
+        200:
+          description: Successful operation
+          content: {}
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+      x-codegen-request-body-name: resize
+  '/v1/databases/{id}/backups':
+    get:
+      tags:
+      - Backups
+      summary: Get all backups
+      description: get all backups that user owns
+      operationId: getListBackups
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  backups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        lastModified:
+                          type: string
+                        etag:
+                          type: string
+                        size:
+                          type: number
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+    post:
+      tags:
+      - Backups
+      summary: Backup a database
+      description: backup a database that user owns
+      operationId: createBackup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content: {}
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+  '/v1/databases/{id}/settings':
+    patch:
+      tags:
+      - Databases
+      summary: Settings a database
+      description: settings a database that user owns
+      operationId: databasesSettings
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Databases-settings'
+        required: true
+      responses:
+        200:
+          description: Successful operation
+          content: {}
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+  '/v1/databases/{id}/backups/{name}/download':
+    post:
+      tags:
+      - Backups
+      summary: Download a backup
+      description: download a backup that user owns
+      operationId: downloadBackup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id of your database
+        schema:
+          type: string
+      - name: name
+        in: path
+        required: true
+        description: The name of your backup
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+  '/v1/databases/{id}/control-panel/{status}':
+    post:
+      tags:
+      - Databases
+      summary: Change control-panel status
+      description: change control-panel status that user owns
+      operationId: changeControlPanel
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: status
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - enable
+          - disable
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  controlPanelID:
+                    type: string
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+        409:
+          description: Conflict
+          content: {}
+  '/v1/databases/{id}/public-network/{status}':
+    patch:
+      tags:
+      - Databases
+      summary: Change public network status
+      description: change public network status that user owns
+      operationId: changePublicNetwork
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: status
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - enable
+          - disable
+      responses:
+        200:
+          description: Successful operation
+          content: {}
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database not found
+          content: {}
+        409:
+          description: Conflict
+          content: {}
+  '/v1/databases/{id}/metrics/cpu':
+    get:
+      tags:
+      - Reports
+      summary: Get cpu reports of database
+      description: get cpu reports of database that user owns
+      operationId: getDatabaseCpuReports
+      parameters:
+      - name: id
+        in: path
+        description: The name of your database
+        required: true
+        schema:
+          type: string
+      - name: since
+        in: query
+        description: The since of your cpu reports
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reports'
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database does not exists.
+          content: {}
+  '/v1/databases/{id}/metrics/memory':
+    get:
+      tags:
+      - Reports
+      summary: Get memory reports of database
+      description: get memory reports of database that user owns
+      operationId: getDatabaseMemoryReports
+      parameters:
+      - name: id
+        in: path
+        description: The name of your database
+        required: true
+        schema:
+          type: string
+      - name: since
+        in: query
+        description: The since of your memory reports
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reports'
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database does not exists.
+          content: {}
+  '/v1/databases/{id}/metrics/network-receive':
+    get:
+      tags:
+      - Reports
+      summary: Get network-receive reports of database
+      description: get network-receive reports of database that user owns
+      operationId: getDatabaseNetworkReceiveReports
+      parameters:
+      - name: id
+        in: path
+        description: The name of your database
+        required: true
+        schema:
+          type: string
+      - name: since
+        in: query
+        description: The since of your network-receive reports
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reports'
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database does not exists.
+          content: {}
+  '/v1/databases/{id}/metrics/network-transmit':
+    get:
+      tags:
+      - Reports
+      summary: Get network-transmit reports of database
+      description: get network-transmit reports of database that user owns
+      operationId: getDatabaseNetworkTransmitReports
+      parameters:
+      - name: id
+        in: path
+        description: The name of your database
+        required: true
+        schema:
+          type: string
+      - name: since
+        in: query
+        description: The since of your network-transmit reports
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: Successful operation
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reports'
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database does not exists.
+          content: {}
+  '/v1/databases/{id}/metrics/summary':
+    get:
+      tags:
+      - Reports
+      summary: Get summary reports of database
+      description: get summary reports of database that user owns
+      operationId: getDatabaseSummaryReports
+      parameters:
+      - name: id
+        in: path
+        description: The name of your database
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cpuUsage:
+                    type: array 
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: array
+                          items:
+                            oneOf:
+                              - type: number
+                              - type: string
+                        applet:
+                          type: string
+                  memoryUsage:
+                    type: array 
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: array
+                          items:
+                            oneOf:
+                              - type: number
+                              - type: string
+                        applet:
+                          type: string
+                  disksUsage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        size:
+                          type: string
+                        usage:
+                          type: string
+                        reportedAt:
+                          type: string
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database does not exists.
+          content: {}
+  '/v1/databases/{name}/events':
+    get:
+      summary: Get events of the database
+      description: get events of the database owned by user
+      operationId: getDatabaseEvents
+      parameters:
+        - name: name
+          in: path
+          description: The name of database
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Show events based on search query
+          required: false
+          schema:
+            type: string
+        - name: start
+          in: query
+          description: start timestamp
+          example: 1704028315
+          required: false
+          schema:
+            type: number
+        - name: end
+          in: query
+          description: end timestamp
+          example: 1704028315
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        metaData:
+                          type: object
+                        values:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              type: string
+        400:
+          description: Bad request
+          content: {}
+        401:
+          description: Missing authentication
+          content: {}
+        404:
+          description: Database does not exists.
+          content: {}
+components:
+  schemas:
+    Create-databases:
+      type: object
+      properties:
+        hostname:
+          type: string
+          description: The hostname of databases that you want to create
+        options:
+          type: object  
+          properties:
+            standaloneReplicaSet:
+              type: boolean
+        publicNetwork:
+          type: boolean
+          description: The publicNetwork of databases that you want to create
+        type:
+          type: string
+          description: The type of databases that you want to create
+        planID:
+          type: string
+          description: The planID of databases that you want to create
+        version:
+          type: string
+          description: The version of databases that you want to create
+    DB-details:
+      type: object
+      properties:
+        database:
+          type: object
+          properties:
+            DBId:
+              type: string
+              description: The ID of the database
+            type:
+              type: string
+              description: The type of the database
+            planID:
+              type: string
+              description: The plan ID
+            status:
+              type: string
+              description: The status of the database
+            scale:
+              type: integer
+              description: The scale of the database
+            hostname:
+              type: string
+              description: The hostname of the database
+            publicNetwork:
+              type: boolean
+              description: Indicates if the database is on a public network
+            version:
+              type: string
+              description: The database version
+            volumeSize:
+              type: integer
+              description: The size of the database volume
+            created_at:
+              type: string
+              description: The creation timestamp of the database
+            dbName:
+              type: string
+              description: The name of db
+            node:
+              type: object
+              properties:
+                _id:
+                  type: string
+                  description: The ID of the database node
+                host:
+                  type: string
+                  description: The host of the database node
+            port:
+              type: integer
+              description: The port number for the database connection
+            root_password:
+              type: string
+              description: The root password for the database
+            internalPort:
+              type: integer
+              description: The internal port of the database
+            id:
+              type: string
+              description: The unique ID of the database
+            hourlyPrice:
+              type: number
+              description: The hourly price of the database
+            metaData:
+              type: object
+              properties:
+                standaloneReplicaSet:
+                  type: boolean
+                  description: Indicates if the database uses a standalone replica
+                    set
+                privateNetwork:
+                  type: boolean
+                  description: Indicates if the database is on a private network
+            username:
+              type: string
+              description: The username associated with the database
+    Reports:
+      type: object
+      properties:
+        end:
+          type: number
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: array
+                  items:
+                    oneOf:
+                      - type: number
+                      - type: string
+              applet:
+                type: string
+    DBs-details:
+      type: object
+      properties:
+        databases:
+          type: array
+          items:
+            type: object
+            properties:
+              DBId:
+                type: string
+                description: The ID of the database
+              type:
+                type: string
+                description: The type of the database
+              planID:
+                type: string
+                description: The plan ID
+              status:
+                type: string
+                description: The status of the database
+              scale:
+                type: integer
+                description: The scale of the database
+              hostname:
+                type: string
+                description: The hostname of the database
+              publicNetwork:
+                type: boolean
+                description: Indicates if the database is on a public network
+              created_at:
+                type: string
+                description: The creation timestamp of the database
+              internalPort:
+                type: integer
+                description: The internal port of the database
+              id:
+                type: string
+                description: The unique ID of the database
+    Databases-settings:
+      type: object
+      properties:
+        type: 
+          type: string
+        options:
+          type: object
+          properties:
+            maxConnections:
+              type: number
+            netBufferLength:
+              type: number
+            selectLimit:
+              type: number
+            maxAllowedPacket:
+              type: number
+            connectTimeout:
+              type: number
+            maxJoinSize:
+              type: number
+            clientEncoding:
+              type: string
+            sharedBuffers:
+              type: number
+  securitySchemes:
+    jwt:
+      type: apiKey
+      name: Authorization
+      in: header
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+

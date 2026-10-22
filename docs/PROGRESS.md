@@ -22,10 +22,10 @@
 
 | Task | Status | Commit | Notes |
 |------|--------|--------|-------|
-| T0.1 | ⬜ | - | |
+| T0.1 | ✅ | (see git log `T0.1:`) | Team docs were already in docs/liara/. All 5 specs + 2 pages downloaded to specs/. paas.yaml: 41 ops; 4 **spec-only**: app details `GET /v1/projects/{name}` (incl. envs), release list `GET /v1/projects/{name}/releases` (state, sourceAvailable), applets, domain check → OQ-8..OQ-11. dbaas.yaml has DB connection details (OQ-12, may close G7). billing.yaml gives billing field names (OQ-4). Re-run offline: `pnpm tsx scripts/fetch-specs.ts --offline`. |
 | T0.2 | ⬜ | - | |
 | T0.3 | ✅ | 5fbd061 | Skeleton per 01-ANALYSIS §3. tsc build (rootDir src → dist), NodeNext ESM (imports use `.js`). ESLint 8.57 + `.eslintrc.cjs`; vitest forces LIARA_MODE/LLM_MODE=mock; e2e via `vitest.e2e.config.ts`. Also committed the planning docs and the user's README.md deletion. |
-| T0.4 | ✅ | (see git log `T0.4:`) | zod 4, pino 9, dotenv 17. Config exposed as `getConfig()` (memoized, loads .env) + pure `loadConfig(env)` — see D-004. Logger: pino `redact` paths + deep case-insensitive key scrub + `token=` URL scrub in objects and messages. Seed `src/ui/cli/i18n/fa.ts` created (T9.1 expands). `config/models.json` schema: `{baseUrl, roles:{chat,reasoning,code,cheap:{model,fallbackProtocol,fallbacks[]}}}`. |
+| T0.4 | ✅ | b147f50 | zod 4, pino 9, dotenv 17. Config exposed as `getConfig()` (memoized, loads .env) + pure `loadConfig(env)` — see D-004. Logger: pino `redact` paths + deep case-insensitive key scrub + `token=` URL scrub in objects and messages. Seed `src/ui/cli/i18n/fa.ts` created (T9.1 expands). `config/models.json` schema: `{baseUrl, roles:{chat,reasoning,code,cheap:{model,fallbackProtocol,fallbacks[]}}}`. |
 | T0.5 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN |
 | T0.6 | ⬜ | - | |
 | T0.7 | ⬜ | - | |
@@ -148,6 +148,7 @@
 - **D-003 (T0.3):** Build with `tsc` (no tsup, which is not on the allowed list).
 - **D-004 (T0.4):** Instead of an eagerly-evaluated `config` constant, `src/config/env.ts` exports `getConfig()` (memoized, frozen). An eager constant would throw at import time in live mode without a token, before the CLI could print the Persian message.
 - **D-005 (T0.4):** Persian strings for logic-layer errors (`messageFa`) come from `src/ui/cli/i18n/fa.ts`, so `shared/` and `config/` import that file. It is a pure string table with no UI dependencies.
+- **D-006 (T0.1):** Spec-only endpoints are documented in ENDPOINTS.md with `Source = spec-only` but **not used** by code until T0.8 confirms them; the map's §4 strategies (list+filter, CLI env read, local ledger) stay the default. Once confirmed, the relevant modules can prefer them behind the same interfaces.
 
 ## Proposed tasks
 _(none yet)_
@@ -155,3 +156,4 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T0.1:** scripts/fetch-specs.ts, specs/{paas,billing,me,dbaas,dns}.yaml, specs/pages/*.md, docs/liara/ENDPOINTS.md, docs/liara/SPEC_DIFF.md, docs/OPEN_QUESTIONS.md, package.json (yaml).
