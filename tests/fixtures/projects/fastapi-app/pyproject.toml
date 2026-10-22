@@ -1,0 +1,7 @@
+[project]
+name = "svc"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "pymongo>=4.0",
+]

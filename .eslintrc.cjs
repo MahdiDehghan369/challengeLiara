@@ -12,7 +12,7 @@ module.exports = {
     node: true,
     es2023: true,
   },
-  ignorePatterns: ['dist/', 'node_modules/', 'coverage/', '.siavash/', 'reports/', 'demo-apps/', 'specs/'],
+  ignorePatterns: ['dist/', 'node_modules/', 'coverage/', '.siavash/', 'reports/', 'demo-apps/', 'specs/', 'tests/fixtures/'],
   rules: {
     // console output belongs to the UI layer only (AGENT_RULES §2)
     'no-console': 'error',

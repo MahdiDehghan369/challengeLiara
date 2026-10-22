@@ -50,7 +50,7 @@
 | T2.1 | ✅ | e801ad9 | `Risk` numeric enum, `ActionPlan` (+ `escalations` codes), `escalate(plan, {productionApps, protectedApps, envSemantics})` never lowers risk: stop/scale=0 on production|protected → R3; secret-like env keys (`*_KEY, *_SECRET, *PASSWORD*, *TOKEN*, DATABASE_URL, *_URI`) → ≥R2; replace semantics + removed vars (`params.removedCount` or unset keys) → R3; fixed-ip enable → R2. Tool names fixed in `RISK_TOOLS` (stop_app, scale_app, set_env, unset_env, set_fixed_ip) — the registry must reuse them. |
 | T2.2 | ✅ | 4d9f8bd | `Approver.request(plan, ctx?)` → `approved \| approved-session \| denied \| {edited} \| {pending:{token,expiresAt}}` (extended for session + MCP two-step). Approvers: `AutoDenyApprover`, `YesApprover` (R1 only; enforces "--yes never approves R2/R3"), `ScriptedApprover`, `McpApprover` (5-min single-use token bound to sha256 of tool+target+params, key-order independent). `guard(plan, approver, exec, {dryRun, audit, session, confirmToken, reassess, actor, sessionId})`: R0 direct; R1+ approver; session approval only R1 per tool+app; edited params re-assessed (higher risk → ask again, never lowered); dry-run; every path calls `AuditSink.record` (T2.4 implements). `CliApprover` is T9.5. |
 | T2.3 | ✅ | fe9c02b | `Secret<T>` already from T1.11 (src/shared/secret.ts). `src/safety/redact.ts`: `Redactor` (rules: PEM keys, Bearer/Basic, JWT, sk-/rk-/pk- keys, GitHub, AWS AKIA, Slack, `scheme://user:pass@` → `user:***@`, secret query params incl. `?token=`, secret-named KEY=/KEY: assignments; plus session-known secret values ≥6 chars via `addKnownSecret`), `redactObject` recursive (sensitive keys, Secret → [SECRET], Date kept, input not mutated). `defaultRedactor` + `redactText/redactObject`. 23 secret samples hidden; 10 normal texts untouched. Must be used before sending logs/code to an LLM. |
-| T2.4 | ✅ | (see git log `T2.4:`) | `AuditLog(dataDir)` implements `AuditSink`: JSONL `${dataDir}/audit.jsonl` with `{id, ts, sessionId, actor, tool, risk, target, decision, paramsRedacted, result, errorCode?, durationMs, undo?}`; params via `redactObject`. New `ActionPlan.undo {tool, params, secretValues?}`: secret previous values go to `${dataDir}/undo/<id>.json` (mode 0600; on Windows modes are best-effort) and the entry keeps `secretRef`. `read/readAudit({since, app, tool})` skips corrupt lines; `readUndoSecrets` for T10.6. Test proves every guard path (ok/denied/dry-run/error) writes exactly one record. |
+| T2.4 | ✅ | b86316a | `AuditLog(dataDir)` implements `AuditSink`: JSONL `${dataDir}/audit.jsonl` with `{id, ts, sessionId, actor, tool, risk, target, decision, paramsRedacted, result, errorCode?, durationMs, undo?}`; params via `redactObject`. New `ActionPlan.undo {tool, params, secretValues?}`: secret previous values go to `${dataDir}/undo/<id>.json` (mode 0600; on Windows modes are best-effort) and the entry keeps `secretRef`. `read/readAudit({since, app, tool})` skips corrupt lines; `readUndoSecrets` for T10.6. Test proves every guard path (ok/denied/dry-run/error) writes exactly one record. |
 | T2.5 | ⬜ | - | |
 | T2.6 | ⬜ | - | |
 | T3.1 | ⬜ | - | |
@@ -61,7 +61,7 @@
 | T3.6 | ⬜ | - | |
 | T3.7 | ⬜ | - | |
 | T3.8 | ⬜ | - | |
-| T4.1 | ⬜ | - | |
+| T4.1 | ✅ | (see git log `T4.1:`) | `detectPlatform(root)` deterministic order per task → `{platform, liaraPlatformId, version, confidence, evidence[]}`; internal platforms docker/next/react-static/node/django/flask/fastapi/laravel/go/static/unknown. `platform-map.ts`: only docs-backed ids (docker, next) + `node` (tasks doc, unverified); rest undefined, TODO(OQ-20). `project-files.ts` helpers (safe reads, python requirements incl. pyproject/Pipfile, file listing skipping vendor dirs). 12 fixture projects in `tests/fixtures/projects/` (excluded from tsc/eslint). |
 | T4.2 | ⬜ | - | |
 | T4.3 | ⬜ | - | |
 | T4.4 | ⬜ | - | |
@@ -159,6 +159,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T4.1:** src/analyzer/{detect-platform,platform-map,project-files}.ts, tests/fixtures/projects/** (12 projects), tests/helpers/projects.ts, tests/unit/analyzer/detect-platform.test.ts, tsconfig.json + .eslintrc.cjs (exclude tests/fixtures), docs/OPEN_QUESTIONS.md (OQ-20).
 - **T2.4:** src/safety/{audit,approval,risk,index}.ts, tests/unit/safety/audit.test.ts.
 - **T2.3:** src/safety/{redact,index}.ts, tests/unit/safety/redact.test.ts.
 - **T2.2:** src/safety/{approval,index}.ts, src/ui/cli/i18n/fa.ts (approval), tests/unit/safety/approval.test.ts.
