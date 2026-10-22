@@ -25,15 +25,22 @@ export abstract class SiavashError extends Error {
 }
 
 export class LiaraApiError extends SiavashError {
-  readonly code = 'LIARA_API_ERROR';
+  /** Defaults to LIARA_API_ERROR; specific cases use e.g. APP_NOT_FOUND, APP_NAME_TAKEN, TIMEOUT. */
+  readonly code: string;
   readonly status: number | undefined;
+  readonly operationId: string | undefined;
 
-  constructor(message: string, opts: ErrorOptions & { status?: number } = {}) {
+  constructor(
+    message: string,
+    opts: ErrorOptions & { status?: number; code?: string; operationId?: string } = {},
+  ) {
     super(message, fa.errors.liaraApi, {
       ...opts,
       retryable: opts.retryable ?? (opts.status !== undefined && opts.status >= 500),
     });
+    this.code = opts.code ?? 'LIARA_API_ERROR';
     this.status = opts.status;
+    this.operationId = opts.operationId;
   }
 }
 

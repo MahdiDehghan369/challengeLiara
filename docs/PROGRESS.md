@@ -28,9 +28,9 @@
 | T0.4 | ✅ | b147f50 | zod 4, pino 9, dotenv 17. Config exposed as `getConfig()` (memoized, loads .env) + pure `loadConfig(env)` — see D-004. Logger: pino `redact` paths + deep case-insensitive key scrub + `token=` URL scrub in objects and messages. Seed `src/ui/cli/i18n/fa.ts` created (T9.1 expands). `config/models.json` schema: `{baseUrl, roles:{chat,reasoning,code,cheap:{model,fallbackProtocol,fallbacks[]}}}`. |
 | T0.5 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN |
 | T0.6 | ✅ | d98d917 | Done ahead of T1.x per TASKS "day one" order (T0.8 depends on it). Express 5 app with npm lockfile (Liara builds with npm). Verified on Windows: `PORT=3999 node index.js` → `/health` 200, `/api/items` OK. `scripts/check-demo-apps.sh` needs bash (not on this machine; runs in CI/Linux). |
-| T0.7 | ✅ | (see git log `T0.7:`) | GitHub Actions: Node 22, pnpm via corepack (`packageManager` pin), install --frozen-lockfile → typecheck → lint → test with LIARA_MODE/LLM_MODE=mock. No secrets. Not yet observed running on GitHub (nothing pushed). |
+| T0.7 | ✅ | 44a99d8 | GitHub Actions: Node 22, pnpm via corepack (`packageManager` pin), install --frozen-lockfile → typecheck → lint → test with LIARA_MODE/LLM_MODE=mock. No secrets. Not yet observed running on GitHub (nothing pushed). |
 | T0.8 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN + human confirmation for each change |
-| T1.1 | ⬜ | - | |
+| T1.1 | ✅ | (see git log `T1.1:`) | `LiaraHttp` (native fetch): get/post/delete with query/body/multipart/schema; 20s / 10min (multipart) timeouts; GET-only retry (429/502/503/504/network/timeout, max 3, Retry-After honored, exp backoff + jitter); empty 200/204 → `{accepted:true}`; status → code + Persian message; `getStats()`. 429 → `RateLimitError` (D-007). `LiaraApiError` now takes `code` + `operationId`. teamID transport → OQ-13. msw postinstall denied in pnpm-workspace.yaml (browser worker only). |
 | T1.2 | ⬜ | - | |
 | T1.3 | ⬜ | - | |
 | T1.4 | ⬜ | - | |
@@ -149,6 +149,7 @@
 - **D-004 (T0.4):** Instead of an eagerly-evaluated `config` constant, `src/config/env.ts` exports `getConfig()` (memoized, frozen). An eager constant would throw at import time in live mode without a token, before the CLI could print the Persian message.
 - **D-005 (T0.4):** Persian strings for logic-layer errors (`messageFa`) come from `src/ui/cli/i18n/fa.ts`, so `shared/` and `config/` import that file. It is a pure string table with no UI dependencies.
 - **D-006 (T0.1):** Spec-only endpoints are documented in ENDPOINTS.md with `Source = spec-only` but **not used** by code until T0.8 confirms them; the map's §4 strategies (list+filter, CLI env read, local ledger) stay the default. Once confirmed, the relevant modules can prefer them behind the same interfaces.
+- **D-007 (T1.1):** HTTP 429 surfaces as `RateLimitError` (with `retryAfterMs`, status in `details`) rather than `LiaraApiError`, so the rate-limit guard (T2.6) can catch it by class. All other non-2xx → `LiaraApiError` with `status`, `code` (BAD_REQUEST/UNAUTHORIZED/FORBIDDEN/NOT_FOUND/CONFLICT/SERVER_ERROR), `operationId`, `messageFa`. Network/timeout → `LiaraApiError` code NETWORK_ERROR/TIMEOUT. Schema mismatch → `ValidationError`.
 
 ## Proposed tasks
 _(none yet)_
@@ -156,6 +157,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T1.1:** src/liara/{http,index}.ts, src/shared/errors.ts (LiaraApiError code/operationId), src/ui/cli/i18n/fa.ts (liaraHttp), tests/unit/liara/http.test.ts, package.json + pnpm-workspace.yaml (msw).
 - **T0.7:** .github/workflows/ci.yml.
 - **T0.6:** demo-apps/node-express-ok/{package.json,package-lock.json,index.js,.env.example,.liaraignore,README.md}, demo-apps/static-ok/{index.html,README.md}, scripts/check-demo-apps.sh.
 - **T0.2 (partial):** scripts/llm-smoke.ts, package.json (openai).
