@@ -35,12 +35,12 @@
 | T1.3 | ✅ | 918944d | `MetricsApi.getSummary` → `{cpu:[{applet,value,ts}], memory, disks:[{name,sizeRaw,usageRaw,reportedAt}]}` (summary `value` is an array per spec; treated as `[ts, value]`, last element = value). `getSeries(name, kind, windowSec)` → `{kind, unit, series:[{applet,points}], dropped, end}`; `since` encoded inside via `sinceMode` (default 'absolute' = now−window; TODO(OQ-2)); `unit: 'unknown'` (TODO(OQ-3)). 2 `it.todo` for OQ-2/OQ-3. "Parse real fixtures" acceptance is pending T0.5 (synthetic spec fixtures used). Guard test now matches `{}` segment-wise. |
 | T1.4 | ✅ | 1a22af9 | `LogsApi.getLogs` (`since` via `sinceFormat` unix-s default / unix-ms / iso, TODO(OQ-1)) → `LogLine {ts(ms), stream, text, source}`; `tailLogs` AsyncIterable (since=last ts, sha1 dedupe bounded 5000, AbortSignal); `followLogs` / `getLogsByRelease` via a `LogsCli` interface (`run`, `streamLines`) that T1.14 must implement; `parseCliLogLine` tolerant (OQ-14). Same `LogLine` type for API and CLI (test). |
 | T1.5 | ✅ | f703fdf | `archive.ts`: own minimal gitignore matcher (no extra lib), `.liaraignore` > `.gitignore`, always drops node_modules/.git/.siavash/.env* (keeps .env.example); tar.gz via `tar` → `{path, sizeBytes, fileCount, sha256, files, ignoreSource, warnings}` (>200MB → ARCHIVE_TOO_LARGE). `DeployApi`: `uploadSource` streams a hand-built multipart body (new `LiaraHttp` `rawBody` option, duplex 'half') with % progress; `createRelease`; `waitForRelease` composes pluggable `ReleaseSignal`s (TODO(OQ-15)). |
-| T1.6 | ✅ | (see git log `T1.6:`) | `DeploymentLedger` JSONL at `${dataDir}/ledger/<app>.jsonl` + copy in `<project>/.siavash/deployments.jsonl`. Append-only: `update` appends a full snapshot; last line per id wins. Corrupt lines skipped + reported (`onCorruptLine` + pino warn). `record/update/list/latest/previousHealthy/findByCommit`; record also has `rollbackOf?` and result `pending`. `previousHealthy` = last `success` before latest (or before a given id); T7.6 verdicts may refine. |
+| T1.6 | ✅ | 6fa74af | `DeploymentLedger` JSONL at `${dataDir}/ledger/<app>.jsonl` + copy in `<project>/.siavash/deployments.jsonl`. Append-only: `update` appends a full snapshot; last line per id wins. Corrupt lines skipped + reported (`onCorruptLine` + pino warn). `record/update/list/latest/previousHealthy/findByCommit`; record also has `rollbackOf?` and result `pending`. `previousHealthy` = last `success` before latest (or before a given id); T7.6 verdicts may refine. |
 | T1.7 | ⬜ | - | |
 | T1.8 | ⬜ | - | |
 | T1.9 | ⬜ | - | |
 | T1.10 | ⬜ | - | |
-| T1.11 | ⬜ | - | |
+| T1.11 | ✅ | (see git log `T1.11:`) | `DisksApi` per map: `{id}` (via resolveApp) for list/delete disk + all backups; `{name}` for create/resize disk + FTP list/create; `/v1/ftp/{fname}` delete. 409 on delete → `DISK_IN_USE`. Sizes sent as strings. New `src/shared/secret.ts` (`Secret<T>`: toString/toJSON/inspect/toPrimitive → `[SECRET]`, `reveal()`, `maskSecret`). FTP passwords and the backup download link (likely pre-signed URL) are `Secret`. Logger's deep scrub now serializes via `toJSON` (Secret/Date). Tests prove `{id}`/`{name}` per path via msw request log. |
 | T1.12 | ⬜ | - | |
 | T1.13 | ⬜ | - | |
 | T1.14 | ⬜ | - | |
@@ -158,6 +158,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T1.11:** src/liara/api/{disks,index}.ts, src/shared/{secret,logger,index}.ts, src/ui/cli/i18n/fa.ts (disks), fixtures/liara/spec/disks.list.json, tests/unit/liara/disks.test.ts, tests/unit/shared/secret.test.ts.
 - **T1.6:** src/liara/{ledger,index}.ts, tests/unit/liara/ledger.test.ts.
 - **T1.5:** src/liara/{archive,http,index}.ts, src/liara/api/{deploy,index}.ts, tests/unit/liara/{archive,deploy}.test.ts, package.json (tar), docs/OPEN_QUESTIONS.md (OQ-15).
 - **T1.4:** src/liara/api/{logs,index}.ts, fixtures/liara/spec/logs.json, tests/unit/liara/logs.test.ts, docs/OPEN_QUESTIONS.md (OQ-14).

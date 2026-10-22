@@ -1,0 +1,7 @@
+{
+  "disks": [
+    { "_id": "d1", "name": "uploads", "size": 1, "updatedAt": "2026-09-02T10:00:00.000Z", "createdAt": "2026-09-01T10:00:00.000Z" },
+    { "_id": "d2", "name": "cache", "size": "2" }
+  ],
+  "mounts": [{ "name": "uploads", "mountedTo": "/app/uploads" }]
+}

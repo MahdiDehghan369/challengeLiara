@@ -33,6 +33,9 @@ function scrubDeep(value: unknown, depth = 0): unknown {
   if (typeof value === 'string') return scrubString(value);
   if (Array.isArray(value)) return value.map((v) => scrubDeep(v, depth + 1));
   if (value && typeof value === 'object' && !(value instanceof Error)) {
+    // Secret, Date, ... serialize through toJSON (Secret → "[SECRET]")
+    const toJSON = (value as { toJSON?: unknown }).toJSON;
+    if (typeof toJSON === 'function') return scrubDeep(toJSON.call(value), depth + 1);
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value)) {
       out[k] = SENSITIVE_KEYS.has(k.toLowerCase()) ? REDACTED : scrubDeep(v, depth + 1);
