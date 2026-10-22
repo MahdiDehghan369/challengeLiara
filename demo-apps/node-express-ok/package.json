@@ -1,0 +1,17 @@
+{
+  "name": "node-express-ok",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Healthy Express demo app for siavash-agent deploy scenarios",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

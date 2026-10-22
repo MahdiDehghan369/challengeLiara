@@ -27,7 +27,7 @@
 | T0.3 | ✅ | 5fbd061 | Skeleton per 01-ANALYSIS §3. tsc build (rootDir src → dist), NodeNext ESM (imports use `.js`). ESLint 8.57 + `.eslintrc.cjs`; vitest forces LIARA_MODE/LLM_MODE=mock; e2e via `vitest.e2e.config.ts`. Also committed the planning docs and the user's README.md deletion. |
 | T0.4 | ✅ | b147f50 | zod 4, pino 9, dotenv 17. Config exposed as `getConfig()` (memoized, loads .env) + pure `loadConfig(env)` — see D-004. Logger: pino `redact` paths + deep case-insensitive key scrub + `token=` URL scrub in objects and messages. Seed `src/ui/cli/i18n/fa.ts` created (T9.1 expands). `config/models.json` schema: `{baseUrl, roles:{chat,reasoning,code,cheap:{model,fallbackProtocol,fallbacks[]}}}`. |
 | T0.5 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN |
-| T0.6 | ⬜ | - | |
+| T0.6 | ✅ | (see git log `T0.6:`) | Done ahead of T1.x per TASKS "day one" order (T0.8 depends on it). Express 5 app with npm lockfile (Liara builds with npm). Verified on Windows: `PORT=3999 node index.js` → `/health` 200, `/api/items` OK. `scripts/check-demo-apps.sh` needs bash (not on this machine; runs in CI/Linux). |
 | T0.7 | ⬜ | - | |
 | T0.8 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN + human confirmation for each change |
 | T1.1 | ⬜ | - | |
@@ -156,5 +156,6 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T0.6:** demo-apps/node-express-ok/{package.json,package-lock.json,index.js,.env.example,.liaraignore,README.md}, demo-apps/static-ok/{index.html,README.md}, scripts/check-demo-apps.sh.
 - **T0.2 (partial):** scripts/llm-smoke.ts, package.json (openai).
 - **T0.1:** scripts/fetch-specs.ts, specs/{paas,billing,me,dbaas,dns}.yaml, specs/pages/*.md, docs/liara/ENDPOINTS.md, docs/liara/SPEC_DIFF.md, docs/OPEN_QUESTIONS.md, package.json (yaml).
