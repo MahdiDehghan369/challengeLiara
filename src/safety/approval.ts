@@ -127,6 +127,15 @@ export class SessionApprovals {
   remember(plan: ActionPlan): void {
     if (plan.risk === Risk.R1) this.keys.add(this.key(plan));
   }
+
+  /** For persisting a session (T3.5). */
+  snapshot(): string[] {
+    return [...this.keys];
+  }
+
+  restore(keys: readonly string[]): void {
+    for (const k of keys) this.keys.add(k);
+  }
 }
 
 export type GuardDecision =
