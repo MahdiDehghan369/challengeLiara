@@ -11,6 +11,8 @@ export * from './router.js';
 export * from './client.js';
 export * from './mock.js';
 export * from './json-protocol.js';
+export * from './structured.js';
+export * from './prompts/index.js';
 
 export interface CreateLlmOptions {
   models?: ModelsConfig;

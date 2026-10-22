@@ -71,6 +71,13 @@ function candidates(text: string): string[] {
   return out;
 }
 
+/** Every JSON object found in a model reply, leniently parsed (fences, prose, trailing commas…). */
+export function jsonObjectsIn(text: string): Array<Record<string, unknown>> {
+  return candidates(text)
+    .map(tryParse)
+    .filter((v): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v));
+}
+
 export function parseJsonReply(text: string, toolNames: readonly string[]): ParsedReply {
   const list = candidates(text);
   if (list.length === 0) return { ok: false, reason: 'no JSON object found' };
