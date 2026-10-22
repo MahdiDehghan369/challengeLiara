@@ -5,3 +5,4 @@ export * from './schemas/metrics.js';
 export * from './logs.js';
 export * from './deploy.js';
 export * from './disks.js';
+export * from './events.js';

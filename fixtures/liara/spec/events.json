@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "metaData": { "SYNTHETIC": "spec-derived fixture; real values structure unknown (OQ-6)" },
+      "values": [
+        ["1760961600", "Deployment started (release r-102)"],
+        ["1760961660", "Back-off restarting failed container"],
+        ["1760961720000", "{\"type\":\"OOMKilled\",\"message\":\"container exceeded memory limit\"}"],
+        ["2026-10-20T12:05:00Z", "App scaled to 0"],
+        ["1760961780000000000", "App restarted by user"],
+        ["1760961840", "Environment variables updated"],
+        ["SYNTHETIC_UNKNOWN_SHAPE"]
+      ]
+    },
+    { "metaData": {}, "values": [] }
+  ]
+}

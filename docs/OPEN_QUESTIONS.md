@@ -10,7 +10,7 @@
 | OQ-3 | CPU / RAM units in metrics? | ❓ | T0.5 / T0.8 | — |
 | OQ-4 | `GET /v1/billing` field names? | 🔎 | `specs/billing.yaml`: `{user:{balance, accountType, minCreditAmount, isManualMinCredit, minCreditLastNotifiedAt}}` — confirm with T0.5 fixture | specs/billing.yaml |
 | OQ-5 | `liara plan:list` output structure? | ❓ | T0.5 | — |
-| OQ-6 | `events` `values` structure / event types? | ❓ | T0.5 / T0.8 | — |
+| OQ-6 | `events` `values` structure / event types? | ❓ | T0.5 / T0.8. Interim (T1.7): `parseEventRow` takes the first timestamp-like element (s/ms/µs/ns/ISO) as time and the rest as message (JSON object unpacked into `meta`); kind from regex rules over message + metaData; anything else → `unknown` + raw. | — |
 | OQ-7 | Possible app `status` values? | ❓ | T0.5 / T0.8 | — |
 | OQ-8 | Does `GET /v1/projects/{name}` (app details, incl. `envs`) exist in production? The map says no; `specs/paas.yaml` says yes. | ❓ | Until confirmed: list + filter (G1), env via CLI (G2). If confirmed, it could replace both. Confirm in T0.8 (read-only, safe to check in T0.5). | specs/paas.yaml |
 | OQ-9 | Does `GET /v1/projects/{name}/releases` exist? Is `state` usable as the build-finished signal (G5)? Is `sourceAvailable` the rollback feasibility flag (G4)? | ❓ | Until confirmed: local ledger (T1.6). Confirm in T0.8. | specs/paas.yaml |
