@@ -25,6 +25,24 @@ module.exports = {
       rules: { 'no-console': 'off' },
     },
     {
+      // T1.17: everything outside src/liara goes through the LiaraClient facade / liara/index.js barrel
+      files: ['src/**/*.ts'],
+      excludedFiles: ['src/liara/**'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['**/liara/api/*', '**/liara/api/**', '**/liara/mock/*', '**/liara/mock/**'],
+                message: 'Use the LiaraClient facade or import types from liara/index.js (T1.17).',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       files: ['.eslintrc.cjs'],
       rules: { '@typescript-eslint/no-require-imports': 'off' },
     },

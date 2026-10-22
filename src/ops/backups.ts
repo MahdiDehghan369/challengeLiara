@@ -1,5 +1,4 @@
-import type { Backup, Disk, FtpCredentials } from '../liara/api/disks.js';
-import type { MetricsSummary } from '../liara/api/schemas/metrics.js';
+import type { Backup, Disk, FtpCredentials, MetricsSummary } from '../liara/index.js';
 import type { Accepted } from '../liara/http.js';
 import { guard, type GuardResult } from '../safety/approval.js';
 import { escalate, Risk, type ActionPlan } from '../safety/risk.js';

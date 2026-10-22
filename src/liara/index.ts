@@ -9,3 +9,5 @@ export * from './db.js';
 export * from './dns.js';
 export * from './console.js';
 export * from './api/index.js';
+export * from './mock/index.js';
+export * from './client.js';

@@ -1,4 +1,4 @@
-import type { LogLine } from '../liara/api/logs.js';
+import type { LogLine } from '../liara/index.js';
 import { defaultRedactor, type Redactor } from '../safety/redact.js';
 
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';

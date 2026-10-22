@@ -1,5 +1,4 @@
-import type { Domain } from '../liara/api/domains.js';
-import type { SettingName, SettingResult } from '../liara/api/settings.js';
+import type { Domain, SettingName, SettingResult } from '../liara/index.js';
 import { guard, type GuardResult } from '../safety/approval.js';
 import { escalate, Risk, type ActionPlan } from '../safety/risk.js';
 import { fa } from '../ui/cli/i18n/fa.js';

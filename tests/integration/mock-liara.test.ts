@@ -54,8 +54,17 @@ function world() {
 
 type World = ReturnType<typeof world>;
 
+/** No pooled sockets: per-test servers close and their ports get reused. */
+const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
+
 async function health(w: World, app: string, path = '/') {
-  return probe(`${await w.servers.urlFor(app)}${path}`, { count: 2, timeoutMs: 3000 });
+  return probe(`${await w.servers.urlFor(app)}${path}`, { count: 2, timeoutMs: 5000, fetchImpl: noKeepAlive });
+}
+
+/** Availability with the histograms in the failure message. */
+async function availability(w: World, app: string): Promise<string> {
+  const r = await health(w, app);
+  return `${r.availability} ${JSON.stringify(r.statusHistogram)} ${JSON.stringify(r.errorHistogram)}`;
 }
 
 async function cliDeploy(w: World, app: string): Promise<DeployEvent[]> {
@@ -84,7 +93,7 @@ describe('mock Liara — end to end without network', () => {
     expect((await w.apps.getApp('shop', { fresh: true })).isDeployed).toBe(true);
     const cliEvents = await cliDeploy(w, 'shop');
     expect(cliEvents.at(-1)).toMatchObject({ type: 'done', version: 'v2' });
-    expect((await health(w, 'shop')).availability).toBe(100);
+    expect(await availability(w, 'shop')).toMatch(/^100 /);
 
     w.state.injectScenario('shop', 'missing-env');
     const sick = await health(w, 'shop');
@@ -94,7 +103,7 @@ describe('mock Liara — end to end without network', () => {
 
     await w.env.setEnv('shop', { DATABASE_URL: 'postgres://u:p@db.internal:5432/shop' });
     await w.state.settle();
-    expect((await health(w, 'shop')).availability).toBe(100);
+    expect(await availability(w, 'shop')).toMatch(/^100 /);
     // the env merge kept the earlier variable (read-all → merge → send-all under replace semantics)
     expect((await w.env.listEnv('shop')).map((e) => e.key).sort()).toEqual(['APP_NAME', 'DATABASE_URL']);
   });
@@ -144,7 +153,7 @@ describe('scenarios are injected and resolved by the right fix', () => {
     await FIXES[kind](w, 'svc');
     await w.state.settle();
     expect(w.state.apps.get('svc')?.scenario).toBeUndefined();
-    expect((await health(w, 'svc')).availability).toBe(100);
+    expect(await availability(w, 'svc')).toMatch(/^100 /);
   });
 
   it('a wrong fix does not resolve (restart does not fix missing-env)', async () => {
@@ -155,7 +164,7 @@ describe('scenarios are injected and resolved by the right fix', () => {
     await w.apps.restartApp('svc');
     await w.state.settle();
     expect(w.state.apps.get('svc')?.scenario).toBe('missing-env');
-    expect((await health(w, 'svc')).availability).toBe(0);
+    expect(await availability(w, 'svc')).toMatch(/^0 /);
   });
 });
 

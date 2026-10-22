@@ -1,5 +1,4 @@
-import type { Domain } from '../liara/api/domains.js';
-import type { FtpAccess } from '../liara/api/disks.js';
+import type { Domain, FtpAccess } from '../liara/index.js';
 import type { RunResult } from '../liara/cli.js';
 import type { Accepted } from '../liara/http.js';
 import { guard, type GuardResult } from '../safety/approval.js';

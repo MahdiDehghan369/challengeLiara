@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { simpleGit } from 'simple-git';
 import { createSourceArchive } from '../liara/archive.js';
-import type { CreateReleaseInput, ReleaseOutcome, ReleaseSignal, UploadProgress } from '../liara/api/deploy.js';
+import type { CreateReleaseInput, ReleaseOutcome, ReleaseSignal, UploadProgress } from '../liara/index.js';
 import type { DeployEvent, DeployOptions } from '../liara/cli.js';
 import type { DeploymentLedger, DeploymentRecord } from '../liara/ledger.js';
 import { guard, type GuardResult } from '../safety/approval.js';
