@@ -76,6 +76,10 @@ export const fa = {
     badJson:
       'خروجی Liara CLI قابل خواندن (JSON) نبود.',
   },
+  db: {
+    needsHuman: (name: string) =>
+      `اطلاعات اتصال را از پنل لیارا ← دیتابیس ← ${name} کپی کنید.`,
+  },
   wait: {
     timeout:
       'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',
