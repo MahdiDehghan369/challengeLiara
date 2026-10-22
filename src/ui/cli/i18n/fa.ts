@@ -81,6 +81,31 @@ export const fa = {
     inUse: (disk: string) =>
       `دیسک «${disk}» در حال استفاده است و فعلاً حذف نمی‌شود.`,
   },
+  opsDisks: {
+    usageHigh: (disk: string, pct: number) =>
+      `مصرف دیسک «${disk}» به ${pct}٪ رسیده است؛ فضا را آزاد کنید یا حجم دیسک را افزایش دهید.`,
+    suggestBackup: (disk: string) =>
+      `پیشنهاد: پیش از این کار از دیسک «${disk}» backup بگیرید.`,
+    createBackupTitle: (disk: string) => `گرفتن backup از دیسک «${disk}»`,
+    createBackupImpact: 'یک نسخهٔ پشتیبان از محتوای فعلی دیسک ساخته می‌شود؛ اپ متوقف نمی‌شود.',
+    createBackupRollback: 'نیازی به برگشت نیست؛ backup را می‌توان بعداً حذف کرد.',
+    downloadTitle: (backup: string) => `ساخت لینک دانلود backup «${backup}»`,
+    downloadImpact: 'یک لینک موقت دانلود ساخته می‌شود؛ لینک فقط به شما نمایش داده می‌شود.',
+    downloadRollback: 'لینک پس از مدتی منقضی می‌شود.',
+    resizeTitle: (disk: string, size: string) => `تغییر حجم دیسک «${disk}» به ${size} گیگابایت`,
+    resizeImpact: 'حجم دیسک تغییر می‌کند و ممکن است هزینهٔ ماهانه بیشتر شود.',
+    resizeRollback: 'کوچک‌کردن دیسک ممکن است ممکن نباشد؛ پیش از آن backup بگیرید.',
+    createDiskTitle: (disk: string, size: string) => `ساخت دیسک «${disk}» با حجم ${size} گیگابایت`,
+    createDiskImpact: 'یک دیسک جدید ساخته می‌شود و هزینهٔ ماهانه دارد؛ برای استفاده باید mount شود.',
+    createDiskRollback: 'دیسک را می‌توان حذف کرد (عمل R3).',
+    createFtpTitle: (disk: string, user: string) => `ساخت دسترسی FTP «${user}» برای دیسک «${disk}»`,
+    createFtpImpact: (readOnly: boolean) =>
+      readOnly
+        ? 'یک دسترسی FTP فقط‌خواندنی ساخته می‌شود؛ رمز آن فقط یک بار نمایش داده می‌شود.'
+        : 'یک دسترسی FTP با امکان نوشتن ساخته می‌شود؛ هر کس رمز را داشته باشد می‌تواند فایل‌ها را تغییر دهد. رمز فقط یک بار نمایش داده می‌شود.',
+    createFtpRollback: 'دسترسی FTP را می‌توان حذف کرد.',
+    defaultReason: 'درخواست کاربر',
+  },
   cli: {
     notInstalled:
       'Liara CLI پیدا نشد. با دستور «npm i -g @liara/cli» نصبش کنید.',
