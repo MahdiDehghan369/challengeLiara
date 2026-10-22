@@ -24,6 +24,16 @@ function mapPaths(): Set<string> {
   return out;
 }
 
+/** Segment-wise match where `{}` on either side matches one segment (e.g. `.../metrics/${kind}`). */
+function matchesAny(path: string, allowed: Set<string>): boolean {
+  if (allowed.has(path)) return true;
+  const segs = path.split('/');
+  return [...allowed].some((a) => {
+    const as = a.split('/');
+    return as.length === segs.length && as.every((s, i) => s === segs[i] || s === '{}' || segs[i] === '{}');
+  });
+}
+
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? sourceFiles(join(dir, e.name)) : e.name.endsWith('.ts') ? [join(dir, e.name)] : [],
@@ -41,7 +51,7 @@ describe('ENDPOINTS guard', () => {
       for (const m of text.matchAll(/[`'"](\/v[12]\/[^`'"]*)[`'"]/g)) {
         scanned++;
         const p = normalize(m[1] as string);
-        if (!allowed.has(p)) violations.push(`${f}: ${m[1]}`);
+        if (!matchesAny(p, allowed)) violations.push(`${f}: ${m[1]}`);
       }
     }
     expect(scanned).toBeGreaterThanOrEqual(6);

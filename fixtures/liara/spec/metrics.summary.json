@@ -1,0 +1,5 @@
+{
+  "cpuUsage": [{ "value": [1760000000, "0.125"], "applet": "shop-api-7c9d8f-abcde" }],
+  "memoryUsage": [{ "value": [1760000000, "157286400"], "applet": "shop-api-7c9d8f-abcde" }],
+  "disksUsage": [{ "size": "1", "usage": "0.25", "reportedAt": "2026-10-20T12:00:00.000Z", "name": "uploads" }]
+}
