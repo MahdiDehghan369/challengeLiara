@@ -175,6 +175,9 @@ importers:
       execa:
         specifier: ^9.6.1
         version: 9.6.1
+      msw:
+        specifier: ^2.15.0
+        version: 2.15.0(@types/node@22.20.5)(typescript@5.9.3)
       openai:
         specifier: ^6.49.0
         version: 6.49.0(ws@8.22.0)(zod@4.6.7)
@@ -215,9 +218,6 @@ importers:
       eslint:
         specifier: 8.57.1
         version: 8.57.1(supports-color@7.2.0)
-      msw:
-        specifier: ^2.15.0
-        version: 2.15.0(@types/node@22.20.5)(typescript@5.9.3)
       prettier:
         specifier: ^3.9.10
         version: 3.9.10
