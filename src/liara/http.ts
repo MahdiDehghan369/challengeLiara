@@ -19,11 +19,19 @@ export interface Accepted {
 
 export type QueryValue = string | number | boolean | undefined;
 
+export interface RawBody {
+  body: ReadableStream<Uint8Array>;
+  contentType: string;
+  contentLength?: number;
+}
+
 export interface RequestOptions<T> {
   query?: Record<string, QueryValue>;
   body?: unknown;
   /** multipart/form-data body (source upload); uses the upload timeout. */
   multipart?: FormData;
+  /** Pre-encoded streamed body (e.g. multipart with progress reporting); uses the upload timeout. */
+  rawBody?: RawBody;
   schema?: ZodType<T>;
   timeoutMs?: number;
   /** Logical operation name for errors/logs, e.g. "apps.list". */
@@ -154,7 +162,12 @@ export class LiaraHttp {
 
   private buildHeaders(opts: RequestOptions<unknown>): Record<string, string> {
     const h: Record<string, string> = { authorization: `Bearer ${this.token}`, accept: 'application/json' };
-    if (opts.body !== undefined && !opts.multipart) h['content-type'] = 'application/json';
+    if (opts.rawBody) {
+      h['content-type'] = opts.rawBody.contentType;
+      if (opts.rawBody.contentLength !== undefined) h['content-length'] = String(opts.rawBody.contentLength);
+    } else if (opts.body !== undefined && !opts.multipart) {
+      h['content-type'] = 'application/json';
+    }
     if (this.teamId && this.teamIdMode === 'header') h.teamID = this.teamId;
     return h;
   }
@@ -164,19 +177,26 @@ export class LiaraHttp {
     const operationId = opts.operationId ?? `${method} ${path}`;
     // Only reads are retried; state-changing calls must never be repeated automatically.
     const maxAttempts = method === 'GET' ? this.maxRetries + 1 : 1;
-    const timeoutMs = opts.timeoutMs ?? (opts.multipart ? this.uploadTimeoutMs : this.defaultTimeoutMs);
+    const isUpload = !!(opts.multipart ?? opts.rawBody);
+    const timeoutMs = opts.timeoutMs ?? (isUpload ? this.uploadTimeoutMs : this.defaultTimeoutMs);
 
     for (let attempt = 1; ; attempt++) {
       this.stats.requests++;
       const started = Date.now();
       let res: Response;
       try {
-        res = await this.fetchImpl(url, {
+        const init: RequestInit & { duplex?: 'half' } = {
           method,
           headers: this.buildHeaders(opts as RequestOptions<unknown>),
-          body: opts.multipart ?? (opts.body === undefined ? undefined : JSON.stringify(opts.body)),
+          body:
+            opts.rawBody?.body ??
+            opts.multipart ??
+            (opts.body === undefined ? undefined : JSON.stringify(opts.body)),
           signal: AbortSignal.timeout(timeoutMs),
-        });
+        };
+        // Streamed request bodies require half-duplex in Node's fetch.
+        if (opts.rawBody) init.duplex = 'half';
+        res = await this.fetchImpl(url, init);
       } catch (cause) {
         const timedOut = cause instanceof Error && (cause.name === 'TimeoutError' || cause.name === 'AbortError');
         if (attempt < maxAttempts) {
