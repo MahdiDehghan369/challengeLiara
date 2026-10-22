@@ -90,6 +90,40 @@ export const fa = {
     tokenInvalid:
       'توکن تأیید نامعتبر، منقضی یا قبلاً استفاده‌شده است، یا پارامترها تغییر کرده‌اند.',
   },
+  analyzer: {
+    portHardcoded: (port: number) =>
+      `پورت ${port} در کد ثابت نوشته شده و متغیر PORT خوانده نمی‌شود.`,
+    portHardcodedFix:
+      'پورت را از متغیر محیطی بخوانید، مثلاً: const port = process.env.PORT || 3000',
+    bindLocalhost: (host: string) =>
+      `برنامه روی ${host} گوش می‌دهد؛ داخل کانتینر از بیرون قابل دسترس نیست.`,
+    bindLocalhostFix:
+      'برنامه را روی 0.0.0.0 اجرا کنید (مثلاً app.listen(port, "0.0.0.0") یا host="0.0.0.0").',
+    portDefaultAssumed: (port: number) =>
+      `پورت در کد پیدا نشد؛ پورت پیش‌فرض ${port} فرض شد.`,
+    portDefaultAssumedFix:
+      'اگر برنامه روی پورت دیگری اجرا می‌شود، آن را مشخص کنید.',
+    noStartScript:
+      'اسکریپت start در package.json وجود ندارد؛ لیارا نمی‌داند برنامه را چطور اجرا کند.',
+    noStartScriptFix:
+      'یک اسکریپت start اضافه کنید، مثلاً "start": "node index.js".',
+    nodemonStart:
+      'اسکریپت start از nodemon استفاده می‌کند که مخصوص توسعه است.',
+    nodemonStartFix:
+      'برای production از node استفاده کنید: "start": "node index.js" و nodemon را در "dev" بگذارید.',
+    runtimeInDevDeps: (pkg: string) =>
+      `بستهٔ «${pkg}» برای اجرای برنامه لازم است اما در devDependencies قرار دارد.`,
+    runtimeInDevDepsFix: (pkg: string) =>
+      `«${pkg}» را به dependencies منتقل کنید (npm i ${pkg}).`,
+    noBuildScript:
+      'این پروژه build لازم دارد اما اسکریپت build ندارد.',
+    noBuildScriptFix:
+      'یک اسکریپت build به package.json اضافه کنید.',
+    pythonNoServer:
+      'سرور production (مثل gunicorn یا uvicorn) در وابستگی‌های پایتون پیدا نشد.',
+    pythonNoServerFix:
+      'gunicorn (برای django/flask) یا uvicorn (برای fastapi) را به requirements.txt اضافه کنید.',
+  },
   wait: {
     timeout:
       'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',

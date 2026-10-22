@@ -61,8 +61,8 @@
 | T3.6 | ⬜ | - | |
 | T3.7 | ⬜ | - | |
 | T3.8 | ⬜ | - | |
-| T4.1 | ✅ | (see git log `T4.1:`) | `detectPlatform(root)` deterministic order per task → `{platform, liaraPlatformId, version, confidence, evidence[]}`; internal platforms docker/next/react-static/node/django/flask/fastapi/laravel/go/static/unknown. `platform-map.ts`: only docs-backed ids (docker, next) + `node` (tasks doc, unverified); rest undefined, TODO(OQ-20). `project-files.ts` helpers (safe reads, python requirements incl. pyproject/Pipfile, file listing skipping vendor dirs). 12 fixture projects in `tests/fixtures/projects/` (excluded from tsc/eslint). |
-| T4.2 | ⬜ | - | |
+| T4.1 | ✅ | a021f24 | `detectPlatform(root)` deterministic order per task → `{platform, liaraPlatformId, version, confidence, evidence[]}`; internal platforms docker/next/react-static/node/django/flask/fastapi/laravel/go/static/unknown. `platform-map.ts`: only docs-backed ids (docker, next) + `node` (tasks doc, unverified); rest undefined, TODO(OQ-20). `project-files.ts` helpers (safe reads, python requirements incl. pyproject/Pipfile, file listing skipping vendor dirs). 12 fixture projects in `tests/fixtures/projects/` (excluded from tsc/eslint). |
+| T4.2 | ✅ | (see git log `T4.2:`) | `AnalyzerWarning {code, severity: blocker/warning/info, messageFa, fixFa, evidence}` (src/analyzer/types.ts). `detectPort(root, platform)` → `{port, source: env-default/listen/expose/cli-flag/platform-default, readsPortEnv, bindHost, evidence, warnings}`; PORT_HARDCODED, BIND_LOCALHOST (blocker, incl. flask `app.run()`), PORT_DEFAULT_ASSUMED (info; defaults are framework conventions, not Liara facts). `detectScripts` → `{install, build, start, warnings}`: NO_START_SCRIPT, NODEMON_START, RUNTIME_IN_DEV_DEPS, NO_BUILD_SCRIPT, PYTHON_NO_SERVER. |
 | T4.3 | ⬜ | - | |
 | T4.4 | ⬜ | - | |
 | T4.5 | ⬜ | - | |
@@ -159,6 +159,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T4.2:** src/analyzer/{types,detect-port,detect-scripts}.ts, src/ui/cli/i18n/fa.ts (analyzer), tests/unit/analyzer/detect-port-scripts.test.ts.
 - **T4.1:** src/analyzer/{detect-platform,platform-map,project-files}.ts, tests/fixtures/projects/** (12 projects), tests/helpers/projects.ts, tests/unit/analyzer/detect-platform.test.ts, tsconfig.json + .eslintrc.cjs (exclude tests/fixtures), docs/OPEN_QUESTIONS.md (OQ-20).
 - **T2.4:** src/safety/{audit,approval,risk,index}.ts, tests/unit/safety/audit.test.ts.
 - **T2.3:** src/safety/{redact,index}.ts, tests/unit/safety/redact.test.ts.
