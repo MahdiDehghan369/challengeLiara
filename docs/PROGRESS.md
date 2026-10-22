@@ -101,12 +101,12 @@
 | T7.8 | ⬜ | - | |
 | T7.9 | ⬜ | - | |
 | T8.1 | ✅ | 15b2a98 | `src/sre/log-cluster.ts`: `errorSignature` (normalized header — ts/uuid/hex/ip/email/long-quoted/path/numbers — + top user frame `fn:basename`; Python uses the final exception line), `parseFrames` (Node + Python, innermost first, `isUserCode` excludes node_modules/site-packages/node:/internal), `clusterLogs(records, {levels=['error']})` → `{signature, count, firstSeen, lastSeen, sample, level, stream, topFrames(≤5), isUserCode}` sorted by count then recency. 1000 lines/3 recurring errors → 3 clusters. |
-| T8.2 | ✅ | (see git log `T8.2:`) | `src/sre/knowledge/patterns.yaml` (53 patterns: Node/Next/Python/Django/Laravel/Docker + fs/net; each has `platforms` and a `sample`; ordered specific→generic) + `index.ts` (zod schema: allowed actionType/category, regex compiles, flags ⊂ imsu, unique ids; `parseKnowledge`, cached `loadKnowledge`, `matchKnowledge(text, {first?})` filling `{n}` from capture groups). `build` copies the yaml into dist. Test loops over every pattern sample. |
+| T8.2 | ✅ | d2eecc2 | `src/sre/knowledge/patterns.yaml` (53 patterns: Node/Next/Python/Django/Laravel/Docker + fs/net; each has `platforms` and a `sample`; ordered specific→generic) + `index.ts` (zod schema: allowed actionType/category, regex compiles, flags ⊂ imsu, unique ids; `parseKnowledge`, cached `loadKnowledge`, `matchKnowledge(text, {first?})` filling `{n}` from capture groups). `build` copies the yaml into dist. Test loops over every pattern sample. |
 | T8.3 | ⬜ | - | |
 | T8.4 | ⬜ | - | |
 | T8.5 | ⬜ | - | |
 | T8.6 | ⬜ | - | |
-| T8.7 | ⬜ | - | |
+| T8.7 | ✅ | (see git log `T8.7:`) | `src/coder/context.ts`: `mapContainerPath` (longest exact path suffix; bare basename only if unique), `collectCodeContext(root, {frames?, message?, route?}, {maxChars=20000, window=60, maxFrameFiles=3})` → user-frame snippets ±60 lines, else search by route (also tail segments, for mounted routers) / message literals; nearest manifest; direct local imports of the primary file (JS + Python); all redacted, capped, `truncated`/`unresolved` reported. `formatContext` renders numbered lines with a `>` focus marker. Fixture: tests/fixtures/projects/coder-express. |
 | T8.8 | ⬜ | - | |
 | T8.9 | ⬜ | - | |
 | T8.10 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T8.7:** src/coder/{context,index}.ts, tests/unit/coder/context.test.ts, tests/fixtures/projects/coder-express/**.
 - **T8.2:** src/sre/knowledge/{patterns.yaml,index.ts}, src/sre/index.ts, src/ui/cli/i18n/fa.ts (knowledge), package.json (build copies yaml), tests/unit/sre/knowledge.test.ts.
 - **T8.1:** src/sre/{log-cluster,index}.ts, tests/unit/sre/log-cluster.test.ts.
 - **T7.3:** src/sre/{logs,index}.ts, tests/unit/sre/logs.test.ts.
