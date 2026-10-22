@@ -30,6 +30,10 @@ export const fa = {
     budget:
       'سقف مصرف این جلسه پر شد؛ کار Agent متوقف شد.',
   },
+  agent: {
+    maxSteps: (n: number) => `Agent بعد از ${n} گام به نتیجهٔ نهایی نرسید و متوقف شد؛ لطفاً درخواست را دقیق‌تر بگویید.`,
+    noAnswer: 'مدل زبانی پاسخی برنگرداند.',
+  },
   tools: {
     unknownTool: (name: string) => `ابزار «${name}» وجود ندارد.`,
     invalidInput: (name: string) => `ورودی ابزار «${name}» نامعتبر است.`,
