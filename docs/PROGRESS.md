@@ -120,7 +120,7 @@
 | T9.2 | ⬜ | - | |
 | T9.3 | ⬜ | - | |
 | T9.4 | ⬜ | - | |
-| T9.5 | ✅ | (see git log `T9.5:`) | `src/ui/cli/approver.ts`: `renderPlanCard` (what/why/target/cost in toman/coloured risk/escalations/impact/rollback/exact redacted command on its own line), `Prompter` interface + `ClackPrompter` (@clack/prompts), `CliApprover({yes, interactive, prompter, color})`: R1 run/no/session, R2 run/no/edit params (JSON, gate re-assesses), R3 type exact app name. `--yes` approves R1 only; R2/R3 still prompt and are denied without a TTY (tested, also through `guard`). Added deps @clack/prompts, picocolors (allowed list). |
+| T9.5 | ✅ | b3e49f2 | `src/ui/cli/approver.ts`: `renderPlanCard` (what/why/target/cost in toman/coloured risk/escalations/impact/rollback/exact redacted command on its own line), `Prompter` interface + `ClackPrompter` (@clack/prompts), `CliApprover({yes, interactive, prompter, color})`: R1 run/no/session, R2 run/no/edit params (JSON, gate re-assesses), R3 type exact app name. `--yes` approves R1 only; R2/R3 still prompt and are denied without a TTY (tested, also through `guard`). Added deps @clack/prompts, picocolors (allowed list). |
 | T9.6 | ⬜ | - | |
 | T9.7 | ⬜ | - | |
 | T9.8 | ⬜ | - | |
@@ -132,7 +132,7 @@
 | T10.4 | ⬜ | - | |
 | T10.5 | ⬜ | - | |
 | T10.6 | ⬜ | - | |
-| T11.1 | ⬜ | - | |
+| T11.1 | ✅ | (see git log `T11.1:`) | Buggy demo apps (dependency-free except node-db → `pg`), each with a README (bug + expected agent result): node-missing-env (`new URL(undefined)` at startup), node-http500 (`order.items.length` on order 2 + failing `node --test` unit test, also S10), node-memleak (global array ~256 KB/req + `load.sh`), node-slow (sync busy loop), node-db (localhost Postgres fallback → ECONNREFUSED), node-build-fail (TS, no build script), node-bad-release (`make-repo.sh` builds a temp repo with `main` + broken `feature/checkout`). `scripts/check-demo-apps.sh` reproduces every bug; added as a CI step. Each bug was reproduced locally on Windows via node directly. The bash script itself was not run here (WSL has no node) and runs in CI. On this machine a local Postgres exists, so node-db fails with "database does not exist"; the script accepts either. |
 | T11.2 | ⬜ | - | ⚠️ real Liara |
 | T11.3 | ⬜ | - | ⚠️ real Liara |
 | T11.4 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T11.1:** demo-apps/node-{missing-env,http500,memleak,slow,db,build-fail,bad-release}/**, scripts/check-demo-apps.sh, .github/workflows/ci.yml.
 - **T9.5:** src/ui/cli/{approver.ts,i18n/fa.ts}, tests/unit/ui/approver.test.ts, package.json, pnpm-lock.yaml (@clack/prompts, picocolors).
 - **T9.1:** src/ui/cli/{format.ts,i18n/fa.ts}, src/sre/knowledge/index.ts, scripts/check-fa-strings.ts, package.json (check:fa), tests/unit/ui/format.test.ts.
 - **T8.7:** src/coder/{context,index}.ts, tests/unit/coder/context.test.ts, tests/fixtures/projects/coder-express/**.

@@ -1,0 +1,10 @@
+{
+  "name": "node-memleak",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo: memory grows on every request (global cache never evicted)",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.js" }
+}

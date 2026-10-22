@@ -1,0 +1,10 @@
+{
+  "name": "node-bad-release",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo: main is healthy; feature/checkout crashes at startup on a wrong import",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.js" }
+}

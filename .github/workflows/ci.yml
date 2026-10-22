@@ -35,3 +35,6 @@ jobs:
 
       - name: Test (mock)
         run: pnpm test
+
+      - name: Demo apps (local, no Liara)
+        run: bash scripts/check-demo-apps.sh

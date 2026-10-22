@@ -1,0 +1,6 @@
+node_modules
+.env
+.git
+*.log
+branches
+make-repo.sh

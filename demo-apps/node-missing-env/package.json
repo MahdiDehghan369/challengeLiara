@@ -1,0 +1,10 @@
+{
+  "name": "node-missing-env",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo: crashes at startup when DATABASE_URL is not set",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.js" }
+}

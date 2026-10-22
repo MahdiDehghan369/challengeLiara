@@ -1,0 +1,11 @@
+{
+  "name": "node-db",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo: needs PostgreSQL; falls back to localhost and crashes when no database is configured",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.js" },
+  "dependencies": { "pg": "^8.16.0" }
+}

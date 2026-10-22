@@ -1,0 +1,13 @@
+{
+  "name": "node-http500",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo: /api/orders/:id returns 500 for an order without items",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  }
+}
