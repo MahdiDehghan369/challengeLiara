@@ -47,8 +47,8 @@
 | T1.15 | ⬜ | - | |
 | T1.16 | ⬜ | - | |
 | T1.17 | ⬜ | - | |
-| T2.1 | ✅ | (see git log `T2.1:`) | `Risk` numeric enum, `ActionPlan` (+ `escalations` codes), `escalate(plan, {productionApps, protectedApps, envSemantics})` never lowers risk: stop/scale=0 on production|protected → R3; secret-like env keys (`*_KEY, *_SECRET, *PASSWORD*, *TOKEN*, DATABASE_URL, *_URI`) → ≥R2; replace semantics + removed vars (`params.removedCount` or unset keys) → R3; fixed-ip enable → R2. Tool names fixed in `RISK_TOOLS` (stop_app, scale_app, set_env, unset_env, set_fixed_ip) — the registry must reuse them. |
-| T2.2 | ⬜ | - | |
+| T2.1 | ✅ | e801ad9 | `Risk` numeric enum, `ActionPlan` (+ `escalations` codes), `escalate(plan, {productionApps, protectedApps, envSemantics})` never lowers risk: stop/scale=0 on production|protected → R3; secret-like env keys (`*_KEY, *_SECRET, *PASSWORD*, *TOKEN*, DATABASE_URL, *_URI`) → ≥R2; replace semantics + removed vars (`params.removedCount` or unset keys) → R3; fixed-ip enable → R2. Tool names fixed in `RISK_TOOLS` (stop_app, scale_app, set_env, unset_env, set_fixed_ip) — the registry must reuse them. |
+| T2.2 | ✅ | (see git log `T2.2:`) | `Approver.request(plan, ctx?)` → `approved \| approved-session \| denied \| {edited} \| {pending:{token,expiresAt}}` (extended for session + MCP two-step). Approvers: `AutoDenyApprover`, `YesApprover` (R1 only; enforces "--yes never approves R2/R3"), `ScriptedApprover`, `McpApprover` (5-min single-use token bound to sha256 of tool+target+params, key-order independent). `guard(plan, approver, exec, {dryRun, audit, session, confirmToken, reassess, actor, sessionId})`: R0 direct; R1+ approver; session approval only R1 per tool+app; edited params re-assessed (higher risk → ask again, never lowered); dry-run; every path calls `AuditSink.record` (T2.4 implements). `CliApprover` is T9.5. |
 | T2.3 | ⬜ | - | |
 | T2.4 | ⬜ | - | |
 | T2.5 | ⬜ | - | |
@@ -159,6 +159,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T2.2:** src/safety/{approval,index}.ts, src/ui/cli/i18n/fa.ts (approval), tests/unit/safety/approval.test.ts.
 - **T2.1:** src/safety/risk.ts, tests/unit/safety/risk.test.ts.
 - **T1.13:** src/liara/{db,index}.ts, src/ui/cli/i18n/fa.ts (db), tests/unit/liara/db.test.ts.
 - **T1.8:** src/liara/{env,index}.ts, tests/unit/liara/env.test.ts, docs/OPEN_QUESTIONS.md (OQ-19).
