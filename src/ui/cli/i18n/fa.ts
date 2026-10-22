@@ -27,6 +27,23 @@ export const fa = {
       'اجرای دستور خارجی با خطا روبه‌رو شد.',
     llm:
       'ارتباط با مدل زبانی با خطا روبه‌رو شد.',
+    budget:
+      'سقف مصرف این جلسه پر شد؛ کار Agent متوقف شد.',
+  },
+  budget: {
+    soft: (what: string, value: number, limit: number) =>
+      `هشدار: ${what} به ${value} رسید (حد نرم: ${limit}).`,
+    hard: (what: string, value: number, limit: number) =>
+      `${what} به ${value} رسید و از حد سخت (${limit}) گذشت؛ کار Agent متوقف شد.`,
+    counters: {
+      liaraPerMinute: 'تعداد درخواست‌های لیارا در دقیقه',
+      llmRequests: 'تعداد درخواست‌های مدل زبانی در این جلسه',
+      llmTokens: 'تعداد توکن‌های مدل زبانی در این جلسه',
+    },
+    noProgress: (n: number) =>
+      `Agent ${n} گام بدون پیشرفت برداشت؛ برای جلوگیری از حلقهٔ بی‌پایان متوقف شد.`,
+    repeatedTool: (tool: string, n: number) =>
+      `ابزار «${tool}» با پارامترهای یکسان ${n} بار تکرار شد؛ برای جلوگیری از حلقهٔ بی‌پایان متوقف شد.`,
   },
   liaraHttp: {
     badRequest:

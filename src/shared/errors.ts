@@ -88,6 +88,15 @@ export class LlmError extends SiavashError {
   }
 }
 
+/** A session budget hard limit or the loop breaker stopped the agent (T2.6). */
+export class BudgetExceededError extends SiavashError {
+  readonly code = 'BUDGET_EXCEEDED';
+
+  constructor(message: string, opts: ErrorOptions = {}) {
+    super(message, fa.errors.budget, opts);
+  }
+}
+
 export function isSiavashError(e: unknown): e is SiavashError {
   return e instanceof SiavashError;
 }

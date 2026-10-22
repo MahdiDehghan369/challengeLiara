@@ -53,6 +53,8 @@ export interface LiaraHttpOptions {
   uploadTimeoutMs?: number;
   maxRetries?: number;
   logger?: Logger;
+  /** Called before every attempt (rate guard, T2.6). Throwing aborts the request before it is sent. */
+  onRequest?: (operationId: string) => void;
 }
 
 export interface HttpStats {
@@ -120,6 +122,7 @@ export class LiaraHttp {
   private readonly uploadTimeoutMs: number;
   private readonly maxRetries: number;
   private readonly log: Logger;
+  private readonly onRequest: ((operationId: string) => void) | undefined;
   private readonly stats: HttpStats = { requests: 0, retries: 0, rateLimited: 0, errors: 0 };
 
   constructor(opts: LiaraHttpOptions) {
@@ -133,6 +136,7 @@ export class LiaraHttp {
     this.uploadTimeoutMs = opts.uploadTimeoutMs ?? UPLOAD_TIMEOUT_MS;
     this.maxRetries = opts.maxRetries ?? MAX_RETRIES;
     this.log = (opts.logger ?? rootLogger).child({ mod: 'liara-http' });
+    this.onRequest = opts.onRequest;
   }
 
   get<T = unknown>(path: string, opts: RequestOptions<T> = {}): Promise<T> {
@@ -181,6 +185,7 @@ export class LiaraHttp {
     const timeoutMs = opts.timeoutMs ?? (isUpload ? this.uploadTimeoutMs : this.defaultTimeoutMs);
 
     for (let attempt = 1; ; attempt++) {
+      this.onRequest?.(operationId);
       this.stats.requests++;
       const started = Date.now();
       let res: Response;
