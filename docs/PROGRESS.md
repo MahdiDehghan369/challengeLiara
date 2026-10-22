@@ -86,12 +86,12 @@
 | T6.2 | ⬜ | - | |
 | T6.3 | ⬜ | - | |
 | T6.4 | ✅ | 3716190 | Ops layer as plain functions over `guard()` (tool wrappers come with T3.3): `src/ops/context.ts` (`OpsContext`, `guardOptions` with `reassess=escalate`, HMAC `fingerprint`, `newPlanId`). `src/ops/env.ts`: `listEnvMasked` (R0), `planSetEnv`/`setEnv` (R1→escalated; one approval per batch; masked diff + restart note in `impactFa`; params carry value fingerprints, never values; undo `{restore, remove}` + previous values via `secretValues` → 0600 file; identical values → `no-change` without asking), `unsetEnv` (R3). Tests use real EnvApi + msw fake Liara (replace semantics) + AuditLog; full mock-adapter integration is `it.todo` until T1.16. |
-| T6.5 | ✅ | (see git log `T6.5:`) | `src/ops/releases.ts`: `listDeployments` (R0, newest first, `whenFa` via new `relTimeFa` in shared/time.ts; deploy *events* not merged yet — T1.7 pending). `rollbackApp` (R2) → target = id or `previousHealthy`; methods in order: `source` (new release w/ old sourceID; `sourceReuse` unknown → try then fall back, OQ-22), `git-api` (temp `git worktree add --detach` → archive → upload → release; worktree always removed), `git-cli`. Card shows current→target with dates + commits + method. Ledger: new record `rollbackOf`, replaced one → `rolled-back`; optional `releaseSignals` wait and `verify()` (T8.10) → `healthAfter`. Added `simple-git`. Test repo pins `core.autocrlf=false` (MinGit CRLF default). |
+| T6.5 | ✅ | 634fbb6 | `src/ops/releases.ts`: `listDeployments` (R0, newest first, `whenFa` via new `relTimeFa` in shared/time.ts; deploy *events* not merged yet — T1.7 pending). `rollbackApp` (R2) → target = id or `previousHealthy`; methods in order: `source` (new release w/ old sourceID; `sourceReuse` unknown → try then fall back, OQ-22), `git-api` (temp `git worktree add --detach` → archive → upload → release; worktree always removed), `git-cli`. Card shows current→target with dates + commits + method. Ledger: new record `rollbackOf`, replaced one → `rolled-back`; optional `releaseSignals` wait and `verify()` (T8.10) → `healthAfter`. Added `simple-git`. Test repo pins `core.autocrlf=false` (MinGit CRLF default). |
 | T6.6 | ⬜ | - | |
 | T6.7 | ⬜ | - | |
 | T6.8 | ⬜ | - | |
 | T6.9 | ⬜ | - | |
-| T7.1 | ⬜ | - | |
+| T7.1 | ✅ | (see git log `T7.1:`) | `probe(url, {paths, count, timeoutMs, fetchImpl})` sequential samples (ttfb at headers, total after body, `redirect: manual`) → `{availability%, p50, p95, errorRate, statusHistogram, errorHistogram{timeout,dns,tls,connection,other}, tlsValid, samples}`; 4xx counts as available, 5xx/errors don't. `classifyProbeError` reads undici `cause.code`. New `src/shared/stats.ts` (mean, nearest-rank percentile, round). TLS covered with a fetch stub (no committed test private key). |
 | T7.2 | ⬜ | - | |
 | T7.3 | ⬜ | - | |
 | T7.4 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T7.1:** src/sre/{health,index}.ts, src/shared/{stats,index}.ts, tests/unit/sre/health.test.ts.
 - **T6.5:** src/ops/{releases,index}.ts, src/shared/time.ts (relTimeFa), src/ui/cli/i18n/fa.ts (rollback, time), tests/unit/ops/releases.test.ts, package.json (simple-git), docs/OPEN_QUESTIONS.md (OQ-22).
 - **T6.4:** src/ops/{context,env,index}.ts, src/ui/cli/i18n/fa.ts (opsEnv), tests/unit/ops/env-ops.test.ts.
 - **T4.4:** src/analyzer/detect-deps.ts, src/ui/cli/i18n/fa.ts (deps), tests/unit/analyzer/detect-deps.test.ts, docs/OPEN_QUESTIONS.md (OQ-21).
