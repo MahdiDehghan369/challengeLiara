@@ -142,7 +142,8 @@ export interface GuardAuditRecord {
 }
 
 export interface AuditSink {
-  record(rec: GuardAuditRecord): void | Promise<void>;
+  /** Return value is ignored by the gate (implementations may return the stored entry). */
+  record(rec: GuardAuditRecord): unknown;
 }
 
 export interface GuardOptions {

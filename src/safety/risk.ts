@@ -32,6 +32,16 @@ export interface ActionPlan {
   params: Record<string, unknown>;
   /** Codes of the escalation rules that raised the risk (filled by `escalate`). */
   escalations?: EscalationCode[];
+  /** How to revert this action; recorded in the audit log (secret previous values stored separately). */
+  undo?: UndoInfo;
+}
+
+export interface UndoInfo {
+  tool: string;
+  /** Non-secret params needed to undo, e.g. `{planID: 'previous-plan'}`. */
+  params: Record<string, unknown>;
+  /** Previous secret values (e.g. env values). Never written to the audit log itself. */
+  secretValues?: Record<string, { reveal(): string }>;
 }
 
 /** Tool names the escalation rules recognise; the Tool Registry (T3.3) must use the same names. */
