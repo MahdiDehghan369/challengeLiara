@@ -52,6 +52,18 @@ export const fa = {
     invalidResponse:
       'پاسخ لیارا با قالب مورد انتظار نمی‌خواند.',
   },
+  apps: {
+    notFound: (name: string) =>
+      `اپی با نام «${name}» در حساب لیارا پیدا نشد.`,
+    notFoundSuggest: (name: string, suggestion: string) =>
+      `اپی با نام «${name}» پیدا نشد. منظورتان «${suggestion}» بود؟`,
+    nameTaken: (name: string) =>
+      `نام «${name}» قبلاً گرفته شده است؛ نام دیگری انتخاب کنید.`,
+  },
+  wait: {
+    timeout:
+      'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',
+  },
   time: {
     second: 'ثانیه',
     minute: 'دقیقه',
