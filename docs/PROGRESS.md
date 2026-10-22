@@ -42,12 +42,12 @@
 | T1.10 | ⬜ | - | |
 | T1.11 | ✅ | 9bdf026 | `DisksApi` per map: `{id}` (via resolveApp) for list/delete disk + all backups; `{name}` for create/resize disk + FTP list/create; `/v1/ftp/{fname}` delete. 409 on delete → `DISK_IN_USE`. Sizes sent as strings. New `src/shared/secret.ts` (`Secret<T>`: toString/toJSON/inspect/toPrimitive → `[SECRET]`, `reveal()`, `maskSecret`). FTP passwords and the backup download link (likely pre-signed URL) are `Secret`. Logger's deep scrub now serializes via `toJSON` (Secret/Date). Tests prove `{id}`/`{name}` per path via msw request log. |
 | T1.12 | ⬜ | - | |
-| T1.13 | ✅ | (see git log `T1.13:`) | `DbApi(cli, http)`: create (publicNetwork default false)/list(raw)/start/stop/resize/remove via CLI. `getDbConnection(name)` uses spec-only dbaas `GET /v1/databases` (match `hostname`) → `GET /v1/databases/{id}`; internal `{hostname, internalPort}`, public `{node.host, port}` only if publicNetwork; password + connection string as `Secret`; any failure → `{status:'needs-human', instructionFa}` (TODO(OQ-12)). `buildConnectionString` postgres/mysql/mariadb/mongodb with URL-encoded creds. |
+| T1.13 | ✅ | 6868753 | `DbApi(cli, http)`: create (publicNetwork default false)/list(raw)/start/stop/resize/remove via CLI. `getDbConnection(name)` uses spec-only dbaas `GET /v1/databases` (match `hostname`) → `GET /v1/databases/{id}`; internal `{hostname, internalPort}`, public `{node.host, port}` only if publicNetwork; password + connection string as `Secret`; any failure → `{status:'needs-human', instructionFa}` (TODO(OQ-12)). `buildConnectionString` postgres/mysql/mariadb/mongodb with URL-encoded creds. |
 | T1.14 | ✅ | 4720aae | `LiaraCli` over an injectable `Spawner` (default execa 9, `reject:false`, merged lines via `iterable({from:'all'})`). Always appends `--api-token`/`--team-id`; `scrub()` removes the token from logged args, streamed lines, stdout and errors (logger-spy test). Non-zero exit/timeout → `ExternalCommandError` with last 50 lines. `ensureCli` (liara → `npx -y @liara/cli` → not installed + Persian hint). Commands: planList (raw, OQ-5), envList (→ Secret, OQ-17), envUnset, db create/list/start/stop/resize(-d y)/remove (flags per docs: `db stop` has no -y), logs, shell, zoneCheck, deploy (events; placeholder stage regexes OQ-16; 15 min timeout). Implements `LogsCli` for T1.4. OQ-18: token is visible in argv. |
 | T1.15 | ⬜ | - | |
 | T1.16 | ⬜ | - | |
 | T1.17 | ⬜ | - | |
-| T2.1 | ⬜ | - | |
+| T2.1 | ✅ | (see git log `T2.1:`) | `Risk` numeric enum, `ActionPlan` (+ `escalations` codes), `escalate(plan, {productionApps, protectedApps, envSemantics})` never lowers risk: stop/scale=0 on production|protected → R3; secret-like env keys (`*_KEY, *_SECRET, *PASSWORD*, *TOKEN*, DATABASE_URL, *_URI`) → ≥R2; replace semantics + removed vars (`params.removedCount` or unset keys) → R3; fixed-ip enable → R2. Tool names fixed in `RISK_TOOLS` (stop_app, scale_app, set_env, unset_env, set_fixed_ip) — the registry must reuse them. |
 | T2.2 | ⬜ | - | |
 | T2.3 | ⬜ | - | |
 | T2.4 | ⬜ | - | |
@@ -159,6 +159,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T2.1:** src/safety/risk.ts, tests/unit/safety/risk.test.ts.
 - **T1.13:** src/liara/{db,index}.ts, src/ui/cli/i18n/fa.ts (db), tests/unit/liara/db.test.ts.
 - **T1.8:** src/liara/{env,index}.ts, tests/unit/liara/env.test.ts, docs/OPEN_QUESTIONS.md (OQ-19).
 - **T1.14:** src/liara/{cli,cli-parsers,index}.ts, src/ui/cli/i18n/fa.ts (cli), tests/unit/liara/cli.test.ts, package.json (execa), docs/OPEN_QUESTIONS.md (OQ-16..18).
