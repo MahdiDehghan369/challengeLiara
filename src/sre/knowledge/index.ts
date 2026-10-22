@@ -116,7 +116,7 @@ export function loadKnowledge(path: string = DEFAULT_PATTERNS_PATH): CompiledPat
 }
 
 function fill(template: string, groups: (string | undefined)[]): string {
-  return template.replace(/\{(\d)\}/g, (_m, n: string) => groups[Number(n) - 1] ?? '؟');
+  return template.replace(/\{(\d)\}/g, (_m, n: string) => groups[Number(n) - 1] ?? fa.knowledge.unknownValue);
 }
 
 function fillFix(fix: KnowledgeFix, groups: (string | undefined)[]): KnowledgeFix {

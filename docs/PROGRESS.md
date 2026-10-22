@@ -106,7 +106,7 @@
 | T8.4 | ⬜ | - | |
 | T8.5 | ⬜ | - | |
 | T8.6 | ⬜ | - | |
-| T8.7 | ✅ | (see git log `T8.7:`) | `src/coder/context.ts`: `mapContainerPath` (longest exact path suffix; bare basename only if unique), `collectCodeContext(root, {frames?, message?, route?}, {maxChars=20000, window=60, maxFrameFiles=3})` → user-frame snippets ±60 lines, else search by route (also tail segments, for mounted routers) / message literals; nearest manifest; direct local imports of the primary file (JS + Python); all redacted, capped, `truncated`/`unresolved` reported. `formatContext` renders numbered lines with a `>` focus marker. Fixture: tests/fixtures/projects/coder-express. |
+| T8.7 | ✅ | f600e53 | `src/coder/context.ts`: `mapContainerPath` (longest exact path suffix; bare basename only if unique), `collectCodeContext(root, {frames?, message?, route?}, {maxChars=20000, window=60, maxFrameFiles=3})` → user-frame snippets ±60 lines, else search by route (also tail segments, for mounted routers) / message literals; nearest manifest; direct local imports of the primary file (JS + Python); all redacted, capped, `truncated`/`unresolved` reported. `formatContext` renders numbered lines with a `>` focus marker. Fixture: tests/fixtures/projects/coder-express. |
 | T8.8 | ⬜ | - | |
 | T8.9 | ⬜ | - | |
 | T8.10 | ⬜ | - | |
@@ -116,7 +116,7 @@
 | T8.14 | ⬜ | - | |
 | T8.15 | ⬜ | - | |
 | T8.16 | ⬜ | - | |
-| T9.1 | ⬜ | - | |
+| T9.1 | ✅ | (see git log `T9.1:`) | `src/ui/cli/format.ts`: `formatNumber` (Persian digits, ٬ thousands, ٫ decimal; `digits: en` option), `toman`, `relTime` (→ relTimeFa), `bytes` (base 1024), `percentBar`, `sparkline`, `withLtr` (Persian line first, LTR fragments on their own indented lines). New `fa.format` / `fa.knowledge.unknownValue` keys. `scripts/check-fa-strings.ts` (`pnpm check:fa`) flags Persian letters in src/**/*.ts outside i18n/prompts/knowledge, ignoring comments and digits; a unit test runs it on src/. |
 | T9.2 | ⬜ | - | |
 | T9.3 | ⬜ | - | |
 | T9.4 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T9.1:** src/ui/cli/{format.ts,i18n/fa.ts}, src/sre/knowledge/index.ts, scripts/check-fa-strings.ts, package.json (check:fa), tests/unit/ui/format.test.ts.
 - **T8.7:** src/coder/{context,index}.ts, tests/unit/coder/context.test.ts, tests/fixtures/projects/coder-express/**.
 - **T8.2:** src/sre/knowledge/{patterns.yaml,index.ts}, src/sre/index.ts, src/ui/cli/i18n/fa.ts (knowledge), package.json (build copies yaml), tests/unit/sre/knowledge.test.ts.
 - **T8.1:** src/sre/{log-cluster,index}.ts, tests/unit/sre/log-cluster.test.ts.

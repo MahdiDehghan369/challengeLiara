@@ -204,6 +204,14 @@ export const fa = {
   knowledge: {
     invalid: 'فایل پایگاه دانش خطاها (patterns.yaml) نامعتبر است.',
     notFound: 'فایل پایگاه دانش خطاها (patterns.yaml) پیدا نشد.',
+    unknownValue: '؟',
+  },
+  format: {
+    toman: 'تومان',
+    byteUnits: ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت', 'ترابایت'],
+    percent: '٪',
+    thousandsSep: '٬',
+    decimalSep: '٫',
   },
 } as const;
 
