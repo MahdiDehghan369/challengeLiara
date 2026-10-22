@@ -17,4 +17,5 @@
 | OQ-10 | Does `GET /v1/projects/{name}/applets` exist? Do `state`/`reason` expose crash/OOM? | ❓ | Confirm in T0.8. | specs/paas.yaml |
 | OQ-11 | Does `GET /v1/domains/{id}/check` exist and trigger/return DNS verification? | ❓ | Confirm in T0.8 / T1.12. | specs/paas.yaml |
 | OQ-13 | How is `teamID` sent in REST — query param or header (header name)? | ❓ | `LiaraHttp` defaults to `?teamID=`; `teamIdMode: 'header'` sends a `teamID` header. Flip after T0.8 Q10. | 04-LIARA_API_MAP header |
+| OQ-14 | Text format of `liara logs -t` (and `-f`): timestamp position/format, stream marker? | ❓ | `parseCliLogLine` strips ANSI, takes an optional leading ISO timestamp, else keeps raw text with ts=0. Record a real sample in T0.5/T0.8. | — |
 | OQ-12 | Does `GET /v1/databases/{id}` return usable connection info (`hostname, port, username, root_password, dbName`)? | ❓ | If yes, closes G7 (no human copy step). Confirm in T0.5/T0.8. | specs/dbaas.yaml |
