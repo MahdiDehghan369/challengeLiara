@@ -177,7 +177,7 @@ importers:
         version: 9.6.1
       openai:
         specifier: ^6.49.0
-        version: 6.49.0(zod@4.6.7)
+        version: 6.49.0(ws@8.22.0)(zod@4.6.7)
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -190,6 +190,9 @@ importers:
       tar:
         specifier: ^7.5.22
         version: 7.5.22
+      ws:
+        specifier: ^8.22.0
+        version: 8.22.0
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
@@ -200,6 +203,9 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      '@types/ws':
+        specifier: ^8.18.2
+        version: 8.18.2
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.72.0
         version: 8.72.0(@typescript-eslint/parser@8.72.0(eslint@8.57.1(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint@8.57.1(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
@@ -676,6 +682,9 @@ packages:
 
   '@types/statuses@2.0.6':
     resolution: {integrity: sha512-xMAgYwceFhRA2zY+XbEA7mxYbA093wdiW8Vu6gZPGWy9cmOyU9XesH1tNcEWsKFd5Vzrqx5T3D38PWx1FIIXkA==}
+
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
 
   '@typescript-eslint/eslint-plugin@8.72.0':
     resolution: {integrity: sha512-aysKgysPX9XOv/dk95UkvUDe++Q3n3dJPG9CEWT3RUccxfkPJ+Qn6nhKPDhZXU6Ofo9kgwGWwKyQCnZIXTgngg==}
@@ -1605,6 +1614,18 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
+  ws@8.22.0:
+    resolution: {integrity: sha512-Ydggc987+RO0AnWtZ/7Wq9FtNvcrL1b/RO0ud9mWjUPgDrsAAwQSF51sm2hm1XofbU/4jkpGEsLFsZZxU+1DOg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
@@ -1945,6 +1966,10 @@ snapshots:
       '@types/node': 22.20.5
 
   '@types/statuses@2.0.6': {}
+
+  '@types/ws@8.18.2':
+    dependencies:
+      '@types/node': 22.20.5
 
   '@typescript-eslint/eslint-plugin@8.72.0(@typescript-eslint/parser@8.72.0(eslint@8.57.1(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint@8.57.1(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)':
     dependencies:
@@ -2525,8 +2550,9 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  openai@6.49.0(zod@4.6.7):
+  openai@6.49.0(ws@8.22.0)(zod@4.6.7):
     optionalDependencies:
+      ws: 8.22.0
       zod: 4.6.7
 
   optionator@0.9.4:
@@ -2897,6 +2923,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   wrappy@1.0.2: {}
+
+  ws@8.22.0: {}
 
   y18n@5.0.8: {}
 
