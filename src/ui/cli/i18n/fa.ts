@@ -163,6 +163,28 @@ export const fa = {
     noChange:
       'هیچ تغییری لازم نیست؛ مقادیر از قبل همین هستند.',
   },
+  rollback: {
+    title: (app: string) =>
+      `برگرداندن «${app}» به نسخهٔ سالم قبلی`,
+    defaultReason:
+      'نسخهٔ فعلی مشکل دارد',
+    impact: (from: string, to: string, method: string) =>
+      `از ${from}\nبه ${to}\nروش: ${method}`,
+    describe: (id: string, when: string, commit: string | undefined) =>
+      `استقرار ${id.slice(0, 8)} (${when}${commit ? `، commit ${commit.slice(0, 7)}` : ''})`,
+    methodSource:
+      'ساخت release جدید از همان سورس قبلی (سریع)',
+    methodGitApi:
+      'ساخت دوباره از commit قبلی در git و استقرار با API',
+    methodGitCli:
+      'ساخت دوباره از commit قبلی در git و استقرار با CLI',
+    rollbackFa:
+      'در صورت نیاز می‌توانید دوباره به نسخهٔ فعلی برگردید (در تاریخچه ثبت می‌شود).',
+    noTarget:
+      'نسخهٔ سالم قبلی برای برگشت پیدا نشد.',
+    noMethod:
+      'هیچ روشی برای برگشت در دسترس نیست (سورس قبلی و commit گیت ثبت نشده است).',
+  },
   wait: {
     timeout:
       'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',
@@ -173,6 +195,9 @@ export const fa = {
     hour: 'ساعت',
     day: 'روز',
     and: ' و ',
+    justNow: 'همین الان',
+    ago: (s: string) => `${s} پیش`,
+    later: (s: string) => `${s} دیگر`,
     invalidDuration:
       'قالب مدت‌زمان نامعتبر است (نمونهٔ درست: 30s، 5m، 1h، 2d).',
   },

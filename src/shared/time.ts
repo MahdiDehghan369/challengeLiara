@@ -35,6 +35,22 @@ export function toFaDigits(n: number | string): string {
   return String(n).replace(/\d/g, (d) => FA_DIGITS[Number(d)] as string);
 }
 
+/** Persian relative time, e.g. "۵ دقیقه پیش" / "۲ ساعت دیگر" (single largest unit). */
+export function relTimeFa(ts: number | string | Date, now: number = Date.now()): string {
+  const t = ts instanceof Date ? ts.getTime() : typeof ts === 'string' ? Date.parse(ts) : ts;
+  const diffSec = Math.round((now - t) / 1000);
+  const abs = Math.abs(diffSec);
+  if (abs < 45) return fa.time.justNow;
+  const units: Array<[number, string]> = [
+    [86_400, fa.time.day],
+    [3600, fa.time.hour],
+    [60, fa.time.minute],
+  ];
+  const [size, label] = units.find(([s]) => abs >= s) ?? [60, fa.time.minute];
+  const n = Math.max(1, Math.round(abs / size));
+  return diffSec >= 0 ? fa.time.ago(`${toFaDigits(n)} ${label}`) : fa.time.later(`${toFaDigits(n)} ${label}`);
+}
+
 /** Human Persian duration, e.g. 5400 → "۱ ساعت و ۳۰ دقیقه". Shows at most two units. */
 export function formatFaDuration(seconds: number): string {
   let rest = Math.max(0, Math.round(seconds));
