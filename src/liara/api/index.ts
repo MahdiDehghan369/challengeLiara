@@ -8,3 +8,5 @@ export * from './disks.js';
 export * from './events.js';
 export * from './settings.js';
 export * from './domains.js';
+export * from './billing.js';
+export * from './account.js';
