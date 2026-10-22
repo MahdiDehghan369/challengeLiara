@@ -116,11 +116,11 @@
 | T8.14 | ⬜ | - | |
 | T8.15 | ⬜ | - | |
 | T8.16 | ⬜ | - | |
-| T9.1 | ✅ | (see git log `T9.1:`) | `src/ui/cli/format.ts`: `formatNumber` (Persian digits, ٬ thousands, ٫ decimal; `digits: en` option), `toman`, `relTime` (→ relTimeFa), `bytes` (base 1024), `percentBar`, `sparkline`, `withLtr` (Persian line first, LTR fragments on their own indented lines). New `fa.format` / `fa.knowledge.unknownValue` keys. `scripts/check-fa-strings.ts` (`pnpm check:fa`) flags Persian letters in src/**/*.ts outside i18n/prompts/knowledge, ignoring comments and digits; a unit test runs it on src/. |
+| T9.1 | ✅ | c0abac2 | `src/ui/cli/format.ts`: `formatNumber` (Persian digits, ٬ thousands, ٫ decimal; `digits: en` option), `toman`, `relTime` (→ relTimeFa), `bytes` (base 1024), `percentBar`, `sparkline`, `withLtr` (Persian line first, LTR fragments on their own indented lines). New `fa.format` / `fa.knowledge.unknownValue` keys. `scripts/check-fa-strings.ts` (`pnpm check:fa`) flags Persian letters in src/**/*.ts outside i18n/prompts/knowledge, ignoring comments and digits; a unit test runs it on src/. |
 | T9.2 | ⬜ | - | |
 | T9.3 | ⬜ | - | |
 | T9.4 | ⬜ | - | |
-| T9.5 | ⬜ | - | |
+| T9.5 | ✅ | (see git log `T9.5:`) | `src/ui/cli/approver.ts`: `renderPlanCard` (what/why/target/cost in toman/coloured risk/escalations/impact/rollback/exact redacted command on its own line), `Prompter` interface + `ClackPrompter` (@clack/prompts), `CliApprover({yes, interactive, prompter, color})`: R1 run/no/session, R2 run/no/edit params (JSON, gate re-assesses), R3 type exact app name. `--yes` approves R1 only; R2/R3 still prompt and are denied without a TTY (tested, also through `guard`). Added deps @clack/prompts, picocolors (allowed list). |
 | T9.6 | ⬜ | - | |
 | T9.7 | ⬜ | - | |
 | T9.8 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T9.5:** src/ui/cli/{approver.ts,i18n/fa.ts}, tests/unit/ui/approver.test.ts, package.json, pnpm-lock.yaml (@clack/prompts, picocolors).
 - **T9.1:** src/ui/cli/{format.ts,i18n/fa.ts}, src/sre/knowledge/index.ts, scripts/check-fa-strings.ts, package.json (check:fa), tests/unit/ui/format.test.ts.
 - **T8.7:** src/coder/{context,index}.ts, tests/unit/coder/context.test.ts, tests/fixtures/projects/coder-express/**.
 - **T8.2:** src/sre/knowledge/{patterns.yaml,index.ts}, src/sre/index.ts, src/ui/cli/i18n/fa.ts (knowledge), package.json (build copies yaml), tests/unit/sre/knowledge.test.ts.
