@@ -124,6 +124,20 @@ export const fa = {
     pythonNoServerFix:
       'gunicorn (برای django/flask) یا uvicorn (برای fastapi) را به requirements.txt اضافه کنید.',
   },
+  deps: {
+    ephemeralFs: (what: string) =>
+      `برنامه فایل ذخیره می‌کند (${what})؛ فایل‌سیستم کانتینر پایدار نیست و با هر deploy یا restart پاک می‌شود.`,
+    ephemeralFsFix: (folder: string) =>
+      `یک دیسک لیارا بسازید و آن را به پوشهٔ «${folder}» متصل کنید.`,
+    sqlite:
+      'از SQLite استفاده می‌شود؛ فایل دیتابیس در کانتینر پایدار نمی‌ماند.',
+    sqliteFix:
+      'از دیتابیس مدیریت‌شدهٔ لیارا (PostgreSQL/MySQL) استفاده کنید یا فایل SQLite را روی دیسک نگه دارید.',
+    migration: (command: string) =>
+      `این پروژه migration دارد؛ بعد از deploy باید اجرا شود: ${command}`,
+    migrationFix:
+      'Agent بعد از deploy (با تأیید شما) migration را داخل کانتینر اجرا می‌کند.',
+  },
   wait: {
     timeout:
       'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',
