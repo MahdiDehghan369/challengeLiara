@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "tsx src/ui/cli/index.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/sre/knowledge/patterns.yaml','dist/sre/knowledge/patterns.yaml')\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "format": "prettier --write .",

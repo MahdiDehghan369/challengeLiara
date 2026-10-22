@@ -100,8 +100,8 @@
 | T7.7 | ⬜ | - | |
 | T7.8 | ⬜ | - | |
 | T7.9 | ⬜ | - | |
-| T8.1 | ✅ | (see git log `T8.1:`) | `src/sre/log-cluster.ts`: `errorSignature` (normalized header — ts/uuid/hex/ip/email/long-quoted/path/numbers — + top user frame `fn:basename`; Python uses the final exception line), `parseFrames` (Node + Python, innermost first, `isUserCode` excludes node_modules/site-packages/node:/internal), `clusterLogs(records, {levels=['error']})` → `{signature, count, firstSeen, lastSeen, sample, level, stream, topFrames(≤5), isUserCode}` sorted by count then recency. 1000 lines/3 recurring errors → 3 clusters. |
-| T8.2 | ⬜ | - | |
+| T8.1 | ✅ | 15b2a98 | `src/sre/log-cluster.ts`: `errorSignature` (normalized header — ts/uuid/hex/ip/email/long-quoted/path/numbers — + top user frame `fn:basename`; Python uses the final exception line), `parseFrames` (Node + Python, innermost first, `isUserCode` excludes node_modules/site-packages/node:/internal), `clusterLogs(records, {levels=['error']})` → `{signature, count, firstSeen, lastSeen, sample, level, stream, topFrames(≤5), isUserCode}` sorted by count then recency. 1000 lines/3 recurring errors → 3 clusters. |
+| T8.2 | ✅ | (see git log `T8.2:`) | `src/sre/knowledge/patterns.yaml` (53 patterns: Node/Next/Python/Django/Laravel/Docker + fs/net; each has `platforms` and a `sample`; ordered specific→generic) + `index.ts` (zod schema: allowed actionType/category, regex compiles, flags ⊂ imsu, unique ids; `parseKnowledge`, cached `loadKnowledge`, `matchKnowledge(text, {first?})` filling `{n}` from capture groups). `build` copies the yaml into dist. Test loops over every pattern sample. |
 | T8.3 | ⬜ | - | |
 | T8.4 | ⬜ | - | |
 | T8.5 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T8.2:** src/sre/knowledge/{patterns.yaml,index.ts}, src/sre/index.ts, src/ui/cli/i18n/fa.ts (knowledge), package.json (build copies yaml), tests/unit/sre/knowledge.test.ts.
 - **T8.1:** src/sre/{log-cluster,index}.ts, tests/unit/sre/log-cluster.test.ts.
 - **T7.3:** src/sre/{logs,index}.ts, tests/unit/sre/logs.test.ts.
 - **T7.1:** src/sre/{health,index}.ts, src/shared/{stats,index}.ts, tests/unit/sre/health.test.ts.

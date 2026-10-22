@@ -1,0 +1,750 @@
+# Error-pattern knowledge base (T8.2).
+# Each entry: id, regex (JS syntax), optional flags, category, platforms, titleFa, likelyCauseFa,
+# fixes[{actionType, descriptionFa, params?}], sample (a log line the regex must match; used by tests).
+# Order matters: specific patterns come before generic ones; matchKnowledge returns matches in file order.
+# `{1}`, `{2}` … in descriptionFa / params are replaced with regex capture groups.
+version: 1
+patterns:
+  # ---------------------------------------------------------------- Node
+  - id: node-module-not-found
+    regex: 'Cannot find module ''([^'']+)'''
+    category: dependency
+    platforms: [node, next]
+    titleFa: ماژول پیدا نشد
+    likelyCauseFa: بستهٔ «{1}» در dependencies نیست، فقط در devDependencies است یا مسیر import اشتباه است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: «{1}» را به dependencies در package.json اضافه کنید (نه devDependencies) یا مسیر import را اصلاح کنید.
+        params: { file: package.json, module: '{1}' }
+      - actionType: redeploy_app
+        descriptionFa: پس از اصلاح، دوباره deploy کنید تا وابستگی‌ها نصب شوند.
+    sample: "Error: Cannot find module 'express'"
+
+  - id: node-eaddrinuse
+    regex: 'EADDRINUSE(?:: address already in use)?(?: [\w.:\[\]]*:(\d+))?'
+    category: config
+    platforms: [node, next]
+    titleFa: پورت در حال استفاده است
+    likelyCauseFa: برنامه دو بار listen می‌کند یا پورت ثابت با پورت تنظیم‌شده در لیارا تداخل دارد.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: پورت را از process.env.PORT بخوانید و فقط یک بار listen کنید.
+      - actionType: config_file
+        descriptionFa: پورت در liara.json را با پورتی که برنامه روی آن گوش می‌دهد یکی کنید.
+        params: { file: liara.json, field: port }
+    sample: 'Error: listen EADDRINUSE: address already in use :::3000'
+
+  - id: node-listen-eacces-privileged-port
+    regex: 'listen EACCES: permission denied (?:[\w.:\[\]]*:)?(\d{1,3})\b'
+    category: config
+    platforms: [node, docker]
+    titleFa: دسترسی به پورت ممتاز رد شد
+    likelyCauseFa: برنامه بدون دسترسی root روی پورت {1} (کمتر از ۱۰۲۴) گوش می‌دهد.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: از پورتی بالاتر از ۱۰۲۴ (مثلاً ۳۰۰۰) استفاده کنید و همان را در liara.json قرار دهید.
+    sample: 'Error: listen EACCES: permission denied 0.0.0.0:80'
+
+  - id: node-heap-oom
+    regex: 'JavaScript heap out of memory|Reached heap limit|Allocation failed - process out of memory'
+    category: resource
+    platforms: [node, next]
+    titleFa: حافظهٔ heap نود تمام شد
+    likelyCauseFa: مصرف حافظه از سقف heap یا پلن بیشتر شده است؛ ممکن است نشت حافظه یا بار سنگین باشد.
+    fixes:
+      - actionType: resize_app
+        descriptionFa: پلن برنامه را به پلنی با حافظهٔ بیشتر ارتقا دهید.
+        params: { direction: up }
+      - actionType: set_env
+        descriptionFa: سقف heap را متناسب با حافظهٔ پلن تنظیم کنید (مثلاً NODE_OPTIONS=--max-old-space-size=...).
+        params: { name: NODE_OPTIONS }
+      - actionType: manual
+        descriptionFa: نشت حافظه را با بررسی کش‌ها و آرایه‌های رشدکننده پیدا کنید.
+    sample: 'FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory'
+
+  - id: db-econnrefused-localhost-postgres
+    regex: 'ECONNREFUSED (?:127\.0\.0\.1|::1|localhost):5432'
+    category: config
+    platforms: [node, next]
+    titleFa: اتصال به PostgreSQL روی localhost رد شد
+    likelyCauseFa: آدرس دیتابیس به localhost اشاره می‌کند؛ در لیارا دیتابیس سرویس جداگانه است و باید آدرس شبکهٔ خصوصی یا عمومی آن استفاده شود.
+    fixes:
+      - actionType: set_env
+        descriptionFa: DATABASE_URL را روی آدرس دیتابیس لیارا تنظیم کنید.
+        params: { name: DATABASE_URL }
+      - actionType: restart_app
+        descriptionFa: پس از تنظیم متغیر، برنامه را ری‌استارت کنید.
+    sample: 'Error: connect ECONNREFUSED 127.0.0.1:5432'
+
+  - id: db-econnrefused-localhost-mysql
+    regex: 'ECONNREFUSED (?:127\.0\.0\.1|::1|localhost):3306'
+    category: config
+    platforms: [node, next]
+    titleFa: اتصال به MySQL روی localhost رد شد
+    likelyCauseFa: آدرس دیتابیس MySQL به localhost اشاره می‌کند، نه به سرویس دیتابیس لیارا.
+    fixes:
+      - actionType: set_env
+        descriptionFa: DB_HOST یا DATABASE_URL را روی آدرس دیتابیس لیارا تنظیم کنید.
+        params: { name: DATABASE_URL }
+    sample: 'Error: connect ECONNREFUSED ::1:3306'
+
+  - id: redis-econnrefused-localhost
+    regex: 'ECONNREFUSED (?:127\.0\.0\.1|::1|localhost):6379'
+    category: config
+    platforms: [node, next]
+    titleFa: اتصال به Redis روی localhost رد شد
+    likelyCauseFa: آدرس Redis تنظیم نشده و کلاینت به localhost وصل می‌شود.
+    fixes:
+      - actionType: set_env
+        descriptionFa: REDIS_URL را روی آدرس سرویس Redis تنظیم کنید.
+        params: { name: REDIS_URL }
+    sample: '[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379'
+
+  - id: net-econnrefused
+    regex: 'ECONNREFUSED(?: ([\w.:\[\]-]+))?'
+    category: network
+    platforms: [node, next, docker]
+    titleFa: اتصال رد شد
+    likelyCauseFa: سرویس مقصد ({1}) در دسترس نیست، هنوز بالا نیامده یا آدرس/پورت آن اشتباه است.
+    fixes:
+      - actionType: manual
+        descriptionFa: آدرس و پورت سرویس مقصد و وضعیت آن را بررسی کنید.
+      - actionType: set_env
+        descriptionFa: متغیر محیطی آدرس سرویس مقصد را اصلاح کنید.
+    sample: 'Error: connect ECONNREFUSED 10.0.4.7:8080'
+
+  - id: net-enotfound
+    regex: 'getaddrinfo (?:ENOTFOUND|EAI_AGAIN) ([\w.-]+)'
+    category: network
+    platforms: [node, next]
+    titleFa: نام دامنه resolve نشد
+    likelyCauseFa: نام میزبان «{1}» اشتباه است یا DNS در دسترس نیست.
+    fixes:
+      - actionType: set_env
+        descriptionFa: نام میزبان را در متغیر محیطی مربوط اصلاح کنید.
+      - actionType: manual
+        descriptionFa: درستی دامنه و در دسترس بودن DNS را بررسی کنید.
+    sample: 'Error: getaddrinfo ENOTFOUND db.internal.example'
+
+  - id: net-timeout
+    regex: '\b(?:ETIMEDOUT|ESOCKETTIMEDOUT|UND_ERR_CONNECT_TIMEOUT)\b'
+    category: network
+    platforms: [node, next]
+    titleFa: مهلت اتصال تمام شد
+    likelyCauseFa: سرویس مقصد کند است یا از شبکهٔ لیارا قابل دسترسی نیست.
+    fixes:
+      - actionType: manual
+        descriptionFa: دسترسی شبکه به سرویس مقصد و timeout کلاینت را بررسی کنید.
+    sample: 'Error: connect ETIMEDOUT 185.1.2.3:443'
+
+  - id: net-econnreset
+    regex: '\b(?:ECONNRESET|socket hang up|EPIPE)\b'
+    category: network
+    platforms: [node, next]
+    titleFa: اتصال قطع شد
+    likelyCauseFa: طرف مقابل اتصال را بست؛ معمولاً به‌خاطر keep-alive، محدودیت سرویس مقصد یا ری‌استارت آن.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: برای درخواست‌های خروجی retry با backoff اضافه کنید.
+    sample: 'Error: socket hang up'
+
+  - id: net-tls-certificate
+    regex: 'self[- ]signed certificate|UNABLE_TO_VERIFY_LEAF_SIGNATURE|CERT_HAS_EXPIRED|unable to get local issuer certificate'
+    category: network
+    platforms: [node, next, python]
+    titleFa: خطای گواهی TLS
+    likelyCauseFa: گواهی سرویس مقصد نامعتبر، منقضی یا self-signed است.
+    fixes:
+      - actionType: manual
+        descriptionFa: گواهی سرویس مقصد را بررسی کنید؛ اعتبارسنجی TLS را غیرفعال نکنید.
+    sample: 'Error: self-signed certificate in certificate chain'
+
+  - id: node-missing-npm-script
+    regex: '(?:npm ERR! )?[Mm]issing script:? "?(start|build)"?'
+    category: config
+    platforms: [node, next]
+    titleFa: اسکریپت npm وجود ندارد
+    likelyCauseFa: اسکریپت «{1}» در package.json تعریف نشده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: اسکریپت «{1}» را در بخش scripts فایل package.json اضافه کنید.
+        params: { file: package.json, script: '{1}' }
+    sample: 'npm ERR! missing script: start'
+
+  - id: node-cannot-read-undefined
+    regex: 'TypeError: Cannot read propert(?:y|ies) of (?:undefined|null)(?: \(reading ''([^'']+)''\))?'
+    category: code
+    platforms: [node, next]
+    titleFa: دسترسی به ویژگی مقدار undefined یا null
+    likelyCauseFa: کد بدون بررسی وجود مقدار، ویژگی «{1}» را می‌خواند.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: پیش از دسترسی، وجود مقدار را بررسی کنید (optional chaining یا guard).
+      - actionType: rollback_app
+        descriptionFa: اگر خطا پس از آخرین deploy شروع شده، به نسخهٔ قبلی برگردید.
+    sample: "TypeError: Cannot read properties of undefined (reading 'total')"
+
+  - id: node-not-a-function
+    regex: 'TypeError: ([\w.$\[\]()]+) is not a function'
+    category: code
+    platforms: [node, next]
+    titleFa: فراخوانی چیزی که تابع نیست
+    likelyCauseFa: «{1}» تابع نیست؛ معمولاً import/export نادرست یا تغییر API یک وابستگی.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: نحوهٔ import/export «{1}» و نسخهٔ وابستگی را بررسی کنید.
+      - actionType: rollback_app
+        descriptionFa: اگر پس از deploy جدید رخ داده، rollback کنید.
+    sample: 'TypeError: db.collection is not a function'
+
+  - id: node-reference-error
+    regex: 'ReferenceError: (\w+) is not defined'
+    category: code
+    platforms: [node, next]
+    titleFa: متغیر تعریف نشده
+    likelyCauseFa: «{1}» تعریف یا import نشده است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: «{1}» را تعریف یا import کنید.
+    sample: 'ReferenceError: fetchUser is not defined'
+
+  - id: node-esm-cjs-mismatch
+    regex: 'ERR_REQUIRE_ESM|require\(\) of ES Module|Cannot use import statement outside a module|ERR_MODULE_NOT_FOUND'
+    category: dependency
+    platforms: [node, next]
+    titleFa: ناسازگاری ESM و CommonJS
+    likelyCauseFa: یک بستهٔ ESM با require بارگذاری شده یا "type" در package.json با سبک import کد هم‌خوان نیست.
+    fixes:
+      - actionType: config_file
+        descriptionFa: فیلد "type" در package.json را با سبک ماژول کد یکی کنید یا از import پویا استفاده کنید.
+        params: { file: package.json, field: type }
+      - actionType: code_patch
+        descriptionFa: نسخهٔ CommonJS بسته را نصب کنید یا require را به import تبدیل کنید.
+    sample: 'Error [ERR_REQUIRE_ESM]: require() of ES Module /app/node_modules/node-fetch/src/index.js not supported.'
+
+  - id: node-syntax-error
+    regex: 'SyntaxError: (Unexpected token|Unexpected identifier|Unexpected end of input|Invalid or unexpected token)'
+    category: code
+    platforms: [node, next]
+    titleFa: خطای نحوی
+    likelyCauseFa: کد یا یک فایل JSON خطای نحوی دارد یا نسخهٔ Node از این syntax پشتیبانی نمی‌کند.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: خط مشخص‌شده در stack را اصلاح کنید.
+      - actionType: config_file
+        descriptionFa: نسخهٔ Node را در liara.json با نسخهٔ موردنیاز پروژه یکی کنید.
+        params: { file: liara.json }
+    sample: "SyntaxError: Unexpected token '?'"
+
+  - id: node-unhandled-rejection
+    regex: 'UnhandledPromiseRejection|unhandledRejection|triggerUncaughtException'
+    category: code
+    platforms: [node, next]
+    titleFa: Promise رد شده بدون catch
+    likelyCauseFa: یک خطای async مدیریت نشده و فرایند را متوقف کرده است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: برای await/Promise مربوط try/catch یا ‎.catch اضافه کنید.
+    sample: '(node:1) UnhandledPromiseRejectionWarning: Error: boom'
+
+  - id: node-engine-incompatible
+    regex: 'The engine "node" is incompatible|EBADENGINE|Unsupported engine|requires a peer of node'
+    category: dependency
+    platforms: [node, next]
+    titleFa: نسخهٔ Node ناسازگار است
+    likelyCauseFa: یک وابستگی نسخهٔ دیگری از Node می‌خواهد.
+    fixes:
+      - actionType: config_file
+        descriptionFa: نسخهٔ Node را در liara.json روی نسخهٔ سازگار تنظیم کنید.
+        params: { file: liara.json }
+    sample: 'error vite@7.1.0: The engine "node" is incompatible with this module.'
+
+  - id: node-native-module-abi
+    regex: 'NODE_MODULE_VERSION \d+|was compiled against a different Node\.js version|Could not load the "sharp" module|invalid ELF header'
+    category: dependency
+    platforms: [node, next, docker]
+    titleFa: ماژول native با Node سازگار نیست
+    likelyCauseFa: node_modules روی سیستم دیگری build شده یا همراه سورس آپلود شده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: node_modules را به .liaraignore / .dockerignore اضافه کنید تا روی سرور نصب شود.
+        params: { file: .liaraignore }
+      - actionType: redeploy_app
+        descriptionFa: دوباره deploy کنید تا ماژول‌ها برای محیط لیارا build شوند.
+    sample: "Error: The module '/app/node_modules/bcrypt/lib/binding/bcrypt_lib.node' was compiled against a different Node.js version"
+
+  - id: node-prisma-cannot-reach-db
+    regex: 'PrismaClientInitializationError|Can''t reach database server at `?([^`\s]+)'
+    category: config
+    platforms: [node, next]
+    titleFa: Prisma به دیتابیس وصل نمی‌شود
+    likelyCauseFa: DATABASE_URL تنظیم نشده یا به آدرس اشتباهی اشاره می‌کند.
+    fixes:
+      - actionType: set_env
+        descriptionFa: DATABASE_URL را روی آدرس دیتابیس لیارا تنظیم کنید.
+        params: { name: DATABASE_URL }
+    sample: "PrismaClientInitializationError: Can't reach database server at `localhost:5432`"
+
+  - id: node-prisma-not-generated
+    regex: '@prisma/client did not initialize yet|run "prisma generate"'
+    category: dependency
+    platforms: [node, next]
+    titleFa: Prisma Client ساخته نشده است
+    likelyCauseFa: مرحلهٔ prisma generate هنگام build اجرا نشده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: «prisma generate» را به اسکریپت build یا postinstall در package.json اضافه کنید.
+        params: { file: package.json, script: postinstall }
+    sample: 'Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.'
+
+  - id: node-jwt-secret-missing
+    regex: 'secretOrPrivateKey must have a value'
+    category: config
+    platforms: [node, next]
+    titleFa: کلید JWT تنظیم نشده است
+    likelyCauseFa: متغیر محیطی کلید امضای JWT خالی است.
+    fixes:
+      - actionType: set_env
+        descriptionFa: متغیر کلید JWT (مثلاً JWT_SECRET) را با مقداری تصادفی و طولانی تنظیم کنید.
+        params: { name: JWT_SECRET }
+    sample: 'Error: secretOrPrivateKey must have a value'
+
+  - id: node-mongo-server-selection
+    regex: 'Mongo(?:ose)?ServerSelectionError'
+    category: network
+    platforms: [node, next]
+    titleFa: اتصال به MongoDB برقرار نشد
+    likelyCauseFa: MONGODB_URI اشتباه است، دیتابیس در دسترس نیست یا احراز هویت ناموفق است.
+    fixes:
+      - actionType: set_env
+        descriptionFa: آدرس اتصال MongoDB را اصلاح کنید.
+        params: { name: MONGODB_URI }
+    sample: 'MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017'
+
+  # ---------------------------------------------------------------- Filesystem / platform (any runtime)
+  - id: fs-erofs
+    regex: 'EROFS: read-only file system|\[Errno 30\] Read-only file system'
+    category: platform
+    platforms: [node, next, python, django, laravel, docker]
+    titleFa: سیستم فایل فقط‌خواندنی است
+    likelyCauseFa: برنامه در مسیری می‌نویسد که در کانتینر لیارا فقط‌خواندنی است.
+    fixes:
+      - actionType: create_disk
+        descriptionFa: برای داده‌های ماندگار یک دیسک بسازید و در مسیر نوشتن mount کنید.
+      - actionType: code_patch
+        descriptionFa: فایل‌های موقت را در /tmp بنویسید.
+    sample: "Error: EROFS: read-only file system, open '/app/uploads/a.png'"
+
+  - id: fs-enospc
+    regex: 'ENOSPC: no space left on device|\[Errno 28\] No space left on device|No space left on device'
+    category: resource
+    platforms: [node, next, python, django, laravel, docker]
+    titleFa: فضای دیسک تمام شد
+    likelyCauseFa: دیسک یا فضای موقت پر شده است (لاگ، آپلود یا کش).
+    fixes:
+      - actionType: manual
+        descriptionFa: فایل‌های اضافی (لاگ، کش) را پاک کنید یا حجم دیسک را افزایش دهید.
+      - actionType: create_disk
+        descriptionFa: داده‌های حجیم را به یک دیسک جداگانه منتقل کنید.
+    sample: "Error: ENOSPC: no space left on device, write"
+
+  - id: fs-eacces
+    regex: 'EACCES: permission denied, (?:open|mkdir|scandir|unlink) ''([^'']+)'''
+    category: platform
+    platforms: [node, next, docker]
+    titleFa: دسترسی به فایل رد شد
+    likelyCauseFa: کاربر اجراکنندهٔ برنامه اجازهٔ نوشتن در «{1}» را ندارد.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: در مسیری قابل‌نوشتن (مثل /tmp یا دیسک mount‌شده) بنویسید.
+      - actionType: create_disk
+        descriptionFa: برای این مسیر دیسک بسازید.
+    sample: "Error: EACCES: permission denied, mkdir '/app/.cache'"
+
+  - id: fs-emfile
+    regex: 'EMFILE: too many open files|\[Errno 24\] Too many open files'
+    category: resource
+    platforms: [node, next, python]
+    titleFa: تعداد فایل‌های باز بیش از حد
+    likelyCauseFa: اتصال‌ها یا فایل‌ها بسته نمی‌شوند (نشت descriptor).
+    fixes:
+      - actionType: code_patch
+        descriptionFa: اتصال‌ها و stream‌ها را پس از استفاده ببندید و از connection pool استفاده کنید.
+      - actionType: restart_app
+        descriptionFa: برای رفع موقت، برنامه را ری‌استارت کنید.
+    sample: "Error: EMFILE: too many open files, open '/app/data.json'"
+
+  # ---------------------------------------------------------------- Next.js
+  - id: next-binary-not-found
+    regex: '(?:sh: \d+: )?next: (?:not found|command not found)'
+    category: dependency
+    platforms: [next]
+    titleFa: دستور next پیدا نشد
+    likelyCauseFa: next در dependencies نیست یا node_modules نصب نشده است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: next را به dependencies در package.json منتقل کنید.
+        params: { file: package.json, module: next }
+      - actionType: redeploy_app
+        descriptionFa: دوباره deploy کنید.
+    sample: 'sh: 1: next: not found'
+
+  - id: next-no-production-build
+    regex: 'Could not find a production build in the ''?\.next''? directory'
+    category: config
+    platforms: [next]
+    titleFa: build تولیدی Next وجود ندارد
+    likelyCauseFa: next start بدون اجرای next build اجرا شده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: اسکریپت build را در package.json تعریف کنید تا هنگام deploy اجرا شود.
+        params: { file: package.json, script: build }
+      - actionType: redeploy_app
+        descriptionFa: دوباره deploy کنید.
+    sample: "Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server."
+
+  - id: next-module-not-resolved
+    regex: 'Module not found: (?:Error: )?Can''t resolve ''([^'']+)'''
+    category: dependency
+    platforms: [next, node]
+    titleFa: ماژول در build حل نشد
+    likelyCauseFa: «{1}» نصب نشده یا مسیر import (حساس به حروف بزرگ و کوچک) اشتباه است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: «{1}» را نصب کنید یا مسیر import را با نام دقیق فایل یکی کنید.
+    sample: "Module not found: Can't resolve '@/components/Header'"
+
+  - id: next-prerender-error
+    regex: 'Error occurred prerendering page "([^"]+)"|Failed to collect page data for ([\w/\[\].-]+)'
+    category: code
+    platforms: [next]
+    titleFa: خطا در prerender صفحه
+    likelyCauseFa: صفحهٔ «{1}» هنگام build به داده یا متغیر محیطی‌ای نیاز دارد که در دسترس نیست.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: صفحه را dynamic کنید یا وابستگی به داده/متغیر را در زمان build برطرف کنید.
+      - actionType: set_env
+        descriptionFa: متغیرهای موردنیاز build (مثل NEXT_PUBLIC_*) را تنظیم کنید.
+    sample: 'Error occurred prerendering page "/dashboard". Read more: https://nextjs.org/docs/messages/prerender-error'
+
+  # ---------------------------------------------------------------- Python
+  - id: py-module-not-found
+    regex: 'ModuleNotFoundError: No module named ''([^'']+)'''
+    category: dependency
+    platforms: [python, django]
+    titleFa: ماژول پایتون پیدا نشد
+    likelyCauseFa: «{1}» در requirements.txt نیست یا مسیر پکیج اشتباه است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: «{1}» را به requirements.txt اضافه کنید.
+        params: { file: requirements.txt, module: '{1}' }
+      - actionType: redeploy_app
+        descriptionFa: دوباره deploy کنید.
+    sample: "ModuleNotFoundError: No module named 'gunicorn'"
+
+  - id: py-missing-env-keyerror
+    regex: 'KeyError: ''([A-Z][A-Z0-9_]{2,})'''
+    category: config
+    platforms: [python, django]
+    titleFa: متغیر محیطی تنظیم نشده
+    likelyCauseFa: کد os.environ["{1}"] را می‌خواند ولی این متغیر تنظیم نشده است.
+    fixes:
+      - actionType: set_env
+        descriptionFa: متغیر {1} را تنظیم کنید.
+        params: { name: '{1}' }
+    sample: "KeyError: 'DATABASE_URL'"
+
+  - id: py-requirement-not-satisfiable
+    regex: 'Could not find a version that satisfies the requirement ([\w.\[\]-]+)'
+    category: dependency
+    platforms: [python, django]
+    titleFa: نسخهٔ پکیج پیدا نشد
+    likelyCauseFa: نسخهٔ «{1}» وجود ندارد یا با نسخهٔ پایتون سازگار نیست.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: نسخهٔ «{1}» را در requirements.txt اصلاح کنید.
+        params: { file: requirements.txt }
+      - actionType: config_file
+        descriptionFa: نسخهٔ پایتون را در liara.json با نسخهٔ موردنیاز یکی کنید.
+        params: { file: liara.json }
+    sample: 'ERROR: Could not find a version that satisfies the requirement numpy==3.0.0'
+
+  - id: py-memory-error
+    regex: '\bMemoryError\b|was sent SIGKILL! Perhaps out of memory'
+    category: resource
+    platforms: [python, django]
+    titleFa: حافظهٔ پایتون تمام شد
+    likelyCauseFa: worker بیش از حافظهٔ پلن مصرف کرده و kill شده است.
+    fixes:
+      - actionType: resize_app
+        descriptionFa: پلن را به پلنی با حافظهٔ بیشتر ارتقا دهید.
+        params: { direction: up }
+      - actionType: set_env
+        descriptionFa: تعداد workerهای gunicorn را کاهش دهید (WEB_CONCURRENCY).
+        params: { name: WEB_CONCURRENCY }
+    sample: '[2026-10-20 12:00:00 +0000] [1] [ERROR] Worker (pid:9) was sent SIGKILL! Perhaps out of memory?'
+
+  - id: py-gunicorn-worker-timeout
+    regex: 'WORKER TIMEOUT \(pid:(\d+)\)'
+    category: resource
+    platforms: [python, django]
+    titleFa: timeout در worker
+    likelyCauseFa: یک درخواست بیش از timeout طول کشیده؛ عملیات کند یا CPU ناکافی.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: کار سنگین را به پس‌زمینه منتقل کنید یا کوئری کند را بهینه کنید.
+      - actionType: resize_app
+        descriptionFa: اگر CPU اشباع است، پلن را ارتقا دهید.
+        params: { direction: up }
+    sample: '[2026-10-20 12:00:00 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:42)'
+
+  - id: py-address-in-use
+    regex: '\[Errno 98\] Address already in use|Connection in use: \(''[^'']*'', (\d+)\)'
+    category: config
+    platforms: [python, django]
+    titleFa: پورت در حال استفاده است
+    likelyCauseFa: سرور پایتون دو بار روی یک پورت bind می‌شود یا پورت با تنظیم لیارا یکی نیست.
+    fixes:
+      - actionType: config_file
+        descriptionFa: پورت bind سرور و پورت liara.json را یکی کنید.
+        params: { file: liara.json, field: port }
+    sample: 'OSError: [Errno 98] Address already in use'
+
+  - id: py-db-connection-refused
+    regex: '(?:psycopg2?|django\.db\.utils|sqlalchemy\.exc)\.OperationalError:.*(?:Connection refused|could not connect|connection failed|Can''t connect)'
+    category: config
+    platforms: [python, django]
+    titleFa: اتصال پایتون به دیتابیس برقرار نشد
+    likelyCauseFa: آدرس دیتابیس به localhost اشاره می‌کند یا دیتابیس در دسترس نیست.
+    fixes:
+      - actionType: set_env
+        descriptionFa: DATABASE_URL (یا DB_HOST) را روی آدرس دیتابیس لیارا تنظیم کنید.
+        params: { name: DATABASE_URL }
+    sample: 'django.db.utils.OperationalError: connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused'
+
+  # ---------------------------------------------------------------- Django
+  - id: django-disallowed-host
+    regex: 'DisallowedHost: Invalid HTTP_HOST header: ''([^'']+)'''
+    category: config
+    platforms: [django]
+    titleFa: دامنه در ALLOWED_HOSTS نیست
+    likelyCauseFa: دامنهٔ «{1}» در ALLOWED_HOSTS جنگو نیست.
+    fixes:
+      - actionType: set_env
+        descriptionFa: «{1}» را به ALLOWED_HOSTS اضافه کنید.
+        params: { name: ALLOWED_HOSTS, value: '{1}' }
+    sample: "django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'shop.liara.run'. You may need to add 'shop.liara.run' to ALLOWED_HOSTS."
+
+  - id: django-unapplied-migrations
+    regex: 'You have \d+ unapplied migration|no such table: (\w+)|relation "([\w.]+)" does not exist'
+    category: config
+    platforms: [django, python]
+    titleFa: migration اجرا نشده است
+    likelyCauseFa: جداول دیتابیس ساخته نشده‌اند؛ migrate پس از deploy اجرا نشده است.
+    fixes:
+      - actionType: run_in_container
+        descriptionFa: دستور migrate را در کانتینر اجرا کنید.
+        params: { command: python manage.py migrate }
+      - actionType: config_file
+        descriptionFa: اجرای migrate را به مرحلهٔ استقرار اضافه کنید.
+    sample: 'django.db.utils.ProgrammingError: relation "shop_order" does not exist'
+
+  - id: django-secret-key-missing
+    regex: 'The SECRET_KEY setting must not be empty'
+    category: config
+    platforms: [django]
+    titleFa: SECRET_KEY تنظیم نشده
+    likelyCauseFa: متغیر SECRET_KEY جنگو خالی است.
+    fixes:
+      - actionType: set_env
+        descriptionFa: SECRET_KEY را با مقداری تصادفی و طولانی تنظیم کنید.
+        params: { name: SECRET_KEY }
+    sample: 'django.core.exceptions.ImproperlyConfigured: The SECRET_KEY setting must not be empty.'
+
+  - id: django-staticfiles-manifest
+    regex: 'Missing staticfiles manifest entry for ''([^'']+)'''
+    category: config
+    platforms: [django]
+    titleFa: فایل‌های static جمع‌آوری نشده‌اند
+    likelyCauseFa: collectstatic اجرا نشده و «{1}» در manifest نیست.
+    fixes:
+      - actionType: run_in_container
+        descriptionFa: collectstatic را اجرا کنید.
+        params: { command: python manage.py collectstatic --noinput }
+    sample: "ValueError: Missing staticfiles manifest entry for 'css/site.css'"
+
+  - id: django-improperly-configured
+    regex: 'ImproperlyConfigured: (.+)'
+    category: config
+    platforms: [django]
+    titleFa: تنظیمات جنگو ناقص است
+    likelyCauseFa: یک تنظیم یا متغیر محیطی لازم مقدار ندارد.
+    fixes:
+      - actionType: set_env
+        descriptionFa: متغیر یا تنظیم ذکرشده در پیام خطا را مقداردهی کنید.
+      - actionType: config_file
+        descriptionFa: DJANGO_SETTINGS_MODULE و فایل settings را بررسی کنید.
+    sample: 'django.core.exceptions.ImproperlyConfigured: Set the DATABASE_URL environment variable'
+
+  # ---------------------------------------------------------------- Laravel / PHP
+  - id: laravel-app-key-missing
+    regex: 'No application encryption key has been specified|MissingAppKeyException'
+    category: config
+    platforms: [laravel]
+    titleFa: APP_KEY تنظیم نشده
+    likelyCauseFa: متغیر APP_KEY لاراول خالی است.
+    fixes:
+      - actionType: set_env
+        descriptionFa: APP_KEY را با خروجی php artisan key:generate --show تنظیم کنید.
+        params: { name: APP_KEY }
+    sample: 'production.ERROR: No application encryption key has been specified.'
+
+  - id: laravel-log-not-writable
+    regex: 'The stream or file "([^"]*storage/logs/[^"]+)" could not be opened'
+    category: platform
+    platforms: [laravel]
+    titleFa: فایل لاگ لاراول قابل نوشتن نیست
+    likelyCauseFa: پوشهٔ storage قابل نوشتن نیست.
+    fixes:
+      - actionType: set_env
+        descriptionFa: LOG_CHANNEL را روی stderr بگذارید تا لاگ‌ها در خروجی لیارا دیده شوند.
+        params: { name: LOG_CHANNEL, value: stderr }
+      - actionType: create_disk
+        descriptionFa: برای storage دیسک بسازید و mount کنید.
+    sample: 'The stream or file "/var/www/html/storage/logs/laravel.log" could not be opened in append mode: Failed to open stream: Permission denied'
+
+  - id: laravel-db-connection-refused
+    regex: 'SQLSTATE\[HY000\] \[2002\] (?:Connection refused|No such file or directory|php_network_getaddresses)'
+    category: config
+    platforms: [laravel]
+    titleFa: اتصال لاراول به دیتابیس برقرار نشد
+    likelyCauseFa: DB_HOST روی localhost یا 127.0.0.1 است یا دیتابیس در دسترس نیست.
+    fixes:
+      - actionType: set_env
+        descriptionFa: DB_HOST، DB_PORT و DB_DATABASE را با مقادیر دیتابیس لیارا تنظیم کنید.
+        params: { name: DB_HOST }
+    sample: 'SQLSTATE[HY000] [2002] Connection refused (SQL: select * from `users`)'
+
+  - id: laravel-table-missing
+    regex: 'SQLSTATE\[42S02\]|Base table or view not found: 1146 Table ''([^'']+)'''
+    category: config
+    platforms: [laravel]
+    titleFa: جدول وجود ندارد (migration اجرا نشده)
+    likelyCauseFa: migrationهای لاراول اجرا نشده‌اند.
+    fixes:
+      - actionType: run_in_container
+        descriptionFa: migrate را در کانتینر اجرا کنید.
+        params: { command: php artisan migrate --force }
+    sample: "SQLSTATE[42S02]: Base table or view not found: 1146 Table 'shop.orders' doesn't exist"
+
+  - id: php-class-not-found
+    regex: 'Class "([^"]+)" not found'
+    category: dependency
+    platforms: [laravel]
+    titleFa: کلاس PHP پیدا نشد
+    likelyCauseFa: پکیج «{1}» در composer.json نیست، فقط در require-dev است یا autoload به‌روز نیست.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: پکیج را به require در composer.json اضافه کنید و namespace را بررسی کنید.
+        params: { file: composer.json }
+    sample: 'Class "Barryvdh\Debugbar\ServiceProvider" not found'
+
+  - id: php-memory-exhausted
+    regex: 'Allowed memory size of (\d+) bytes exhausted'
+    category: resource
+    platforms: [laravel]
+    titleFa: حافظهٔ PHP تمام شد
+    likelyCauseFa: یک درخواست از memory_limit بیشتر حافظه مصرف کرده است.
+    fixes:
+      - actionType: code_patch
+        descriptionFa: داده‌ها را chunk کنید و از بارگذاری کامل مجموعه‌های بزرگ پرهیز کنید.
+      - actionType: resize_app
+        descriptionFa: در صورت نیاز پلن را ارتقا دهید.
+        params: { direction: up }
+    sample: 'PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes)'
+
+  - id: laravel-vite-manifest-missing
+    regex: 'Vite manifest not found at: ([^\s]+)'
+    category: config
+    platforms: [laravel]
+    titleFa: manifest فایل‌های Vite پیدا نشد
+    likelyCauseFa: assetهای فرانت (npm run build) هنگام deploy ساخته نشده‌اند.
+    fixes:
+      - actionType: config_file
+        descriptionFa: build فرانت را به مراحل استقرار اضافه کنید یا public/build را همراه سورس بفرستید.
+    sample: 'Illuminate\Foundation\ViteManifestNotFoundException: Vite manifest not found at: /var/www/html/public/build/manifest.json'
+
+  # ---------------------------------------------------------------- Docker
+  - id: docker-exec-format-error
+    regex: 'exec format error'
+    category: platform
+    platforms: [docker]
+    titleFa: معماری image ناسازگار است
+    likelyCauseFa: image برای معماری دیگری (مثلاً arm64) ساخته شده یا اسکریپت entrypoint خط shebang ندارد.
+    fixes:
+      - actionType: config_file
+        descriptionFa: image را برای linux/amd64 بسازید و shebang اسکریپت entrypoint را بررسی کنید.
+        params: { file: Dockerfile }
+    sample: 'exec /usr/local/bin/docker-entrypoint.sh: exec format error'
+
+  - id: docker-executable-not-found
+    regex: 'exec: "([^"]+)": executable file not found in \$PATH'
+    category: config
+    platforms: [docker]
+    titleFa: فایل اجرایی در image نیست
+    likelyCauseFa: دستور «{1}» در CMD/ENTRYPOINT وجود ندارد یا نصب نشده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: CMD/ENTRYPOINT را در Dockerfile اصلاح کنید یا «{1}» را نصب کنید.
+        params: { file: Dockerfile }
+    sample: 'OCI runtime create failed: exec: "gunicorn": executable file not found in $PATH: unknown'
+
+  - id: docker-entrypoint-permission-denied
+    regex: '(?:entrypoint|start)[\w.-]*\.sh: Permission denied'
+    category: config
+    platforms: [docker]
+    titleFa: اسکریپت entrypoint اجرایی نیست
+    likelyCauseFa: اسکریپت مجوز اجرا ندارد یا با line ending ویندوزی (CRLF) ذخیره شده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: در Dockerfile دستور RUN chmod +x را اضافه کنید و line endingها را به LF تبدیل کنید.
+        params: { file: Dockerfile }
+    sample: '/bin/sh: 1: /app/docker-entrypoint.sh: Permission denied'
+
+  - id: docker-oom-killed
+    regex: '\bOOMKilled\b|Out of memory: Killed process|exit code 137'
+    category: resource
+    platforms: [docker, node, python, laravel]
+    titleFa: کانتینر به‌خاطر کمبود حافظه kill شد
+    likelyCauseFa: مصرف حافظه از سقف پلن بیشتر شده است.
+    fixes:
+      - actionType: resize_app
+        descriptionFa: پلن را به پلنی با حافظهٔ بیشتر ارتقا دهید.
+        params: { direction: up }
+      - actionType: manual
+        descriptionFa: مصرف حافظه و نشت احتمالی را در متریک‌ها بررسی کنید.
+    sample: 'container exited with exit code 137 (OOMKilled)'
+
+  - id: docker-build-copy-failed
+    regex: 'COPY failed|failed to compute cache key: .*?"([^"]+)" not found'
+    category: config
+    platforms: [docker]
+    titleFa: COPY در Dockerfile شکست خورد
+    likelyCauseFa: فایل یا پوشه در context build نیست یا در .dockerignore / .liaraignore حذف شده است.
+    fixes:
+      - actionType: config_file
+        descriptionFa: مسیر COPY و فایل‌های ignore را بررسی کنید.
+        params: { file: Dockerfile }
+    sample: 'failed to compute cache key: failed to calculate checksum of ref abc123::xyz: "/dist" not found: not found'
+
+  - id: docker-crlf-shebang
+    regex: '/usr/bin/env: ''\w+(?:\r|\\r)'': No such file or directory|\$''(?:\r|\\r)'': command not found'
+    category: config
+    platforms: [docker]
+    titleFa: line ending ویندوزی در اسکریپت
+    likelyCauseFa: اسکریپت shell با CRLF ذخیره شده و در لینوکس اجرا نمی‌شود.
+    fixes:
+      - actionType: config_file
+        descriptionFa: line ending اسکریپت‌ها را به LF تبدیل کنید (مثلاً با .gitattributes).
+        params: { file: .gitattributes }
+    sample: "/usr/bin/env: 'bash\\r': No such file or directory"

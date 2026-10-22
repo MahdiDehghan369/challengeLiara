@@ -201,6 +201,10 @@ export const fa = {
     invalidDuration:
       'قالب مدت‌زمان نامعتبر است (نمونهٔ درست: 30s، 5m، 1h، 2d).',
   },
+  knowledge: {
+    invalid: 'فایل پایگاه دانش خطاها (patterns.yaml) نامعتبر است.',
+    notFound: 'فایل پایگاه دانش خطاها (patterns.yaml) پیدا نشد.',
+  },
 } as const;
 
 export type Fa = typeof fa;
