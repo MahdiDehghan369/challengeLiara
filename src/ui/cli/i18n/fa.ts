@@ -30,6 +30,33 @@ export const fa = {
     budget:
       'سقف مصرف این جلسه پر شد؛ کار Agent متوقف شد.',
   },
+  friendly: {
+    whatLabel: 'چه اتفاقی افتاد:',
+    doLabel: 'چه کار کنم:',
+    techLabel: 'جزئیات فنی:',
+    verboseHint: 'برای دیدن جزئیات فنی، دستور را با --verbose اجرا کنید.',
+    tokenDo: 'یک توکن API تازه از کنسول لیارا بگیرید و مقدار LIARA_API_TOKEN را در فایل .env به‌روز کنید.',
+    envKeyDo: (key: string) => `مقدار ${key} را در فایل .env قرار دهید (نه در .env.example) و دوباره اجرا کنید.`,
+    networkWhat: 'ارتباط با لیارا برقرار نشد (شبکه قطع است یا پاسخی در زمان مقرر نیامد).',
+    networkDo: 'اتصال اینترنت و تنظیمات proxy را بررسی کنید و چند لحظه بعد دوباره تلاش کنید.',
+    rateDo: (wait: string) => `حدود ${wait} صبر کنید و دوباره تلاش کنید.`,
+    rateDoUnknown: 'کمی صبر کنید و دوباره تلاش کنید.',
+    cliMissingWhat: 'ابزار خط فرمان لیارا (Liara CLI) نصب نیست.',
+    cliMissingDo: 'Liara CLI را با دستور زیر نصب کنید و دوباره تلاش کنید:',
+    balanceWhat: 'موجودی حساب لیارا برای این کار کافی نیست.',
+    balanceDo: 'حساب لیارا را از کنسول شارژ کنید و دوباره تلاش کنید.',
+    conflictDo: 'یک نام دیگر انتخاب کنید یا منبع موجود را بررسی کنید.',
+    timeoutWhat: 'عملیات در زمان مقرر تمام نشد.',
+    timeoutDo: 'وضعیت و لاگ‌های اپ را بررسی کنید؛ ممکن است عملیات هنوز در جریان باشد:',
+    notFoundSuggestDo: (name: string) => `اگر منظورتان «${name}» است، دستور را با همین نام تکرار کنید.`,
+    notFoundDo: 'فهرست اپ‌ها را ببینید و نام درست را وارد کنید:',
+    deniedDo: 'کاری لازم نیست؛ هیچ تغییری اعمال نشد.',
+    budgetDo: 'درخواست را محدودتر کنید یا یک جلسهٔ تازه شروع کنید.',
+    genericDo: 'دوباره تلاش کنید؛ اگر تکرار شد، با --verbose اجرا کنید و جزئیات را گزارش دهید.',
+    unexpectedWhat: 'یک خطای پیش‌بینی‌نشده رخ داد.',
+    /** Persian keyword Liara may use in low-balance error messages (matched, not shown). */
+    balanceKeyword: 'موجودی',
+  },
   budget: {
     soft: (what: string, value: number, limit: number) =>
       `هشدار: ${what} به ${value} رسید (حد نرم: ${limit}).`,
