@@ -1,0 +1,14 @@
+{
+  "user": {
+    "balance": 1000000,
+    "accountType": "REAL_PERSON",
+    "minCreditAmount": 20000,
+    "isManualMinCredit": false
+  },
+  "team": {
+    "balance": 1000000,
+    "accountType": "REAL_PERSON",
+    "minCreditAmount": 20000,
+    "isManualMinCredit": false
+  }
+}

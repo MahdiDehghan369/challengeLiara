@@ -1,0 +1,19 @@
+{
+  "projects": [
+    {
+      "_id": "6ada6cf5fc09ae5c3cb6cf79",
+      "project_id": "siavash-starcoach-torob",
+      "type": "docker",
+      "status": "ACTIVE",
+      "scale": 1,
+      "planID": "small-g2",
+      "bundlePlanID": "standard",
+      "network": {
+        "_id": "6ada6cf4aa8f2ba374d174ea",
+        "name": "my-network"
+      },
+      "created_at": "2026-10-22T20:07:17.155Z",
+      "isDeployed": true
+    }
+  ]
+}

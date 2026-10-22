@@ -258,9 +258,18 @@ export class LiaraCli implements LogsCli {
     return this.run(args, { timeoutMs: 10 * 60_000 });
   }
 
-  /** `liara db list --output json` — raw JSON (structure recorded in T0.5). */
+  /**
+   * `liara db list --output json` — raw JSON. Recorded in T0.5: with no databases the CLI exits
+   * non-zero with "Not found any database." → returned as `[]`.
+   */
   async dbList(): Promise<unknown> {
-    return (await this.run(['db', 'list'], { json: true })).json;
+    try {
+      return (await this.run(['db', 'list'], { json: true })).json;
+    } catch (e) {
+      const tail = e instanceof ExternalCommandError ? ((e.details.tail as string[] | undefined) ?? []) : [];
+      if (tail.some((l) => /not found any database/i.test(l))) return [];
+      throw e;
+    }
   }
 
   async dbStart(name: string): Promise<RunResult> {

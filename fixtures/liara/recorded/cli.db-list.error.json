@@ -1,0 +1,19 @@
+{
+  "error": "ExternalCommandError",
+  "code": "EXTERNAL_COMMAND_ERROR",
+  "status": null,
+  "details": {
+    "args": [
+      "db",
+      "list",
+      "--output",
+      "json"
+    ],
+    "tail": [
+      " »   Error: Not found any database.",
+      " »   Please open up https://console.liara.ir/databases and create the database,",
+      " »    first."
+    ],
+    "timedOut": false
+  }
+}
