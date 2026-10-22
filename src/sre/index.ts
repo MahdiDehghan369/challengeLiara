@@ -1,2 +1,3 @@
 export * from './health.js';
 export * from './logs.js';
+export * from './log-cluster.js';

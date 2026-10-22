@@ -93,14 +93,14 @@
 | T6.9 | ⬜ | - | |
 | T7.1 | ✅ | d0ec693 | `probe(url, {paths, count, timeoutMs, fetchImpl})` sequential samples (ttfb at headers, total after body, `redirect: manual`) → `{availability%, p50, p95, errorRate, statusHistogram, errorHistogram{timeout,dns,tls,connection,other}, tlsValid, samples}`; 4xx counts as available, 5xx/errors don't. `classifyProbeError` reads undici `cause.code`. New `src/shared/stats.ts` (mean, nearest-rank percentile, round). TLS covered with a fetch stub (no committed test private key). |
 | T7.2 | ⬜ | - | |
-| T7.3 | ✅ | (see git log `T7.3:`) | `src/sre/logs.ts`: `collectLogs(source, app, {windowSec, max, redactor})` → `LogRecord {ts, stream, level, text, lineCount}` (sorted, merged, redacted; `max` keeps newest). `detectLevel` (JSON level/severity incl. pino numbers, else text markers: ERROR/FATAL/XxxError:/Traceback/UnhandledPromiseRejection/npm ERR!/heap OOM/Killed; WARN). `mergeMultiline`: Node `    at` frames, Python Traceback → final `XxxError` line, caret lines; never across streams. `LogSource` interface = `LogsApi.getLogs`. |
+| T7.3 | ✅ | c43fbfb | `src/sre/logs.ts`: `collectLogs(source, app, {windowSec, max, redactor})` → `LogRecord {ts, stream, level, text, lineCount}` (sorted, merged, redacted; `max` keeps newest). `detectLevel` (JSON level/severity incl. pino numbers, else text markers: ERROR/FATAL/XxxError:/Traceback/UnhandledPromiseRejection/npm ERR!/heap OOM/Killed; WARN). `mergeMultiline`: Node `    at` frames, Python Traceback → final `XxxError` line, caret lines; never across streams. `LogSource` interface = `LogsApi.getLogs`. |
 | T7.4 | ⬜ | - | |
 | T7.5 | ⬜ | - | |
 | T7.6 | ⬜ | - | |
 | T7.7 | ⬜ | - | |
 | T7.8 | ⬜ | - | |
 | T7.9 | ⬜ | - | |
-| T8.1 | ⬜ | - | |
+| T8.1 | ✅ | (see git log `T8.1:`) | `src/sre/log-cluster.ts`: `errorSignature` (normalized header — ts/uuid/hex/ip/email/long-quoted/path/numbers — + top user frame `fn:basename`; Python uses the final exception line), `parseFrames` (Node + Python, innermost first, `isUserCode` excludes node_modules/site-packages/node:/internal), `clusterLogs(records, {levels=['error']})` → `{signature, count, firstSeen, lastSeen, sample, level, stream, topFrames(≤5), isUserCode}` sorted by count then recency. 1000 lines/3 recurring errors → 3 clusters. |
 | T8.2 | ⬜ | - | |
 | T8.3 | ⬜ | - | |
 | T8.4 | ⬜ | - | |
@@ -161,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T8.1:** src/sre/{log-cluster,index}.ts, tests/unit/sre/log-cluster.test.ts.
 - **T7.3:** src/sre/{logs,index}.ts, tests/unit/sre/logs.test.ts.
 - **T7.1:** src/sre/{health,index}.ts, src/shared/{stats,index}.ts, tests/unit/sre/health.test.ts.
 - **T6.5:** src/ops/{releases,index}.ts, src/shared/time.ts (relTimeFa), src/ui/cli/i18n/fa.ts (rollback, time), tests/unit/ops/releases.test.ts, package.json (simple-git), docs/OPEN_QUESTIONS.md (OQ-22).
