@@ -24,8 +24,8 @@
 |------|--------|--------|-------|
 | T0.1 | ⬜ | - | |
 | T0.2 | ⬜ | - | |
-| T0.3 | ✅ | (see git log `T0.3:`) | Skeleton per 01-ANALYSIS §3. tsc build (rootDir src → dist), NodeNext ESM (imports use `.js`). ESLint 8.57 + `.eslintrc.cjs`; vitest forces LIARA_MODE/LLM_MODE=mock; e2e via `vitest.e2e.config.ts`. Also committed the planning docs and the user's README.md deletion. |
-| T0.4 | ⬜ | - | |
+| T0.3 | ✅ | 5fbd061 | Skeleton per 01-ANALYSIS §3. tsc build (rootDir src → dist), NodeNext ESM (imports use `.js`). ESLint 8.57 + `.eslintrc.cjs`; vitest forces LIARA_MODE/LLM_MODE=mock; e2e via `vitest.e2e.config.ts`. Also committed the planning docs and the user's README.md deletion. |
+| T0.4 | ✅ | (see git log `T0.4:`) | zod 4, pino 9, dotenv 17. Config exposed as `getConfig()` (memoized, loads .env) + pure `loadConfig(env)` — see D-004. Logger: pino `redact` paths + deep case-insensitive key scrub + `token=` URL scrub in objects and messages. Seed `src/ui/cli/i18n/fa.ts` created (T9.1 expands). `config/models.json` schema: `{baseUrl, roles:{chat,reasoning,code,cheap:{model,fallbackProtocol,fallbacks[]}}}`. |
 | T0.5 | ⬜ | - | ⚠️ needs LIARA_API_TOKEN |
 | T0.6 | ⬜ | - | |
 | T0.7 | ⬜ | - | |
@@ -146,9 +146,12 @@
 - **D-001 (T0.3):** Dev toolchain beyond the AGENT_RULES §2 list: `typescript`, `@types/node`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`. Treated as implied by "TypeScript strict + eslint" (eslint cannot parse TS without them). No runtime libraries outside the list.
 - **D-002 (T0.3):** ESLint pinned to 8.57.1 because the task specifies `.eslintrc.cjs` (legacy config format).
 - **D-003 (T0.3):** Build with `tsc` (no tsup, which is not on the allowed list).
+- **D-004 (T0.4):** Instead of an eagerly-evaluated `config` constant, `src/config/env.ts` exports `getConfig()` (memoized, frozen). An eager constant would throw at import time in live mode without a token, before the CLI could print the Persian message.
+- **D-005 (T0.4):** Persian strings for logic-layer errors (`messageFa`) come from `src/ui/cli/i18n/fa.ts`, so `shared/` and `config/` import that file. It is a pure string table with no UI dependencies.
 
 ## Proposed tasks
 _(none yet)_
 
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
+- **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
