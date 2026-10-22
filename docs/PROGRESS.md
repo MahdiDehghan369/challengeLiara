@@ -40,10 +40,10 @@
 | T1.8 | ⬜ | - | |
 | T1.9 | ⬜ | - | |
 | T1.10 | ⬜ | - | |
-| T1.11 | ✅ | (see git log `T1.11:`) | `DisksApi` per map: `{id}` (via resolveApp) for list/delete disk + all backups; `{name}` for create/resize disk + FTP list/create; `/v1/ftp/{fname}` delete. 409 on delete → `DISK_IN_USE`. Sizes sent as strings. New `src/shared/secret.ts` (`Secret<T>`: toString/toJSON/inspect/toPrimitive → `[SECRET]`, `reveal()`, `maskSecret`). FTP passwords and the backup download link (likely pre-signed URL) are `Secret`. Logger's deep scrub now serializes via `toJSON` (Secret/Date). Tests prove `{id}`/`{name}` per path via msw request log. |
+| T1.11 | ✅ | 9bdf026 | `DisksApi` per map: `{id}` (via resolveApp) for list/delete disk + all backups; `{name}` for create/resize disk + FTP list/create; `/v1/ftp/{fname}` delete. 409 on delete → `DISK_IN_USE`. Sizes sent as strings. New `src/shared/secret.ts` (`Secret<T>`: toString/toJSON/inspect/toPrimitive → `[SECRET]`, `reveal()`, `maskSecret`). FTP passwords and the backup download link (likely pre-signed URL) are `Secret`. Logger's deep scrub now serializes via `toJSON` (Secret/Date). Tests prove `{id}`/`{name}` per path via msw request log. |
 | T1.12 | ⬜ | - | |
 | T1.13 | ⬜ | - | |
-| T1.14 | ⬜ | - | |
+| T1.14 | ✅ | (see git log `T1.14:`) | `LiaraCli` over an injectable `Spawner` (default execa 9, `reject:false`, merged lines via `iterable({from:'all'})`). Always appends `--api-token`/`--team-id`; `scrub()` removes the token from logged args, streamed lines, stdout and errors (logger-spy test). Non-zero exit/timeout → `ExternalCommandError` with last 50 lines. `ensureCli` (liara → `npx -y @liara/cli` → not installed + Persian hint). Commands: planList (raw, OQ-5), envList (→ Secret, OQ-17), envUnset, db create/list/start/stop/resize(-d y)/remove (flags per docs: `db stop` has no -y), logs, shell, zoneCheck, deploy (events; placeholder stage regexes OQ-16; 15 min timeout). Implements `LogsCli` for T1.4. OQ-18: token is visible in argv. |
 | T1.15 | ⬜ | - | |
 | T1.16 | ⬜ | - | |
 | T1.17 | ⬜ | - | |
@@ -158,6 +158,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T1.14:** src/liara/{cli,cli-parsers,index}.ts, src/ui/cli/i18n/fa.ts (cli), tests/unit/liara/cli.test.ts, package.json (execa), docs/OPEN_QUESTIONS.md (OQ-16..18).
 - **T1.11:** src/liara/api/{disks,index}.ts, src/shared/{secret,logger,index}.ts, src/ui/cli/i18n/fa.ts (disks), fixtures/liara/spec/disks.list.json, tests/unit/liara/disks.test.ts, tests/unit/shared/secret.test.ts.
 - **T1.6:** src/liara/{ledger,index}.ts, tests/unit/liara/ledger.test.ts.
 - **T1.5:** src/liara/{archive,http,index}.ts, src/liara/api/{deploy,index}.ts, tests/unit/liara/{archive,deploy}.test.ts, package.json (tar), docs/OPEN_QUESTIONS.md (OQ-15).

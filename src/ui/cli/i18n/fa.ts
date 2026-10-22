@@ -64,6 +64,18 @@ export const fa = {
     inUse: (disk: string) =>
       `دیسک «${disk}» در حال استفاده است و فعلاً حذف نمی‌شود.`,
   },
+  cli: {
+    notInstalled:
+      'Liara CLI پیدا نشد. با دستور «npm i -g @liara/cli» نصبش کنید.',
+    usingNpx:
+      'Liara CLI نصب نیست؛ فعلاً از npx استفاده می‌شود (کندتر). برای سرعت بیشتر: npm i -g @liara/cli',
+    failed:
+      'دستور Liara CLI با خطا تمام شد.',
+    timeout:
+      'دستور Liara CLI در زمان مقرر تمام نشد.',
+    badJson:
+      'خروجی Liara CLI قابل خواندن (JSON) نبود.',
+  },
   wait: {
     timeout:
       'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',
