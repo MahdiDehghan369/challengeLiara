@@ -6,6 +6,8 @@
 ## Resume here
 - **Current task:** —
 - **Next (critical path):** see "Order" below; first ⬜ whose dependencies are ✅.
+- **Blocker chains (2026-10-22):** T0.2 (needs `BOXAPI_API_KEY`) → T3.1 → T3.2/T3.8 → T4.5 → T4.7/T4.8/T5.3/T7.9/T8.3/T8.8 … · T0.5 (needs `LIARA_API_TOKEN`, user deferred) → T1.10 → T1.16 → T1.17 → T3.3 → T5.1/T6.1/… and T4.6 → T4.7/T7.2.
+- **Unblocked queue at that point (MVP order first):** T6.4, T6.5, T7.1, T7.3, T8.1, T8.2, T8.7, T9.1, T9.5, T11.1; then non-MVP: T1.7, T1.9, T1.12, T1.15, T2.5, T2.6, T6.6, T6.7, T6.8, T9.9.
 
 ## Environment (local machine)
 - Node 22 (portable): `%LOCALAPPDATA%\Programs\node-v22.23.4-win-x64`; MinGit: `%LOCALAPPDATA%\Programs\MinGit\cmd`. Both were added to the *user* PATH, but already-running shells (incl. the agent's) need:
@@ -64,7 +66,7 @@
 | T4.1 | ✅ | a021f24 | `detectPlatform(root)` deterministic order per task → `{platform, liaraPlatformId, version, confidence, evidence[]}`; internal platforms docker/next/react-static/node/django/flask/fastapi/laravel/go/static/unknown. `platform-map.ts`: only docs-backed ids (docker, next) + `node` (tasks doc, unverified); rest undefined, TODO(OQ-20). `project-files.ts` helpers (safe reads, python requirements incl. pyproject/Pipfile, file listing skipping vendor dirs). 12 fixture projects in `tests/fixtures/projects/` (excluded from tsc/eslint). |
 | T4.2 | ✅ | bbae60f | `AnalyzerWarning {code, severity: blocker/warning/info, messageFa, fixFa, evidence}` (src/analyzer/types.ts). `detectPort(root, platform)` → `{port, source: env-default/listen/expose/cli-flag/platform-default, readsPortEnv, bindHost, evidence, warnings}`; PORT_HARDCODED, BIND_LOCALHOST (blocker, incl. flask `app.run()`), PORT_DEFAULT_ASSUMED (info; defaults are framework conventions, not Liara facts). `detectScripts` → `{install, build, start, warnings}`: NO_START_SCRIPT, NODEMON_START, RUNTIME_IN_DEV_DEPS, NO_BUILD_SCRIPT, PYTHON_NO_SERVER. |
 | T4.3 | ✅ | 6281d6a | `detectEnv(root, {readDotEnv?})` → `{vars: [{name, sources, hasDefault, required, isSecret, suggestedValue?, managedByAgent}], dotenv?}`. Sources: .env.example/.sample/.dist/.template + code scan (process.env.X / ['X'], import.meta.env, os.environ[..] (hard → required), os.environ.get / os.getenv / getenv / env() with default detection, Go os.Getenv). required = no default ∧ (startup use: top-level line or entry file, or empty in example). PORT/NODE_ENV `managedByAgent`. isSecret reuses `isSecretEnvName` (safety/risk). Secret example values never suggested. Real `.env` only with `readDotEnv:true`, values as Secret. Required first in output. |
-| T4.4 | ✅ | (see git log `T4.4:`) | `detectDeps(root, knownEnvNames)` → `{needsDatabase, databases:[{type, envName, evidence}], disk:{needed, folders, evidence}, migrations:[{tool, command, evidence}], warnings}`. DB from node/python packages, prisma provider + `env("X")`, django ENGINE, laravel DB_CONNECTION; env name prefers what the code already uses. Redis alone ≠ database. Disk from upload packages / uploads,media,storage folders / MEDIA_ROOT / sqlite → EPHEMERAL_FS, SQLITE_EPHEMERAL warnings. Migrations: prisma, django, laravel, sequelize, typeorm, knex (MIGRATION_NEEDED info). Absolute mount path TODO(OQ-21). |
+| T4.4 | ✅ | 183d0ef | `detectDeps(root, knownEnvNames)` → `{needsDatabase, databases:[{type, envName, evidence}], disk:{needed, folders, evidence}, migrations:[{tool, command, evidence}], warnings}`. DB from node/python packages, prisma provider + `env("X")`, django ENGINE, laravel DB_CONNECTION; env name prefers what the code already uses. Redis alone ≠ database. Disk from upload packages / uploads,media,storage folders / MEDIA_ROOT / sqlite → EPHEMERAL_FS, SQLITE_EPHEMERAL warnings. Migrations: prisma, django, laravel, sequelize, typeorm, knex (MIGRATION_NEEDED info). Absolute mount path TODO(OQ-21). |
 | T4.5 | ⬜ | - | |
 | T4.6 | ⬜ | - | |
 | T4.7 | ⬜ | - | |
@@ -83,7 +85,7 @@
 | T6.1 | ⬜ | - | |
 | T6.2 | ⬜ | - | |
 | T6.3 | ⬜ | - | |
-| T6.4 | ⬜ | - | |
+| T6.4 | ✅ | (see git log `T6.4:`) | Ops layer as plain functions over `guard()` (tool wrappers come with T3.3): `src/ops/context.ts` (`OpsContext`, `guardOptions` with `reassess=escalate`, HMAC `fingerprint`, `newPlanId`). `src/ops/env.ts`: `listEnvMasked` (R0), `planSetEnv`/`setEnv` (R1→escalated; one approval per batch; masked diff + restart note in `impactFa`; params carry value fingerprints, never values; undo `{restore, remove}` + previous values via `secretValues` → 0600 file; identical values → `no-change` without asking), `unsetEnv` (R3). Tests use real EnvApi + msw fake Liara (replace semantics) + AuditLog; full mock-adapter integration is `it.todo` until T1.16. |
 | T6.5 | ⬜ | - | |
 | T6.6 | ⬜ | - | |
 | T6.7 | ⬜ | - | |
@@ -159,6 +161,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T6.4:** src/ops/{context,env,index}.ts, src/ui/cli/i18n/fa.ts (opsEnv), tests/unit/ops/env-ops.test.ts.
 - **T4.4:** src/analyzer/detect-deps.ts, src/ui/cli/i18n/fa.ts (deps), tests/unit/analyzer/detect-deps.test.ts, docs/OPEN_QUESTIONS.md (OQ-21).
 - **T4.3:** src/analyzer/detect-env.ts, tests/unit/analyzer/detect-env.test.ts.
 - **T4.2:** src/analyzer/{types,detect-port,detect-scripts}.ts, src/ui/cli/i18n/fa.ts (analyzer), tests/unit/analyzer/detect-port-scripts.test.ts.

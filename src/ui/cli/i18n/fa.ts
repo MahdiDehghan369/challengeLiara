@@ -138,6 +138,31 @@ export const fa = {
     migrationFix:
       'Agent بعد از deploy (با تأیید شما) migration را داخل کانتینر اجرا می‌کند.',
   },
+  opsEnv: {
+    setTitle: (app: string, n: number) =>
+      `تنظیم ${n} متغیر محیطی روی «${app}»`,
+    unsetTitle: (app: string, n: number) =>
+      `حذف ${n} متغیر محیطی از «${app}»`,
+    defaultReason:
+      'به درخواست شما',
+    diffLine: (key: string, change: string) =>
+      `${key}: ${change}`,
+    added: 'افزوده می‌شود',
+    changed: 'تغییر می‌کند',
+    removed: 'حذف می‌شود',
+    restartYes:
+      'تغییر env باعث ری‌استارت اپ می‌شود.',
+    restartUnknown:
+      'ممکن است تغییر env باعث ری‌استارت اپ شود (رفتار لیارا هنوز تأیید نشده).',
+    restartNo:
+      'تغییر env اپ را ری‌استارت نمی‌کند.',
+    rollbackSet:
+      'مقادیر قبلی ذخیره می‌شوند و با دستور undo برمی‌گردند.',
+    rollbackUnset:
+      'مقادیر حذف‌شده در فایل امن نگه داشته می‌شوند و با undo برمی‌گردند.',
+    noChange:
+      'هیچ تغییری لازم نیست؛ مقادیر از قبل همین هستند.',
+  },
   wait: {
     timeout:
       'عملیات در زمان مقرر به وضعیت مورد انتظار نرسید.',
