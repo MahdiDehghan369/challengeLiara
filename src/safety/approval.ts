@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { ApprovalDeniedError, isSiavashError } from '../shared/errors.js';
 import { fa } from '../ui/cli/i18n/fa.js';
+import { applyPolicy, type Policy, type PolicyVerdict } from './policy.js';
 import { Risk, type ActionPlan } from './risk.js';
 
 /**
@@ -128,7 +129,17 @@ export class SessionApprovals {
   }
 }
 
-export type GuardDecision = 'auto-r0' | 'approved' | 'approved-session' | 'session' | 'edited' | 'denied' | 'pending' | 'dry-run';
+export type GuardDecision =
+  | 'auto-r0'
+  | 'approved'
+  | 'approved-session'
+  | 'session'
+  | 'edited'
+  | 'denied'
+  | 'pending'
+  | 'dry-run'
+  /** Headless run allowed by the user policy (R0/R1 only). */
+  | 'policy-headless';
 
 /** What the gate reports for auditing; the Audit log (T2.4) implements the sink. */
 export interface GuardAuditRecord {
@@ -156,6 +167,10 @@ export interface GuardOptions {
   /** Re-evaluates risk after the user edits params (normally `escalate` with context). */
   reassess?: (plan: ActionPlan) => ActionPlan;
   now?: () => number;
+  /** User policy (T2.5), applied before asking. */
+  policy?: Policy;
+  /** No human available (CI / MCP without UI): only what the policy's `headless.allow` lists runs. */
+  headless?: boolean;
 }
 
 export type GuardResult<T> =
@@ -194,9 +209,26 @@ export async function guard<T>(
 
   let current = plan;
   let decision: GuardDecision;
+  const allowSession = opts.policy?.allowSessionApprove ?? true;
+  const policyDeny = async (v: Extract<PolicyVerdict, { kind: 'deny' }>): Promise<never> => {
+    await audit(v.plan, 'denied', 'denied', v.code);
+    throw new ApprovalDeniedError(`Action denied by policy (${v.code}): ${v.plan.toolName}`, {
+      messageFa: v.messageFa,
+      details: { tool: v.plan.toolName, risk: v.plan.risk, target: v.plan.target, policy: v.code },
+    });
+  };
+  let verdict: PolicyVerdict['kind'] = 'ask';
+  if (opts.policy) {
+    const v = applyPolicy(current, opts.policy, opts.headless ? { headless: true } : {});
+    if (v.kind === 'deny') await policyDeny(v);
+    current = v.plan;
+    verdict = v.kind;
+  }
   if (current.risk === Risk.R0) {
     decision = 'auto-r0';
-  } else if (opts.session?.has(current)) {
+  } else if (verdict === 'allow') {
+    decision = 'policy-headless';
+  } else if (allowSession && opts.session?.has(current)) {
     decision = 'session';
   } else {
     decision = 'denied';
@@ -211,8 +243,9 @@ export async function guard<T>(
       if (d === 'approved') {
         decision = 'approved';
       } else if (d === 'approved-session') {
-        decision = 'approved-session';
-        opts.session?.remember(current);
+        // policy may disable session approvals: then it counts once
+        decision = allowSession ? 'approved-session' : 'approved';
+        if (allowSession) opts.session?.remember(current);
       } else if (d === 'denied') {
         decision = 'denied';
       } else if ('pending' in d) {
@@ -231,6 +264,13 @@ export async function guard<T>(
       }
       break;
     }
+  }
+
+  // edited params may change the cost: the cap still applies
+  if (opts.policy && decision === 'edited') {
+    const v = applyPolicy(current, opts.policy);
+    if (v.kind === 'deny') await policyDeny(v);
+    current = v.plan;
   }
 
   if (decision === 'denied') {

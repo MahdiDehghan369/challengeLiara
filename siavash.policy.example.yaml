@@ -1,0 +1,17 @@
+# siavash-agent user policy. Copy to `siavash.policy.yaml` and adjust.
+# The policy can only make the approval gate stricter.
+
+# Every action on these apps is at least R2 (stopping / scaling them to 0 is R3).
+protectedApps:
+  - shop-prod
+
+# Actions whose monthly cost (toman) exceeds this are refused without asking.
+maxMonthlyCostToman: 2000000
+
+# false → "yes, don't ask again this session" counts as a one-time approval.
+allowSessionApprove: true
+
+# Headless mode (no human: CI, MCP without UI): only these risk levels run automatically.
+# Allowed values: R0, R1. R2 and R3 always need a human.
+headless:
+  allow: [R0]
