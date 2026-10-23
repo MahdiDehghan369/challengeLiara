@@ -5,6 +5,7 @@ import { clusterLogs } from '../sre/log-cluster.js';
 import { listDisksWithUsage } from '../ops/backups.js';
 import { listEnvMasked } from '../ops/env.js';
 import { listDeployments } from '../ops/releases.js';
+import { limitsForLlm } from '../limits/catalog.js';
 import { Risk } from '../safety/risk.js';
 import { fa } from '../ui/cli/i18n/fa.js';
 import { defineTool, type ToolDefinition } from './types.js';
@@ -45,12 +46,8 @@ function downsample<T>(xs: T[], n: number): T[] {
   return Array.from({ length: n }, (_, i) => xs[Math.floor(i * step)] as T);
 }
 
-/** TODO(T10.4): replace with the limits catalog. Only items already stated in 03-TASKS T10.4 (a) and (f). */
-export const KNOWN_LIMITS = {
-  humanOnly: ['Topping up the Liara account balance', 'Buying a domain', 'Changing DNS records at the domain registrar'],
-  agent: ['No 24/7 monitoring: checks run on request or for a short period', 'Diagnoses are probabilistic and come with evidence, not certainty'],
-  note: 'Open API questions are tracked in docs/OPEN_QUESTIONS.md; behaviour marked unknown is handled conservatively.',
-};
+/** The limits catalog (T10.4) in the compact form the LLM gets. */
+export const KNOWN_LIMITS = limitsForLlm();
 
 export function readTools(): ToolDefinition[] {
   const tools = [

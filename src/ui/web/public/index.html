@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پنل سیاوش</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#667085;--line:#e4e7ec;--pri:#3b5bdb;--ok:#2b8a3e;--warn:#e67700;--bad:#c92a2a;--r1:#1971c2;--r2:#e67700;--r3:#c92a2a}
+@media (prefers-color-scheme:dark){:root{--bg:#11141a;--card:#1a1f29;--ink:#e7eaf0;--mute:#98a2b3;--line:#2a3140}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 Vazirmatn,Tahoma,system-ui,sans-serif}
+header{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:2}
+header h1{font-size:18px;margin:0}.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--line)}
+main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:16px;margin:0 0 10px}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+button.pri{background:var(--pri);color:#fff;border-color:var(--pri)}button.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
+button:disabled{opacity:.5;cursor:wait}
+input,select,textarea{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>input{flex:1;min-width:200px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.app{border:1px solid var(--line);border-radius:10px;padding:12px}.app b{font-size:15px}.app .meta{color:var(--mute);font-size:13px}
+.app .row{margin-top:8px}.app button{font-size:13px;padding:4px 8px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button.on{background:var(--pri);color:#fff}
+.entry{border-top:1px solid var(--line);padding:10px 0}.entry:first-child{border-top:0}
+.st{font-weight:bold}.st.ok{color:var(--ok)}.st.error{color:var(--bad)}.st.approval_required,.st.waiting_human{color:var(--warn)}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);padding:10px;border-radius:8px;font-size:13px;direction:ltr;text-align:left;max-height:420px;overflow:auto}
+pre.fa{direction:rtl;text-align:right;font-family:inherit}
+.mute{color:var(--mute);font-size:13px}
+dialog{border:0;border-radius:14px;padding:0;max-width:640px;width:calc(100% - 32px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:#0008}.dlg{padding:18px}.risk{display:inline-block;padding:2px 10px;border-radius:99px;color:#fff;font-weight:bold}
+.R1{background:var(--r1)}.R2{background:var(--r2)}.R3{background:var(--r3)}
+.lim h3{font-size:14px;margin:12px 0 4px;color:var(--warn)}.lim li{margin-bottom:6px}.lim .alt{color:var(--ok)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--pri);border-radius:50%;animation:s 1s linear infinite;vertical-align:middle}@keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header><h1>🛠️ سیاوش — همکار deploy و SRE روی لیارا</h1><span class="badge" id="mode">…</span></header>
+<main>
+  <section class="card">
+    <h2>چه کمکی لازم دارید؟</h2>
+    <div class="row">
+      <input id="ask" placeholder="مثلاً: سایت shop-api کند شده  |  وضعیت shop-api  |  لاگ‌های shop-api  |  محدودیت‌ها">
+      <button class="pri" id="askBtn">برو</button>
+    </div>
+    <p class="mute">کارهای خواندنی (وضعیت، لاگ، متریک، عیب‌یابی) خودکار انجام می‌شوند. هر تغییری (ری‌استارت، تغییر پلن، env، deploy) قبل از اجرا کارت تأیید نشان می‌دهد.</p>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between"><h2>اپ‌های شما</h2><button id="refresh">به‌روزرسانی</button></div>
+    <div class="apps" id="apps"><span class="mute">در حال خواندن…</span></div>
+  </section>
+
+  <section class="card">
+    <div class="tabs"><button data-tab="activity" class="on">فعالیت‌ها</button><button data-tab="limits">محدودیت‌ها</button><button data-tab="audit">تاریخچهٔ اقدامات</button><button data-tab="adv">ابزار پیشرفته</button></div>
+    <div id="tab-activity"><div id="log"><span class="mute">هنوز کاری انجام نشده.</span></div></div>
+    <div id="tab-limits" hidden class="lim"></div>
+    <div id="tab-audit" hidden></div>
+    <div id="tab-adv" hidden>
+      <div class="row"><select id="tool"></select><button class="pri" id="runTool">اجرا</button></div>
+      <p class="mute" id="toolDesc"></p>
+      <textarea id="args" rows="4" dir="ltr">{}</textarea>
+    </div>
+  </section>
+</main>
+
+<dialog id="approve"><div class="dlg">
+  <h2 style="margin-top:0">تأیید لازم است <span class="risk" id="aRisk"></span></h2>
+  <pre class="fa" id="aPlan"></pre>
+  <p id="aMsg"></p>
+  <div id="aNameWrap" hidden><label>برای تأیید، نام اپ را تایپ کنید: <b id="aName"></b></label><input id="aNameIn" autocomplete="off"></div>
+  <div class="row" style="margin-top:12px;justify-content:flex-end"><button id="aNo">رد</button><button class="pri" id="aYes">تأیید و اجرا</button></div>
+</div></dialog>
+
+<script>
+const qs = new URLSearchParams(location.search);
+let token = qs.get('token') || '';
+try { if (token) sessionStorage.setItem('siavash-token', token); else token = sessionStorage.getItem('siavash-token') || ''; } catch {}
+if (qs.get('token')) history.replaceState(null, '', location.pathname);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let TOOLS = {};
+
+async function api(path, body) {
+  const r = await fetch(path, { method: body ? 'POST' : 'GET', headers: { 'x-siavash-token': token, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { $('apps').innerHTML = '<b style="color:var(--bad)">' + esc(j.messageFa || '401') + '</b>'; throw new Error('401'); }
+  return j;
+}
+
+const FA_STATUS = { ok: 'انجام شد', error: 'خطا', approval_required: 'منتظر تأیید شما', waiting_human: 'منتظر اقدام شما', dry_run: 'پیش‌نمایش', denied: 'رد شد' };
+
+function addEntry(title) {
+  const log = $('log');
+  if (log.querySelector('.mute')) log.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'entry';
+  el.innerHTML = '<div><b>' + esc(title) + '</b> <span class="spin"></span></div>';
+  log.prepend(el);
+  return el;
+}
+
+function pickText(a) {
+  const out = [];
+  const walk = (o, depth) => {
+    if (!o || typeof o !== 'object' || depth > 3) return;
+    for (const [k, v] of Object.entries(o)) {
+      if (typeof v === 'string' && /Fa$|^summary$|^message$/.test(k) && v.length < 2000) out.push(v);
+      else if (typeof v === 'object') walk(v, depth + 1);
+    }
+  };
+  walk(a, 0);
+  return [...new Set(out)].slice(0, 12);
+}
+
+function renderAnswer(el, title, res) {
+  const a = res.answer || res;
+  const st = a.status || 'ok';
+  const texts = pickText(a);
+  const notes = (a.notes || []).map((n) => '<pre class="fa">' + esc(n) + '</pre>').join('');
+  el.innerHTML = '<div><b>' + esc(title) + '</b> — <span class="st ' + esc(st) + '">' + esc(FA_STATUS[st] || st) + '</span> <span class="mute">' + (res.ms ? Math.round(res.ms / 100) / 10 + ' ثانیه' : '') + '</span></div>' +
+    (texts.length ? '<pre class="fa">' + esc(texts.join('\n')) + '</pre>' : '') + notes +
+    '<details><summary class="mute">جزئیات فنی</summary><pre>' + esc(JSON.stringify(a.result ?? a, null, 2)) + '</pre></details>';
+}
+
+async function call(name, args, title) {
+  title = title || name;
+  const el = addEntry(title);
+  switchTab('activity');
+  try {
+    const res = await api('/api/call', { name, args });
+    const a = res.answer || {};
+    if (a.status === 'approval_required') {
+      renderAnswer(el, title, res);
+      const ok = await askApproval(a);
+      if (!ok) { el.querySelector('.st').textContent = 'شما رد کردید — اجرا نشد'; return; }
+      return call(name, { ...args, confirm_token: a.confirm_token, ...(ok.name ? { confirm_app_name: ok.name } : {}) }, title + ' (تأییدشده)');
+    }
+    renderAnswer(el, title, res);
+    return a;
+  } catch (e) {
+    el.innerHTML = '<b>' + esc(title) + '</b> — <span class="st error">خطا</span> <span class="mute">' + esc(e.message) + '</span>';
+  }
+}
+
+function askApproval(a) {
+  return new Promise((resolve) => {
+    const d = $('approve');
+    $('aRisk').textContent = a.risk || '';
+    $('aRisk').className = 'risk ' + (a.risk || '');
+    $('aPlan').textContent = a.plan || '';
+    $('aMsg').textContent = a.messageFa || '';
+    const needName = !!a.requires_confirm_app_name;
+    $('aNameWrap').hidden = !needName;
+    const m = /«([^»]+)»|"([^"]+)"/.exec(a.messageFa || '');
+    $('aName').textContent = m ? (m[1] || m[2]) : '';
+    $('aNameIn').value = '';
+    const done = (v) => { d.close(); $('aYes').onclick = $('aNo').onclick = null; resolve(v); };
+    $('aYes').onclick = () => done(needName ? { name: $('aNameIn').value } : {});
+    $('aNo').onclick = () => done(false);
+    d.showModal();
+  });
+}
+
+function has(t) { return !!TOOLS[t]; }
+
+async function loadApps() {
+  $('apps').innerHTML = '<span class="spin"></span>';
+  const res = await api('/api/call', { name: 'list_apps', args: {} });
+  const apps = (res.answer && res.answer.result && res.answer.result.apps) || [];
+  if (!apps.length) { $('apps').innerHTML = '<span class="mute">اپی پیدا نشد. با <code>siavash deploy</code> اولین اپ را بسازید.</span>'; return; }
+  $('apps').innerHTML = apps.map((x) => '<div class="app"><b>' + esc(x.name) + '</b> <span class="badge">' + esc(x.status || '') + '</span>' +
+    '<div class="meta">' + esc(x.platform || '') + ' · پلن ' + esc(x.planID || '?') + ' · scale ' + esc(x.scale ?? '?') + '</div><div class="row">' +
+    [['health_check', 'سلامت'], ['diagnose_app', 'عیب‌یابی'], ['app_overview', 'نمای کلی'], ['get_logs', 'لاگ‌ها'], ['get_metrics_summary', 'CPU/RAM'], ['restart_app', 'ری‌استارت'], ['redeploy_app', 'deploy دوباره']]
+      .filter(([t]) => has(t)).map(([t, l]) => '<button data-tool="' + t + '" data-app="' + esc(x.name) + '">' + l + '</button>').join('') + '</div></div>').join('');
+}
+
+$('apps').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-tool]');
+  if (!b) return;
+  const t = b.dataset.tool, app = b.dataset.app;
+  call(t, { app }, b.textContent + ' — ' + app);
+});
+$('refresh').onclick = () => loadApps().catch(() => {});
+
+function argsFor(tool, app, text) {
+  const props = (TOOLS[tool] && TOOLS[tool].inputSchema && TOOLS[tool].inputSchema.properties) || {};
+  const a = { app };
+  for (const k of ['userDescription', 'description', 'symptom']) if (props[k]) a[k] = text;
+  return a;
+}
+
+$('askBtn').onclick = async () => {
+  const text = $('ask').value.trim();
+  if (!text) return;
+  if (/محدودیت|limit/i.test(text)) return switchTab('limits');
+  const names = [...document.querySelectorAll('.app b')].map((b) => b.textContent);
+  const app = names.find((n) => text.includes(n)) || (text.match(/[a-z0-9][a-z0-9-]{2,}/i) || [])[0];
+  if (!app) { addEntry('نام اپ را در جمله بیاورید').innerHTML = '<span class="mute">مثلاً: «سایت shop-api کند شده»</span>'; return; }
+  if (/لاگ|log/i.test(text)) return call('get_logs', { app }, 'لاگ‌های ' + app);
+  if (/ری.?استارت|restart/i.test(text) && has('restart_app')) return call('restart_app', { app }, 'ری‌استارت ' + app);
+  if (/وضعیت|سلامت|health|status/i.test(text) && !/کند|خطا|500|مشکل|خراب|down/i.test(text)) return call('health_check', { app }, 'سلامت ' + app);
+  return call('diagnose_app', argsFor('diagnose_app', app, text), 'عیب‌یابی ' + app);
+};
+$('ask').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('askBtn').click(); });
+
+function switchTab(t) {
+  document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
+  for (const id of ['activity', 'limits', 'audit', 'adv']) $('tab-' + id).hidden = id !== t;
+  if (t === 'limits') loadLimits();
+  if (t === 'audit') loadAudit();
+}
+document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => switchTab(b.dataset.tab)));
+
+async function loadLimits() {
+  const r = await api('/api/limits');
+  $('tab-limits').innerHTML = r.groups.filter((g) => g.items.length).map((g) => '<h3>' + esc(g.titleFa) + '</h3><ul>' +
+    g.items.map((l) => '<li><b>' + esc(l.whatFa) + '</b> — <span class="mute">' + esc(l.whyFa) + '</span><br><span class="alt">راه جایگزین:</span> ' + esc(l.alternativeFa) + '</li>').join('') + '</ul>').join('');
+}
+
+async function loadAudit() {
+  const r = await api('/api/audit');
+  $('tab-audit').innerHTML = r.entries.length ? '<pre>' + esc(r.entries.map((e) => [e.ts, e.tool, 'R' + e.risk, e.target || '', e.decision, e.result || ''].join('  ')).join('\n')) + '</pre>' : '<span class="mute">هنوز اقدامی ثبت نشده.</span>';
+}
+
+$('tool').onchange = () => {
+  const t = TOOLS[$('tool').value];
+  $('toolDesc').textContent = t ? t.description : '';
+  const req = (t && t.inputSchema && t.inputSchema.required) || [];
+  $('args').value = JSON.stringify(Object.fromEntries(req.map((k) => [k, ''])), null, 2);
+};
+$('runTool').onclick = () => {
+  let args;
+  try { args = JSON.parse($('args').value || '{}'); } catch { return alert('JSON نامعتبر است'); }
+  call($('tool').value, args);
+};
+
+(async () => {
+  if (!token) { $('apps').innerHTML = '<b style="color:var(--bad)">آدرس پنل را همراه با ?token=… باز کنید.</b>'; return; }
+  const info = await api('/api/info');
+  $('mode').textContent = info.mode === 'live' ? 'لیارای واقعی' : 'حالت دمو (mock)';
+  const t = await api('/api/tools');
+  for (const x of t.tools) TOOLS[x.name] = x;
+  $('tool').innerHTML = t.tools.map((x) => '<option>' + esc(x.name) + '</option>').join('');
+  $('tool').onchange();
+  await loadApps();
+})().catch(() => {});
+</script>
+</body>
+</html>

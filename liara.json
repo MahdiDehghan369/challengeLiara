@@ -1,0 +1,5 @@
+{
+  "platform": "docker",
+  "app": "siavash-panel",
+  "port": 3000
+}

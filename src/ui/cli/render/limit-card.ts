@@ -1,4 +1,5 @@
 import pc from 'picocolors';
+import { limitsByCategory } from '../../../limits/catalog.js';
 import { fa } from '../i18n/fa.js';
 import { capLines, type CardOptions } from './findings.js';
 
@@ -23,11 +24,15 @@ export function renderLimitCard(l: Limit, opts: CardOptions = {}): string {
   return capLines(lines, opts).join('\n');
 }
 
-/** `siavash limits`: the known limits in Persian. TODO(T10.4): the full limits catalog. */
+/** `siavash limits`: the whole limits catalog (T10.4), grouped, each item with its alternative. */
 export function renderKnownLimits(opts: CardOptions = {}): string {
   const colors = pc.createColors(opts.color ?? pc.isColorSupported);
-  return capLines(
-    [colors.bold(c.limitsTitle), c.humanOnly, ...c.knownHumanOnly.map((x) => `  • ${x}`), c.agentLimits, ...c.knownAgent.map((x) => `  • ${x}`), '', c.knownNote],
-    opts,
-  ).join('\n');
+  const lines = [colors.bold(c.limitsTitle)];
+  for (const g of limitsByCategory()) {
+    if (!g.items.length) continue;
+    lines.push('', colors.bold(colors.yellow(g.titleFa)));
+    for (const l of g.items) lines.push(`  • ${l.whatFa}`, colors.dim(`    ${c.limitWhy} ${l.whyFa}`), `    ${colors.green(c.limitAlt)} ${l.alternativeFa}`);
+  }
+  lines.push('', c.knownNote);
+  return lines.join('\n');
 }

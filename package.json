@@ -13,7 +13,8 @@
   },
   "scripts": {
     "dev": "tsx src/ui/cli/index.ts",
-    "build": "tsc -p tsconfig.build.json && node -e \"const fs=require('fs');fs.cpSync('src/sre/knowledge/patterns.yaml','dist/sre/knowledge/patterns.yaml');fs.cpSync('src/llm/prompts','dist/llm/prompts',{recursive:true})\"",
+    "build": "tsc -p tsconfig.build.json && node -e \"const fs=require('fs');fs.cpSync('src/sre/knowledge/patterns.yaml','dist/sre/knowledge/patterns.yaml');fs.cpSync('src/llm/prompts','dist/llm/prompts',{recursive:true});fs.cpSync('src/ui/web/public','dist/ui/web/public',{recursive:true})\"",
+    "start": "node dist/ui/cli/index.js ui",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "format": "prettier --write .",

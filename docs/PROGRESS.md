@@ -128,12 +128,12 @@
 | T9.7 | ⬜ | - | |
 | T9.8 | ✅ | 2026-10-23 | `siavash mcp` (stdio, `@modelcontextprotocol/sdk` 1.32.1 — allowed list): all registry tools (38) + `get_fix_brief`, `report_fix_done`, `get_incident_status`, `list_open_incidents`. R1+ two-step via `McpApprover` (`approval_required` + Persian card + `confirm_token`; single-use, 5 min, bound to params); R3 also needs `confirm_app_name`. Interactive pipelines stop with `waiting_human` + the question (first deploy asks the app name → do it in the CLI; nothing is guessed). Code fixes in MCP = handoff without waiting (brief → incident book → report_fix_done → redeploy_app). Resources `liara://apps`, `siavash://incidents/<id>`; prompts deploy-my-project / diagnose-my-site / fix-incident. Fixed on the way: the confirm token was masked by redaction (key name); pino now logs to stderr (stdout is the MCP channel). `SIAVASH_PROJECT_DIR` sets the project for MCP clients. Smoke-tested as a real stdio process in mock mode (42 tools, R1 → approval_required); not tried with MCP Inspector / Claude Desktop UI |
 | T9.9 | ✅ | 237fc0b | `src/ui/cli/errors.ts`: `explainError(err)` → `{code, whatFa, doFa, command?, technical, stack?}`. Mapped: missing token/key (config), 401, network/timeout, 429 (Persian wait time from Retry-After), CLI not installed (install command), low balance (402 / text), 409 name taken, deploy/wait timeout (`siavash logs <app>`), APP_NOT_FOUND (keeps the closest-name suggestion), denied, budget, generic, unknown. `formatError(err, {verbose})`: what + do + command on its own line; technical details + stack only with `--verbose`; always redacted. |
-| T9.10 | ⬜ | - | |
+| T9.10 | ✅ | (see git log) | Simplified: `siavash ui` → `src/ui/web/server.ts` (node:http, in-memory MCP client → same two-step approval as T9.8), single-file `public/index.html` (RTL; apps + per-app actions, free-text intent, approval modal with R3 name typing, limits, audit, raw tool runner). Token required for `/api/*` (401); public host refuses to start without `SIAVASH_UI_TOKEN`. No SSE/live checklist (results shown when a call ends). Deployed to Liara via `Dockerfile` + `liara.json`. |
 | T10.1 | ⬜ | - | |
 | T10.2 | ⬜ | - | |
 | T10.3 | ⬜ | - | |
-| T10.4 | ⬜ | - | |
-| T10.5 | ⬜ | - | |
+| T10.4 | ✅ | (see git log) | `src/limits/catalog.ts` (18 items in 6 categories, each with an alternative) + `docs/API_LIMITS.md`. Rate-limit numbers still per OQ-24. |
+| T10.5 | 🚧 | (see git log) | `siavash limits` + `get_limits` read the catalog. Not done: session stats in `limits`, limit card on hit. |
 | T10.6 | ⬜ | - | |
 | T11.1 | ✅ | d6f9bcd | Buggy demo apps (dependency-free except node-db → `pg`), each with a README (bug + expected agent result): node-missing-env (`new URL(undefined)` at startup), node-http500 (`order.items.length` on order 2 + failing `node --test` unit test, also S10), node-memleak (global array ~256 KB/req + `load.sh`), node-slow (sync busy loop), node-db (localhost Postgres fallback → ECONNREFUSED), node-build-fail (TS, no build script), node-bad-release (`make-repo.sh` builds a temp repo with `main` + broken `feature/checkout`). `scripts/check-demo-apps.sh` reproduces every bug; added as a CI step. Each bug was reproduced locally on Windows via node directly. The bash script itself was not run here (WSL has no node) and runs in CI. On this machine a local Postgres exists, so node-db fails with "database does not exist"; the script accepts either. |
 | T11.2 | ⬜ | - | ⚠️ real Liara |
@@ -141,7 +141,7 @@
 | T11.4 | ⬜ | - | |
 | T11.5 | ⬜ | - | |
 | T11.6 | ⬜ | - | |
-| T11.7 | ⬜ | - | |
+| T11.7 | ✅ | (see git log) | `README.md` (Persian): quick start, scenarios, risk levels, architecture, Liara API connection, limits, Liara panel deploy, judging-criteria map. No gif; ARCHITECTURE.md folded into README. |
 | T11.8 | ⬜ | - | |
 | T11.9 | ⬜ | - | |
 | T11.10 | ⬜ | - | |

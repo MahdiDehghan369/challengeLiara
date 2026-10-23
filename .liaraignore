@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.siavash
+.env
+.env.*
+coverage
+reports
+demo-apps
+tests
+fixtures
+specs
+docs
+*.log

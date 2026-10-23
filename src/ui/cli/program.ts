@@ -174,6 +174,8 @@ export interface ProgramOptions {
   chat?: (g: Globals) => Promise<void>;
   /** `siavash mcp` (T9.8). */
   mcp?: (g: Globals) => Promise<void>;
+  /** `siavash ui` (T9.10). */
+  ui?: (g: Globals, o: { port?: number; host?: string }) => Promise<void>;
   /** Log follow polling (ms). */
   followIntervalMs?: number;
   /** Stops `logs -f` (tests); Ctrl+C otherwise. */
@@ -491,6 +493,15 @@ export function buildProgram(rt: CliRuntime, opts: ProgramOptions = {}): Command
       else rt.out(c.notYet('T9.8'));
     }),
   );
+  sub(program, 'ui', c.ui, ['siavash ui', 'siavash ui --port 3000'])
+    .option('--port <n>', 'port')
+    .option('--host <host>', 'host')
+    .action(
+      run(rt, async (o: { port?: string; host?: string }, cmd: Command) => {
+        if (opts.ui) await opts.ui(globalsOf(cmd), { ...(o.port ? { port: Number(o.port) } : {}), ...(o.host ? { host: o.host } : {}) });
+        else rt.out(c.notYet('T9.10'));
+      }),
+    );
   return program;
 }
 
