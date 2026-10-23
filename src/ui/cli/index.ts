@@ -3,6 +3,8 @@ import { pathToFileURL } from 'node:url';
 import { Session } from '../../agent/session.js';
 import { startStdioServer } from '../../mcp/server.js';
 import { readlineIo, runChat } from './chat.js';
+import { webFa } from './i18n/limits.fa.js';
+import { seedDemo } from '../web/demo-seed.js';
 import { startWebPanel } from '../web/server.js';
 import { runCli } from './program.js';
 import { createRuntime } from './runtime.js';
@@ -39,6 +41,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     },
     ui: async (_g, o) => {
       const s = await rt.services();
+      // mock mode: demo apps with known faults, unless SIAVASH_DEMO_SEED=0
+      if (s.liara.mode === 'mock' && process.env.SIAVASH_DEMO_SEED !== '0') await seedDemo(s.liara);
       const host = o.host ?? process.env.SIAVASH_UI_HOST ?? '127.0.0.1';
       const port = o.port ?? (process.env.PORT ? Number(process.env.PORT) : 0);
       const token = process.env.SIAVASH_UI_TOKEN || undefined;
@@ -47,7 +51,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         { config: s.config, liara: s.liara, llm: s.llm, urlFor: s.urlFor, projectRoot, audit: s.audit, policy: s.policy, readAudit: () => s.audit.read() },
         { host, port, ...(token ? { token } : {}) },
       );
-      rt.out(`پنل سیاوش آماده است (حالت ${s.liara.mode}):\n${token ? panel.url.replace(token, '<SIAVASH_UI_TOKEN>') : panel.url}`);
+      rt.out(webFa.ready(s.liara.mode, token ? panel.url.replace(token, '<SIAVASH_UI_TOKEN>') : panel.url));
       await new Promise<void>((resolve) => process.once('SIGINT', () => resolve()).once('SIGTERM', () => resolve()));
       await panel.close();
     },

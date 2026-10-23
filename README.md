@@ -25,6 +25,7 @@ node dist/ui/cli/index.js deploy ./my-project
 
 ```bash
 LIARA_MODE=mock node dist/ui/cli/index.js ui     # آدرس پنل با توکن یک‌بارمصرف چاپ می‌شود
+# در حالت mock پنج اپ دمو ساخته می‌شود: shop-api (سالم)، blog (env گم‌شده)، store (خطای 500)، media (OOM)، landing (کند). SIAVASH_DEMO_SEED=0 خاموشش می‌کند.
 ```
 
 ### متغیرهای محیطی

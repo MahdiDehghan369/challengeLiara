@@ -8,6 +8,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { limitsByCategory } from '../../limits/catalog.js';
 import { createMcpServer, type McpServerDeps } from '../../mcp/server.js';
 import type { AuditEntry } from '../../safety/audit.js';
+import { webFa } from '../cli/i18n/limits.fa.js';
 
 /**
  * Web panel (T9.10, simplified). The page talks to the same tool engine as the MCP server through an
@@ -117,7 +118,7 @@ export async function startWebPanel(deps: WebPanelDeps, opts: WebPanelOptions = 
         if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) return send(res, 200, html, 'text/html; charset=utf-8');
         if (req.method === 'GET' && url.pathname === '/healthz') return send(res, 200, { ok: true });
         if (!url.pathname.startsWith('/api/')) return send(res, 404, { error: 'not found' });
-        if (!authorized(req, url)) return send(res, 401, { status: 'error', messageFa: 'توکن پنل نامعتبر است. آدرس کامل با ?token= را باز کنید.' });
+        if (!authorized(req, url)) return send(res, 401, { status: 'error', messageFa: webFa.badToken });
 
         if (req.method === 'GET' && url.pathname === '/api/tools') {
           const t = await serial(() => client.listTools());
@@ -126,7 +127,7 @@ export async function startWebPanel(deps: WebPanelDeps, opts: WebPanelOptions = 
         if (req.method === 'POST' && url.pathname === '/api/call') {
           const body = await readJson(req);
           const name = typeof body.name === 'string' ? body.name : '';
-          if (!/^[a-z_]{2,40}$/.test(name)) return send(res, 400, { status: 'error', messageFa: 'نام ابزار نامعتبر است.' });
+          if (!/^[a-z_]{2,40}$/.test(name)) return send(res, 400, { status: 'error', messageFa: webFa.badToolName });
           const args = body.args && typeof body.args === 'object' ? (body.args as Record<string, unknown>) : {};
           const started = Date.now();
           const r = await serial(() => client.callTool({ name, arguments: args }, undefined, { timeout: 15 * 60_000 }));
@@ -142,7 +143,7 @@ export async function startWebPanel(deps: WebPanelDeps, opts: WebPanelOptions = 
         }
         return send(res, 404, { error: 'not found' });
       } catch (e) {
-        return send(res, 500, { status: 'error', messageFa: 'خطای داخلی پنل', technical: e instanceof Error ? e.message.slice(0, 300) : 'unknown' });
+        return send(res, 500, { status: 'error', messageFa: webFa.internal, technical: e instanceof Error ? e.message.slice(0, 300) : 'unknown' });
       }
     })();
   });
