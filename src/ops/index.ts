@@ -4,3 +4,4 @@ export * from './releases.js';
 export * from './backups.js';
 export * from './settings.js';
 export * from './delete.js';
+export * from './service.js';

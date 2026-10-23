@@ -585,6 +585,11 @@ export const fa = {
       'مراحل deploy شروع می‌شود. هزینه و ساخت هر منبع جداگانه از شما تأیید گرفته می‌شود.',
     startRollback: 'تا قبل از تأیید برنامهٔ deploy چیزی ساخته نمی‌شود.',
   },
+  overview: {
+    sourceFailed: 'این بخش دریافت نشد.',
+    probeSkipped: 'بررسی پاسخ‌گویی درخواست نشد.',
+    toolDescription: 'نمای کلی اپ: وضعیت، پلن، آخرین deploy، env، دامنه‌ها، دیسک‌ها، مصرف، رویدادها و پاسخ‌گویی',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
