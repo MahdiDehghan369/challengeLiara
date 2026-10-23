@@ -5,3 +5,4 @@ export * from './deploy-tools.js';
 export * from './ops-tools.js';
 export * from './sre-tools.js';
 export * from './coder-tools.js';
+export * from './manage-tools.js';
