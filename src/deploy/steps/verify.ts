@@ -117,11 +117,15 @@ export function verifyStep<S extends VerifyState>(deps: VerifyDeps): Step<S> {
       ctx.setStatus('running', v.observing);
       const remaining = deployStarted + (deps.observeMs ?? 60_000) - now();
       if (remaining > 0) await sleep(remaining);
+      // events only carry seconds, so they are compared at second resolution; log records carry
+      // milliseconds, so errors logged earlier in the same second (before this deploy) are not blamed on
+      // it. A log without sub-second precision from the deploy's first second is dropped — harmless,
+      // the new release is not running yet then.
       const sinceSec = Math.floor(deployStarted / 1000);
       const events = await deps.liara.events.getEvents(app, { start: sinceSec }).catch(() => []);
       const crashEvents = events.filter((e) => (e.kind === 'crash' || e.kind === 'oom') && (e.ts === undefined || e.ts >= sinceSec * 1000)).map((e) => e.message);
       const windowSec = Math.max(60, Math.ceil((now() - deployStarted) / 1000) + 5);
-      const logs = (await collectLogs(deps.liara.logs, app, { windowSec }).catch(() => [])).filter((r) => r.ts >= sinceSec * 1000);
+      const logs = (await collectLogs(deps.liara.logs, app, { windowSec }).catch(() => [])).filter((r) => r.ts >= deployStarted);
       const clusters = clusterLogs(logs);
       const knownPatterns = new Map<string, string>();
       for (const c of clusters) {

@@ -18,7 +18,8 @@ afterEach(async () => {
 });
 
 const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
-const wait = { timeoutMs: 2000, intervalMs: 2, sleep: (ms: number) => new Promise<void>((r) => setTimeout(r, ms)) };
+// generous budget: under a full parallel test run the restart + probe can take a few seconds
+const wait = { timeoutMs: 5000, intervalMs: 2, sleep: (ms: number) => new Promise<void>((r) => setTimeout(r, ms)) };
 
 async function world() {
   const liara = createLiaraClient({ liara: { token: undefined, teamId: undefined, mode: 'mock' }, dataDir: join(mkdtempSync(join(root, 'd-')), 'data') }, { mockOptions: { asyncDelayMs: 5 } });

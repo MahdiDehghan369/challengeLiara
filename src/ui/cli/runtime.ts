@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 import { loadConfig, type Config } from '../../config/env.js';
+import type { PipelineEvent } from '../../deploy/pipeline-engine.js';
 import { defaultAppUrl } from '../../deploy/steps/verify.js';
 import { createLiaraClient, type LiaraClient } from '../../liara/index.js';
 import { createLlm } from '../../llm/index.js';
@@ -28,6 +29,8 @@ export interface CliServices {
   audit: AuditLog;
   policy: Policy;
   urlFor: (app: string) => string | Promise<string>;
+  /** Where pipeline step events go while a command runs (the live checklist). */
+  pipelineEvents: { sink?: (e: PipelineEvent) => void };
 }
 
 export interface CliRuntime {
@@ -40,6 +43,8 @@ export interface CliRuntime {
   /** `~/.siavash/credentials` (token from `siavash login`). */
   credentialsPath: string;
   cwd: string;
+  /** stdout is a terminal (live redraw allowed). */
+  isTTY: boolean;
 }
 
 // ---- credentials ------------------------------------------------------------
@@ -82,14 +87,21 @@ export function loadCliConfig(credentialsPath: string, env: NodeJS.ProcessEnv = 
 
 // ---- registry ---------------------------------------------------------------
 
-export function buildCliRegistry(input: { config: Pick<Config, 'liara' | 'deployMode' | 'dataDir'>; liara: LiaraClient; ui: Prompter; urlFor: (app: string) => string | Promise<string>; yes?: boolean }): ToolRegistry {
+export function buildCliRegistry(input: {
+  config: Pick<Config, 'liara' | 'deployMode' | 'dataDir'>;
+  liara: LiaraClient;
+  ui: Prompter;
+  urlFor: (app: string) => string | Promise<string>;
+  yes?: boolean;
+  onPipelineEvent?: (e: PipelineEvent) => void;
+}): ToolRegistry {
   const catalog = new PlanCatalog(input.liara.cli);
   const registry = new ToolRegistry();
   const tools = [
     ...readTools(),
     ...opsTools({ catalog, urlFor: input.urlFor }),
     ...manageTools(),
-    ...deployTools({ config: input.config, ui: input.ui, ...(input.yes ? { yes: true } : {}) }),
+    ...deployTools({ config: input.config, ui: input.ui, ...(input.yes ? { yes: true } : {}), ...(input.onPipelineEvent ? { onPipelineEvent: input.onPipelineEvent } : {}) }),
     ...sreTools({
       urlFor: input.urlFor,
       catalog,
@@ -111,6 +123,7 @@ export function createRuntime(): CliRuntime {
     ui,
     credentialsPath,
     cwd: process.cwd(),
+    isTTY: process.stdout.isTTY === true,
     approver: ({ yes }) => new CliApprover({ prompter: ui, ...(yes ? { yes: true } : {}) }),
     services: async (opts = {}) => {
       if (services) return services;
@@ -118,11 +131,13 @@ export function createRuntime(): CliRuntime {
       const config = loadCliConfig(credentialsPath, { ...process.env, ...(opts.deployMode ? { DEPLOY_MODE: opts.deployMode } : {}) });
       const liara = createLiaraClient(config);
       const urlFor = (app: string) => (liara.mock ? liara.mock.servers.urlFor(app) : defaultAppUrl(app));
+      const pipelineEvents: CliServices['pipelineEvents'] = {};
       services = {
         config,
         liara,
         llm: createLlm(config),
-        registry: buildCliRegistry({ config, liara, ui, urlFor, ...(opts.yes ? { yes: true } : {}) }),
+        registry: buildCliRegistry({ config, liara, ui, urlFor, ...(opts.yes ? { yes: true } : {}), onPipelineEvent: (e) => pipelineEvents.sink?.(e) }),
+        pipelineEvents,
         audit: new AuditLog(config.dataDir),
         policy: loadPolicy(),
         urlFor,

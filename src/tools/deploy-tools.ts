@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import type { Config } from '../config/env.js';
 import { runDeployPipeline, type DeployPipelineDeps } from '../deploy/pipeline.js';
-import type { PipelineResult } from '../deploy/pipeline-engine.js';
+import type { PipelineEvent, PipelineResult } from '../deploy/pipeline-engine.js';
 import { runRedeploy, type RedeployDeps } from '../deploy/redeploy.js';
 import type { SummaryState } from '../deploy/steps/summary.js';
 import { newPlanId } from '../ops/context.js';
@@ -25,6 +25,8 @@ export interface DeployToolsOptions {
   /** Extra pipeline deps (tests / mock: urlFor, probe, wait, observeMs…). */
   pipeline?: Partial<Omit<DeployPipelineDeps, 'config' | 'liara' | 'ui' | 'ops'>>;
   redeploy?: Partial<Omit<RedeployDeps, 'config' | 'liara' | 'ui' | 'ops' | 'app' | 'preApproved'>>;
+  /** Step transitions for a live checklist (T9.3). */
+  onPipelineEvent?: (e: PipelineEvent) => void;
 }
 
 /** What the LLM sees: outcome, failing step and the summary card data — no raw logs. */
@@ -83,7 +85,7 @@ export function deployTools(opts: DeployToolsOptions): ToolDefinition[] {
           ...(ctx.policy ? { policy: ctx.policy } : {}),
           ...(opts.yes ? { yes: true } : {}),
           ...opts.pipeline,
-        }),
+        }, opts.onPipelineEvent ? { onEvent: opts.onPipelineEvent } : {}),
       summarizeForLlm: summarizePipeline,
     }),
     defineTool({
@@ -113,7 +115,7 @@ export function deployTools(opts: DeployToolsOptions): ToolDefinition[] {
           ...(a.app ? { app: a.app } : {}),
           preApproved: true,
           ...opts.redeploy,
-        }),
+        }, opts.onPipelineEvent ? { onEvent: opts.onPipelineEvent } : {}),
       summarizeForLlm: summarizePipeline,
     }),
   ];

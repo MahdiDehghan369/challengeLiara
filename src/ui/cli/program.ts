@@ -7,6 +7,7 @@ import type { LogRecord } from '../../sre/logs.js';
 import type { ToolResult } from '../../tools/types.js';
 import { renderPlanCard, CANCELLED } from './approver.js';
 import { formatError } from './errors.js';
+import { renderMode, StepsView } from './render/steps.js';
 import { fa } from './i18n/fa.js';
 import { writeCredentials, type CliRuntime } from './runtime.js';
 
@@ -231,13 +232,13 @@ export function buildProgram(rt: CliRuntime, opts: ProgramOptions = {}): Command
           rt.out(c.notYet('--resume'));
           return;
         }
-        print(rt, g, summarize(await invoke(rt, g, 'deploy_project', { path: path ?? '.' })));
+        print(rt, g, summarize(await withSteps(rt, g, () => invoke(rt, g, 'deploy_project', { path: path ?? '.' }))));
       }),
     );
   sub(program, 'redeploy [path]', c.redeploy, ['siavash redeploy', 'siavash redeploy ./my-app --app shop']).action(
     run(rt, async (path: string | undefined, _o: unknown, cmd: Command) => {
       const g = globalsOf(cmd);
-      print(rt, g, summarize(await invoke(rt, g, 'redeploy_app', { path: path ?? '.', ...(g.app ? { app: g.app } : {}) })));
+      print(rt, g, summarize(await withSteps(rt, g, () => invoke(rt, g, 'redeploy_app', { path: path ?? '.', ...(g.app ? { app: g.app } : {}) }))));
     }),
   );
 
@@ -476,6 +477,19 @@ export function buildProgram(rt: CliRuntime, opts: ProgramOptions = {}): Command
     }),
   );
   return program;
+}
+
+/** Runs a pipeline tool with the live step checklist attached (T9.3). */
+async function withSteps(rt: CliRuntime, g: Globals, fn: () => Promise<unknown>): Promise<unknown> {
+  const s = await rt.services({ ...(g.yes ? { yes: true } : {}), ...(g.mode ? { deployMode: g.mode } : {}) });
+  const view = new StepsView({ mode: renderMode({ ...(g.json ? { json: true } : {}), isTTY: rt.isTTY }), write: (t) => rt.out(t) });
+  s.pipelineEvents.sink = (e) => view.handle(e);
+  try {
+    return await fn();
+  } finally {
+    view.stop();
+    delete s.pipelineEvents.sink;
+  }
 }
 
 /** Pipeline results: the summary card data, not the whole state. */

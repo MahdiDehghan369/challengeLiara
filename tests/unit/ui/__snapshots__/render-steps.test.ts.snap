@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`step rendering (T9.3) > TTY frame mid-upload: checklist + upload bar under the current step 1`] = `
+"✅ بررسی پیش از شروع (۱٫۲ ثانیه)
+✅ انتخاب پلن و هزینه (۴٫۲ ثانیه)
+⏭ دامنه
+⠋ deploy (۱ ثانیه)
+     آپلود: 75%
+     ███████████████░░░░░ ۷۵٪"
+`;
+
+exports[`step rendering (T9.3) > non-TTY: one line per transition, with times, the waiting state and the failure 1`] = `
+"⏳ بررسی پیش از شروع (۰ ثانیه)
+✅ بررسی پیش از شروع (۱٫۲ ثانیه)
+⏳ انتخاب پلن و هزینه (۰ ثانیه)
+⏸ انتخاب پلن و هزینه — منتظر تأیید شما
+     کارت تأیید را ببینید
+⏳ انتخاب پلن و هزینه (۴٫۱ ثانیه)
+✅ انتخاب پلن و هزینه (۴٫۲ ثانیه)
+⏭ دامنه
+⏳ deploy (۰ ثانیه)
+     آپلود: ۲۵٪
+⏳ deploy (۱ ثانیه)
+     آپلود: 75%
+❌ deploy (۳٫۶ ثانیه)
+در مرحلهٔ «deploy» متوقف شد.
+deploy شکست خورد."
+`;

@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
+import type { PipelineEvent } from '../../../src/deploy/pipeline-engine.js';
 import { createLiaraClient, type LiaraClient } from '../../../src/liara/index.js';
 import { MockLlm } from '../../../src/llm/index.js';
 import { ScriptedApprover, type Approver } from '../../../src/safety/approval.js';
@@ -32,6 +33,8 @@ function world(opts: { answers?: ScriptedAnswer[]; approver?: (ui: ScriptedUi) =
   const out: string[] = [];
   const err: string[] = [];
   const urlFor = (n: string) => liara.mock!.servers.urlFor(n);
+  const pipelineEvents: { sink?: (e: PipelineEvent) => void } = {};
+  const registry = buildCliRegistry({ config, liara, ui, urlFor, onPipelineEvent: (e) => pipelineEvents.sink?.(e) });
   const rt: CliRuntime = {
     out: (t) => out.push(t),
     err: (t) => err.push(t),
@@ -39,11 +42,13 @@ function world(opts: { answers?: ScriptedAnswer[]; approver?: (ui: ScriptedUi) =
     approver: () => approver,
     credentialsPath: join(dataDir, '..', 'home', 'credentials'),
     cwd: opts.cwd ?? join(dataDir, '..'),
+    isTTY: false,
     services: async () => ({
+      pipelineEvents,
       config,
       liara,
       llm: new MockLlm(),
-      registry: buildCliRegistry({ config, liara, ui, urlFor }),
+      registry,
       audit: new AuditLog(dataDir),
       policy: DEFAULT_POLICY,
       urlFor,

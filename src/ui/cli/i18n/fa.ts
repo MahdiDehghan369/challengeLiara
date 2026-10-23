@@ -713,6 +713,24 @@ export const fa = {
     diffTitle: 'تغییر پیشنهادی',
     applied: 'اصلاح اعمال شد.',
   },
+  steps: {
+    waitingYou: 'منتظر شما',
+    waitingApproval: 'منتظر تأیید شما',
+    seconds: (s: string) => `${s} ثانیه`,
+    status: {
+      pending: 'در صف',
+      running: 'در حال انجام',
+      done: 'انجام شد',
+      failed: 'شکست خورد',
+      skipped: 'رد شد',
+      'waiting-human': 'منتظر شما',
+      'waiting-approval': 'منتظر تأیید',
+    } as Record<string, string>,
+    pipelineDone: 'همهٔ مراحل انجام شد.',
+    pipelineFailed: (step: string) => `در مرحلهٔ «${step}» متوقف شد.`,
+    pipelineWaiting: 'کار متوقف است تا شما قدم بعدی را انجام دهید.',
+    pipelineCancelled: 'لغو شد.',
+  },
   cmd: {
     program: 'سیاوش — دستیار deploy و نگهداری اپ‌ها روی لیارا (بدون آرگومان: گفتگو)',
     help: {
