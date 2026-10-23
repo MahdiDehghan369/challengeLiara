@@ -61,10 +61,13 @@ async function health(w: World, app: string, path = '/') {
   return probe(`${await w.servers.urlFor(app)}${path}`, { count: 2, timeoutMs: 5000, fetchImpl: noKeepAlive });
 }
 
-/** Availability with the histograms in the failure message. */
+/** Availability with the histograms, error codes, timings and app state in the failure message. */
 async function availability(w: World, app: string): Promise<string> {
   const r = await health(w, app);
-  return `${r.availability} ${JSON.stringify(r.statusHistogram)} ${JSON.stringify(r.errorHistogram)}`;
+  const a = w.state.apps.get(app);
+  const samples = r.samples.map((s) => `${s.status ?? s.error}:${s.errorCode ?? ''}:${s.totalMs}ms`).join(',');
+  const appState = a ? `scenario=${a.scenario ?? '-'} scale=${a.scale} releases=${a.releases.length}` : 'no-app';
+  return `${r.availability} ${JSON.stringify(r.statusHistogram)} ${JSON.stringify(r.errorHistogram)} [${samples}] ${r.url} ${appState}`;
 }
 
 async function cliDeploy(w: World, app: string): Promise<DeployEvent[]> {

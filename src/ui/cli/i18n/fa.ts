@@ -391,6 +391,38 @@ export const fa = {
     goalTest: 'تست یا دمو (ارزان‌تر)',
     goalProduction: 'production (کاربران واقعی)',
   },
+  planBilling: {
+    title: 'انتخاب پلن و بررسی موجودی',
+    chooseQuestion: 'کدام پلن را انتخاب می‌کنید؟',
+    tier: { economy: 'اقتصادی', recommended: 'پیشنهادی', performance: 'قدرتمند' } as Record<string, string>,
+    option: (tier: string, plan: string, ramMb: number, cpu: number, price: string) =>
+      `${tier}: ${plan} (حافظه ${ramMb}MB، CPU ${cpu}) — ${price} در ماه`,
+    lowBalanceTitle: 'موجودی کافی نیست',
+    lowBalance: (balance: string, need: string) =>
+      `موجودی شما ${balance} است؛ برای این پلن حداقل ${need} لازم است. شارژ حساب از طریق API ممکن نیست؛ لطفاً از https://console.liara.ir شارژ کنید.`,
+    topUpQuestion: 'بعد از شارژ حساب، ادامه دهیم؟',
+    toppedUp: 'شارژ کردم',
+    cancelTopUp: 'لغو (بعداً با --resume ادامه می‌دهیم)',
+    stillLow: (balance: string) =>
+      `موجودی هنوز ${balance} است.`,
+    waitingTopUp: (need: string) =>
+      `منتظر شارژ حساب هستیم (حداقل ${need}). بعد از شارژ، با --resume ادامه دهید.`,
+    balanceOk: (balance: string) =>
+      `موجودی کافی است (${balance}).`,
+    approveTitle: (app: string) =>
+      `ساخت و deploy اپ «${app}» روی لیارا`,
+    approveReason: 'برنامهٔ کامل deploy: اپ و منابع جانبی',
+    impactApp: (plan: string, price: string) =>
+      `اپ با پلن ${plan} — ${price} در ماه`,
+    impactDb: (type: string) =>
+      `دیتابیس ${type} (قیمت از لیارا در دسترس نیست)`,
+    impactDisk: (folders: string) =>
+      `دیسک برای ${folders} (قیمت از لیارا در دسترس نیست)`,
+    impactTotal: (total: string, complete: boolean) =>
+      complete ? `جمع: ${total} در ماه` : `جمع: حداقل ${total} در ماه (بدون موارد نامعلوم)`,
+    rollback:
+      'تا این مرحله هیچ منبعی ساخته نشده است. منابع ساخته‌شده را بعداً می‌توانید با دستور حذف پاک کنید.',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
