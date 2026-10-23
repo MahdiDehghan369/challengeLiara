@@ -42,6 +42,7 @@ describe('percentOfPlan (OQ-3: unit must be stated)', () => {
     expect(percentOfPlan(42, 'memory', 'percent', small)).toBe(42);
     expect(percentOfPlan(256 * MB, 'memory', 'unknown', small)).toBeUndefined();
     expect(percentOfPlan(1, 'cpu', 'cores', undefined)).toBeUndefined();
+    expect(percentOfPlan(73, 'cpu', 'percent', undefined)).toBe(73);
   });
 });
 

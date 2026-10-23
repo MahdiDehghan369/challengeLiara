@@ -71,8 +71,10 @@ export function seriesStats(points: MetricPoint[]): SeriesStats {
  * state the unit; `unknown` → undefined (never guessed).
  */
 export function percentOfPlan(value: number | undefined, kind: MetricKind, unit: MetricUnit, plan: PlanEntry | undefined): number | undefined {
-  if (value === undefined || !plan) return undefined;
+  if (value === undefined) return undefined;
+  // already a percentage: no plan needed
   if (unit === 'percent') return value;
+  if (!plan) return undefined;
   if (kind === 'cpu' && unit === 'cores' && plan.cpu > 0) return (value / plan.cpu) * 100;
   if (kind === 'memory' && unit === 'bytes' && plan.ramMb > 0) return (value / (plan.ramMb * 1024 * 1024)) * 100;
   return undefined;
