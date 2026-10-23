@@ -686,6 +686,28 @@ export const fa = {
     invalid: (n: number) =>
       `اصلاحیهٔ پیشنهادی بعد از یک بار تصحیح هم معتبر نبود (${n} مشکل)؛ تغییری اعمال نشد.`,
     empty: 'مدل هیچ تغییری پیشنهاد نکرد.',
+    dirtyFiles: (files: string) =>
+      `این فایل‌ها تغییرات commit‌نشده دارند: ${files}. اول آن‌ها را commit یا stash کنید تا کار شما از بین نرود.`,
+    cardTitle: (app: string) =>
+      `اعمال اصلاح کد روی «${app}»`,
+    cardImpact: (rootCause: string, tests: string, diff: string) =>
+      `علت: ${rootCause}\nنتیجهٔ تست محلی: ${tests}\n\nتغییرات:\n${diff}`,
+    cardRollbackGit: (branch: string) =>
+      `تغییرات روی branch جداگانهٔ ${branch} است؛ با برگشت به branch اصلی یا rollback برمی‌گردد.`,
+    cardRollbackBackup: 'نسخهٔ قبلی فایل‌ها در .siavash/backups نگه داشته شده است.',
+    testsPassed: 'همهٔ بررسی‌ها موفق بود',
+    testsSkipped: 'اسکریپت تست یا build در پروژه پیدا نشد',
+    testsFailed: (names: string) =>
+      `ناموفق: ${names}`,
+    validationFailed: (rounds: number) =>
+      `اصلاحیه بعد از ${rounds} دور تلاش هنوز تست‌های محلی را رد می‌کند؛ همهٔ تغییرات برگردانده شد.`,
+    rejected: 'اصلاحیه تأیید نشد؛ همهٔ تغییرات برگردانده شد.',
+    startTitle: (app: string) =>
+      `تهیهٔ اصلاح کد برای «${app}»`,
+    startImpact:
+      'یک اصلاحیه ساخته و روی یک branch جداگانه به‌صورت محلی تست می‌شود. commit و deploy فقط بعد از تأیید جداگانه با دیدن diff انجام می‌شود.',
+    startRollback: 'اگر تأیید نکنید، همهٔ تغییرات محلی برگردانده می‌شود.',
+    toolDescription: 'اصلاح خودکار باگ کد: ساخت اصلاحیه، تست محلی، تأیید با diff، commit و deploy',
   },
   remediate: {
     action: {
