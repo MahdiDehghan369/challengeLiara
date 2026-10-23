@@ -352,6 +352,45 @@ export const fa = {
     line: (what: string, fix: string | undefined) =>
       fix ? `• ${what}\n  چه کار کنید: ${fix}` : `• ${what}`,
   },
+  analyzeStep: {
+    title: 'تحلیل پروژه و سؤال‌ها',
+    summaryTitle: 'نتیجهٔ تحلیل پروژه',
+    summary: (r: { platform: string; port: number; start?: string; build?: string; dbs: string[]; diskFolders: string[]; files: number; mb: number; warnings: number; missingEnv: string[] }) =>
+      [
+        `نوع پروژه: ${r.platform}`,
+        `پورت: ${r.port}`,
+        r.build ? `build: ${r.build}` : undefined,
+        r.start ? `اجرا: ${r.start}` : undefined,
+        r.dbs.length > 0 ? `دیتابیس لازم: ${r.dbs.join('، ')}` : undefined,
+        r.diskFolders.length > 0 ? `دیسک برای پوشه‌های: ${r.diskFolders.join('، ')}` : undefined,
+        r.missingEnv.length > 0 ? `متغیرهای محیطی لازم: ${r.missingEnv.join('، ')}` : undefined,
+        `حجم: ${r.files} فایل، ${r.mb}MB`,
+        r.warnings > 0 ? `${r.warnings} هشدار (جزئیات پایین‌تر)` : undefined,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    warningsTitle: 'هشدارها',
+    warningLine: (msg: string, fix: string) =>
+      `• ${msg}\n  راه‌حل: ${fix}`,
+    blockersTitle: 'مشکلات جدی',
+    blockerChoice: 'این مشکلات ممکن است deploy را خراب کنند. چه کنیم؟',
+    blockerContinue: 'بی‌خیال، deploy کن',
+    blockerCancel: 'لغو',
+    cancelled: 'عملیات لغو شد.',
+    redeployQuestion: (app: string) =>
+      `این پروژه قبلاً روی اپ «${app}» deploy شده. چه کنیم؟`,
+    redeploySame: (app: string) =>
+      `redeploy روی همان اپ «${app}»`,
+    redeployNew: 'ساخت اپ جدید',
+    appNameQuestion: 'نام اپ در لیارا:',
+    appNameInvalid:
+      'نام اپ فقط می‌تواند حروف کوچک انگلیسی، عدد و خط تیره داشته باشد، با حرف شروع شود و ۳ تا ۳۲ کاراکتر باشد.',
+    appNameTaken: (name: string, alt: string) =>
+      `اپی با نام «${name}» در حساب شما وجود دارد. پیشنهاد: «${alt}»`,
+    goalQuestion: 'هدف این deploy چیست؟',
+    goalTest: 'تست یا دمو (ارزان‌تر)',
+    goalProduction: 'production (کاربران واقعی)',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
