@@ -54,6 +54,9 @@ describe('restart / start / stop (mock)', () => {
     expect(started.status === 'executed' && started.result.scale).toBe(1);
     const restarted = await powerApp(w.liara.apps, 'restart', 'shop', { approver }, { wait, probe: w.probeFor('shop') });
     expect(restarted.status === 'executed' && restarted.result.confirmed).toBe(true);
+    // TODO(OQ-33): "running" was already true before the restart, so the confirmation can come before the
+    // restart itself; until T0.8 Q8 tells us the real signal, the mock's async restart is awaited here
+    await w.mock.settle();
     expect(w.mock.apps.get('shop')?.events.some((e) => e.text === 'App restarted')).toBe(true);
     expect(approver.seen.map((p) => [p.toolName, p.risk])).toEqual([
       ['stop_app', Risk.R2],

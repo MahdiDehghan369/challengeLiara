@@ -50,7 +50,9 @@ type ESLintCtor = new (o: { cwd: string }) => {
 };
 const { ESLint } = createRequire(import.meta.url)('eslint') as { ESLint: ESLintCtor };
 
-describe('no-restricted-imports (T1.17)', () => {
+// the first lintText loads eslint + the typescript-eslint parser + TypeScript: ~11 s alone and over 30 s under
+// the full parallel suite on WSL's /mnt/c filesystem (I/O bound, measured 2026-10-23)
+describe('no-restricted-imports (T1.17)', { timeout: 120_000 }, () => {
   const eslint = new ESLint({ cwd: ROOT });
   const lint = async (filePath: string, code: string) =>
     (await eslint.lintText(code, { filePath: join(ROOT, filePath) }))[0]?.messages.filter((m) => m.ruleId === 'no-restricted-imports') ?? [];
