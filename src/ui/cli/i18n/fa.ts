@@ -312,6 +312,24 @@ export const fa = {
     pythonNoServerFix:
       'gunicorn (برای django/flask) یا uvicorn (برای fastapi) را به requirements.txt اضافه کنید.',
   },
+  report: {
+    unknownPlatform:
+      'نوع پروژه تشخیص داده نشد؛ نمی‌دانم با چه پلتفرمی روی لیارا اجرا شود.',
+    unknownPlatformFix:
+      'مطمئن شوید در پوشهٔ درست هستید، یا یک Dockerfile به پروژه اضافه کنید.',
+    platformUnverified: (platform: string) =>
+      `شناسهٔ پلتفرم «${platform}» در لیارا هنوز تأیید نشده است.`,
+    platformUnverifiedFix:
+      'پیش از deploy شناسهٔ پلتفرم با لیارا بررسی می‌شود؛ در صورت نیاز از Dockerfile استفاده کنید.',
+    missingEnv: (names: string) =>
+      `این متغیرهای محیطی لازم هستند و مقدارشان مشخص نیست: ${names}`,
+    missingEnvFix:
+      'مقدار این متغیرها را پیش از deploy وارد کنید.',
+    llmFindingFix:
+      'این مورد را بررسی کنید؛ تحلیل خودکار آن را تأیید نکرده است.',
+    llmUnavailable:
+      'تحلیل هوشمند در دسترس نبود؛ فقط نتیجهٔ تحلیل خودکار نمایش داده می‌شود.',
+  },
   deps: {
     ephemeralFs: (what: string) =>
       `برنامه فایل ذخیره می‌کند (${what})؛ فایل‌سیستم کانتینر پایدار نیست و با هر deploy یا restart پاک می‌شود.`,
