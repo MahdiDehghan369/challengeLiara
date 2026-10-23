@@ -4,8 +4,8 @@
 > Statuses: ⬜ not started · 🚧 in progress · ✅ done · ⛔ blocked (reason in Notes)
 
 ## Resume here
-- **Current task:** —
-- **Next (critical path):** see "Order" below; first ⬜ whose dependencies are ✅.
+- **Current task:** — (stopped 2026-10-23 before T0.8, as the user asked; waiting for them at the terminal)
+- **Next (critical path):** T0.8 (live spike on a temporary Liara app, human-run). Everything else left on the MVP path needs it or real Liara: T10.4 → T10.5 need T0.8; T11.2 → T11.3 → T11.4 → T11.7–T11.10 run on real Liara. First post-MVP item T11.11 uses the real BoxAPI LLM (costs money → ask first); T7.9, T4.8, T8.16, T9.10, T6.9 are mock-only and unblocked.
 - **Blocker chains (2026-10-22):** T0.2 (needs `BOXAPI_API_KEY`) → T3.1 → T3.2/T3.8 → T4.5 → T4.7/T4.8/T5.3/T7.9/T8.3/T8.8 … · T0.5 (needs `LIARA_API_TOKEN`, user deferred) → T1.10 → T1.16 → T1.17 → T3.3 → T5.1/T6.1/… and T4.6 → T4.7/T7.2.
 - **Known issue — rare flake (T1.16 mock probe):** `tests/integration/mock-liara.test.ts` (scenario `missing-env`, real HTTP probe to the per-app local server) failed once in ~17 full-suite runs during T5.4 (2026-10-23), and earlier once during T1.16. Not reproduced in 16 targeted reruns. No retry was added and nothing was weakened. The `availability()` failure message now prints per-sample status/error code/latency, the probe URL and the app state, so the next occurrence shows the cause. Suspects: port reuse across parallel workers, or a pooled socket under load.
 - **Unblocked queue at that point (MVP order first):** T6.4, T6.5, T7.1, T7.3, T8.1, T8.2, T8.7, T9.1, T9.5, T11.1; then non-MVP: T1.7, T1.9, T1.12, T1.15, T2.5, T2.6, T6.6, T6.7, T6.8, T9.9.
