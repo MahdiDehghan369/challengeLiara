@@ -6,4 +6,5 @@ export * from './snapshot.js';
 export * from './detectors/index.js';
 export * from './health-score.js';
 export * from './log-analyzer.js';
+export * from './rca.js';
 export * from './knowledge/index.js';
