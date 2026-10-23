@@ -1,5 +1,5 @@
 {
   "platform": "docker",
-  "app": "siavash-panel",
+  "app": "siavashgroup-liara",
   "port": 3000
 }
