@@ -624,6 +624,16 @@ export const fa = {
     'tls-issue': 'مشکل گواهی SSL/TLS',
     'read-only-fs': 'برنامه روی فایل‌سیستم فقط‌خواندنی می‌نویسد',
   } as Record<string, string>,
+  healthScore: {
+    label: { healthy: 'سالم', attention: 'نیاز به توجه', critical: 'بحرانی' } as Record<string, string>,
+    allGood: (app: string) =>
+      `اپ «${app}» سالم است و مشکلی پیدا نشد.`,
+    problems: (app: string, n: number, top: string) =>
+      `در اپ «${app}» ${n} مشکل پیدا شد؛ مهم‌ترین: ${top}.`,
+    partial: (sources: string) =>
+      ` (بخشی از اطلاعات دریافت نشد: ${sources})`,
+    toolDescription: 'بررسی سلامت اپ: جمع‌آوری وضعیت، اجرای آشکارسازها و امتیاز ۰ تا ۱۰۰',
+  },
   overview: {
     sourceFailed: 'این بخش دریافت نشد.',
     probeSkipped: 'بررسی پاسخ‌گویی درخواست نشد.',
