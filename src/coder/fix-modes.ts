@@ -37,6 +37,12 @@ export interface FixRouterDeps {
   envNames?: string[];
   knownSecrets?: string[];
   signal?: AbortSignal;
+  /** Skip the question (e.g. MCP: the user's agent is the one asking → handoff). */
+  forceMode?: FixMode;
+  /** false: deliver the brief and return `waiting-fix` at once (MCP: `report_fix_done` comes later). */
+  wait?: boolean;
+  /** Called with every brief written (the MCP incident book). */
+  onBrief?: (req: CodeFixRequest, briefPath: string, markdown: string) => void;
 }
 
 export interface HandoffRound {
@@ -116,6 +122,8 @@ export async function runHandoff(deps: FixRouterDeps, req: CodeFixRequest): Prom
     );
     const r: HandoffRound = { round, briefPath: brief.path };
     rounds.push(r);
+    deps.onBrief?.(req, brief.path, brief.markdown);
+    if (deps.wait === false) return { status: 'waiting-fix', messageFa: h.stillWaiting, rounds };
 
     const got = await waitForFix(deps, req.incidentId);
     if (!got) return { status: 'waiting-fix', messageFa: h.stillWaiting, rounds };
@@ -147,7 +155,7 @@ export function createFixRouter(deps: FixRouterDeps): CodeFixRouter & { lastRoun
   const router = {
     lastRounds: [] as HandoffRound[],
     fix: async (req: CodeFixRequest): Promise<{ status: string; messageFa?: string }> => {
-      const mode = await chooseFixMode(deps.root, deps.ui);
+      const mode = deps.forceMode ?? (await chooseFixMode(deps.root, deps.ui));
       if (!mode) return { status: 'skipped' };
       if (mode === 'self') return deps.self(req);
       if (mode === 'report') {

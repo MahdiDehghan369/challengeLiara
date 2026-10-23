@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { z } from 'zod';
 import { loadConfig, type Config } from '../../config/env.js';
 import type { PipelineEvent } from '../../deploy/pipeline-engine.js';
+import type { CodeFixRouter } from '../../sre/execute-fix.js';
 import { defaultAppUrl } from '../../deploy/steps/verify.js';
 import { createLiaraClient, type LiaraClient } from '../../liara/index.js';
 import { createLlm } from '../../llm/index.js';
@@ -94,6 +95,8 @@ export function buildCliRegistry(input: {
   urlFor: (app: string) => string | Promise<string>;
   yes?: boolean;
   onPipelineEvent?: (e: PipelineEvent) => void;
+  /** Code fixes inside the doctor (T8.15 router). */
+  codeFix?: CodeFixRouter;
 }): ToolRegistry {
   const catalog = new PlanCatalog(input.liara.cli);
   const registry = new ToolRegistry();
@@ -106,7 +109,7 @@ export function buildCliRegistry(input: {
       urlFor: input.urlFor,
       catalog,
       dataDir: input.config.dataDir,
-      doctor: { ui: input.ui, catalog, reportsDir: join(input.config.dataDir, 'reports') },
+      doctor: { ui: input.ui, catalog, reportsDir: join(input.config.dataDir, 'reports'), ...(input.codeFix ? { codeFix: input.codeFix } : {}) },
     }),
   ];
   for (const t of tools) registry.register(t);

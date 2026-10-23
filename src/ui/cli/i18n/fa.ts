@@ -714,6 +714,16 @@ export const fa = {
     diffTitle: 'تغییر پیشنهادی',
     applied: 'اصلاح اعمال شد.',
   },
+  mcp: {
+    approvalRequired: 'این اقدام تأیید کاربر را لازم دارد. کارت را به کاربر نشان دهید و فقط اگر کاربر تأیید کرد، همین ابزار را با همان آرگومان‌ها و confirm_token دوباره صدا بزنید.',
+    appNameRequired: (name: string) => `این اقدام برگشت‌ناپذیر است (R3): کاربر باید نام «${name}» را خودش تایپ کند و شما آن را در confirm_app_name بفرستید.`,
+    appNameMismatch: 'نام تایپ‌شده با نام اپ یکی نیست؛ اقدام انجام نشد.',
+    waitingHuman: 'این کار به قدم یا پاسخ کاربر نیاز دارد و متوقف شده است.',
+    unknownIncident: (id: string) => `رخدادی با شناسهٔ ${id} پیدا نشد.`,
+    noBrief: (id: string) => `برای رخداد ${id} هنوز Fix Brief ساخته نشده است.`,
+    fixReported: 'دریافت شد. حالا redeploy_app را صدا بزنید (با تأیید کاربر) و بعد diagnose_app تا نتیجه بررسی شود.',
+    handedOff: 'Fix Brief آماده است؛ با get_fix_brief بگیرید، کد را اصلاح و commit کنید، بعد report_fix_done را صدا بزنید.',
+  },
   chat: {
     welcome: 'سلام! من سیاوش هستم؛ کمکتان می‌کنم اپ‌هایتان را روی لیارا بالا بیاورید و سالم نگه دارید.',
     suggestionsTitle: 'مثلاً بگویید:',

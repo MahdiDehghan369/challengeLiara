@@ -66,7 +66,8 @@ export function createLogger(opts: CreateLoggerOptions = {}): Logger {
     },
   };
   if (opts.name) options.name = opts.name;
-  return opts.destination ? pino(options, opts.destination) : pino(options);
+  // stderr by default: stdout carries CLI output and, for `siavash mcp`, the MCP protocol itself
+  return pino(options, opts.destination ?? pino.destination(2));
 }
 
 export const logger: Logger = createLogger();
