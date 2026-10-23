@@ -10,4 +10,5 @@ export * from './rca.js';
 export * from './container-probes.js';
 export * from './remediate.js';
 export * from './verify.js';
+export * from './incident.js';
 export * from './knowledge/index.js';

@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`incident report > HTML is a single RTL file without external resources (snapshot) 1`] = `
+"<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>گزارش رخداد «shop» (inc-20261023-120000-abcd)</title>
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e5e5ea;--accent:#b42318}
+@media (prefers-color-scheme:dark){:root{--bg:#141416;--fg:#f2f2f7;--muted:#a1a1a6;--line:#2c2c2e;--accent:#ff6b5b}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 Vazirmatn,Tahoma,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.15rem;margin:28px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.meta{color:var(--muted);font-size:.9rem}li{margin:4px 0}code{direction:ltr;unicode-bidi:embed}
+table{border-collapse:collapse;width:100%;margin-top:8px}th,td{border:1px solid var(--line);padding:6px 8px;text-align:right}
+footer{margin-top:32px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body><main>
+<h1>گزارش رخداد «shop» (inc-20261023-120000-abcd)</h1>
+<p class="meta">نوع: مشکل در حال اجرا · وضعیت: رفع‌شده · شدت: بحرانی · شروع: 2026-10-23 12:00 UTC · پایان: 2026-10-23 12:12 UTC</p>
+<section><h2>خلاصه</h2><p>2 مشکل تشخیص داده شد؛ مهم‌ترین: یک متغیر محیطی لازم تنظیم نشده: DATABASE_URL.</p></section>
+<section><h2>اثر</h2><p>علائم مشاهده‌شده: اپ از دسترس خارج است، یک متغیر محیطی لازم تنظیم نشده</p></section>
+<section><h2>خط زمانی</h2><ul><li>2026-10-23 11:55 UTC — deploy: deploy v7 (cli) result=success</li><li>2026-10-23 12:00 UTC — مشکل در حال اجرا</li><li>2026-10-23 12:10 UTC — set_env (R2) → ok</li><li>2026-10-23 12:12 UTC — رفع‌شده</li></ul></section>
+<section><h2>علت ریشه‌ای</h2><p><strong>یک متغیر محیطی لازم تنظیم نشده: DATABASE_URL</strong> (اطمینان: 80٪)</p><p>برنامه هنگام شروع به یک متغیر محیطی نیاز دارد که روی لیارا تنظیم نشده است.</p></section>
+<section><h2>شواهد</h2><ul><li>[log] TypeError [ERR_INVALID_URL]: Invalid URL</li></ul></section>
+<section><h2>اقدامات</h2><ul><li>2026-10-23 12:10 UTC — set_env (R2) — نتیجه: ok</li></ul></section>
+<section><h2>نتیجهٔ راستی‌آزمایی</h2><p>حکم: رفع شد</p><table><thead><tr><th>شاخص</th><th>قبل</th><th>بعد</th></tr></thead><tbody><tr><td>دسترس‌پذیری (٪)</td><td>0</td><td>100</td></tr><tr><td>هشدارهای بحرانی</td><td>2</td><td>0</td></tr></tbody></table></section>
+<section><h2>پیشگیری در آینده</h2><ul><li>متغیرهای محیطی لازم را در بررسی اولیهٔ deploy چک کنید و در .env.example مستند کنید.</li><li>بعد از هر deploy، بررسی سلامت خودکار (health check) را اجرا کنید.</li></ul></section>
+<footer>این گزارش به‌صورت خودکار توسط siavash-agent در 2026-10-23 12:30 UTC ساخته شد. مقادیر محرمانه حذف شده‌اند.</footer>
+</main></body>
+</html>
+"
+`;
+
+exports[`incident report > markdown has the fixed Persian sections in order (snapshot) 1`] = `
+"# گزارش رخداد «shop» (inc-20261023-120000-abcd)
+
+نوع: مشکل در حال اجرا · وضعیت: رفع‌شده · شدت: بحرانی · شروع: 2026-10-23 12:00 UTC · پایان: 2026-10-23 12:12 UTC
+
+## خلاصه
+
+2 مشکل تشخیص داده شد؛ مهم‌ترین: یک متغیر محیطی لازم تنظیم نشده: DATABASE_URL.
+
+## اثر
+
+علائم مشاهده‌شده: اپ از دسترس خارج است، یک متغیر محیطی لازم تنظیم نشده
+
+## خط زمانی
+
+- 2026-10-23 11:55 UTC — deploy: deploy v7 (cli) result=success
+- 2026-10-23 12:00 UTC — مشکل در حال اجرا
+- 2026-10-23 12:10 UTC — set_env (R2) → ok
+- 2026-10-23 12:12 UTC — رفع‌شده
+
+## علت ریشه‌ای
+
+**یک متغیر محیطی لازم تنظیم نشده: DATABASE_URL** (اطمینان: 80٪)
+
+برنامه هنگام شروع به یک متغیر محیطی نیاز دارد که روی لیارا تنظیم نشده است.
+
+## شواهد
+
+- \`[log] TypeError [ERR_INVALID_URL]: Invalid URL\`
+
+## اقدامات
+
+- 2026-10-23 12:10 UTC — set_env (R2) — نتیجه: ok
+
+## نتیجهٔ راستی‌آزمایی
+
+حکم: رفع شد
+
+| شاخص | قبل | بعد |
+|---|---|---|
+| دسترس‌پذیری (٪) | 0 | 100 |
+| هشدارهای بحرانی | 2 | 0 |
+
+## پیشگیری در آینده
+
+- متغیرهای محیطی لازم را در بررسی اولیهٔ deploy چک کنید و در .env.example مستند کنید.
+- بعد از هر deploy، بررسی سلامت خودکار (health check) را اجرا کنید.
+
+---
+این گزارش به‌صورت خودکار توسط siavash-agent در 2026-10-23 12:30 UTC ساخته شد. مقادیر محرمانه حذف شده‌اند.
+"
+`;
