@@ -682,6 +682,38 @@ export const fa = {
     llmUnavailable:
       'تحلیل هوشمند در دسترس نبود؛ فرضیه‌ها فقط از قواعد قطعی و پایگاه دانش ساخته شدند.',
   },
+  buildDoctor: {
+    title: 'تحلیل شکست build',
+    cause: {
+      'missing-build-script': 'اسکریپت build در package.json تعریف نشده است.',
+      'node-version': 'نسخهٔ Node مناسب این پروژه نیست.',
+      'typescript-error': 'کد TypeScript خطای کامپایل دارد.',
+      'peer-deps': 'وابستگی‌های npm با هم سازگار نیستند (peer dependency).',
+      lockfile: 'package-lock.json با package.json هماهنگ نیست.',
+      dockerfile: 'Dockerfile خطا دارد.',
+      'build-oom': 'حافظه هنگام build تمام شد.',
+      unknown: 'علت شکست build به‌طور قطعی مشخص نشد.',
+    } as Record<string, string>,
+    explain: {
+      'missing-build-script': (start: string) => `اسکریپت start فایل‌های ساخته‌شده را اجرا می‌کند (${start}) ولی هیچ اسکریپت build‌ای آن‌ها را نمی‌سازد.`,
+    },
+    fix: {
+      addScript: (name: string, cmd: string) => `افزودن اسکریپت "${name}": "${cmd}" به package.json`,
+      engines: (v: string) => `تنظیم engines.node روی "${v}" در package.json`,
+      npmrc: 'افزودن legacy-peer-deps=true به فایل .npmrc',
+      codePatch: 'اصلاح خطای کامپایل در کد (مسیر اصلاح کد)',
+      lockfile: 'npm install را محلی اجرا کنید و package-lock.json جدید را commit کنید.',
+      dockerfile: 'Dockerfile را طبق خطای نمایش‌داده‌شده اصلاح کنید.',
+      buildOom: 'متغیر NODE_OPTIONS را روی --max-old-space-size=… تنظیم کنید یا build را سبک‌تر کنید.',
+      manual: 'لاگ build را بررسی کنید و خطای اول را برطرف کنید.',
+    },
+    findingsTitle: 'علت شکست build',
+    applyQuestion: 'این اصلاح روی پروژه اعمال و دوباره deploy شود؟',
+    apply: 'اعمال و deploy دوباره',
+    skip: 'فعلاً نه',
+    diffTitle: 'تغییر پیشنهادی',
+    applied: 'اصلاح اعمال شد.',
+  },
   doctor: {
     steps: {
       collect: 'جمع‌آوری وضعیت اپ',

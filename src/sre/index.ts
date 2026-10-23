@@ -13,4 +13,5 @@ export * from './verify.js';
 export * from './incident.js';
 export * from './execute-fix.js';
 export * from './doctor.js';
+export * from './build-doctor.js';
 export * from './knowledge/index.js';
