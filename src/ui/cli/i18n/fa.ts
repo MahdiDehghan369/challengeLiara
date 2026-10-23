@@ -624,6 +624,10 @@ export const fa = {
     'tls-issue': 'مشکل گواهی SSL/TLS',
     'read-only-fs': 'برنامه روی فایل‌سیستم فقط‌خواندنی می‌نویسد',
   } as Record<string, string>,
+  logAnalyzer: {
+    llmUnavailable:
+      'تحلیل هوشمند لاگ در دسترس نبود؛ فقط الگوهای شناخته‌شده گزارش شدند.',
+  },
   healthScore: {
     label: { healthy: 'سالم', attention: 'نیاز به توجه', critical: 'بحرانی' } as Record<string, string>,
     allGood: (app: string) =>

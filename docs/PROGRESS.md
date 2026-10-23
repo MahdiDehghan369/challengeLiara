@@ -104,7 +104,7 @@
 | T7.9 | ⬜ | - | |
 | T8.1 | ✅ | 15b2a98 | `src/sre/log-cluster.ts`: `errorSignature` (normalized header — ts/uuid/hex/ip/email/long-quoted/path/numbers — + top user frame `fn:basename`; Python uses the final exception line), `parseFrames` (Node + Python, innermost first, `isUserCode` excludes node_modules/site-packages/node:/internal), `clusterLogs(records, {levels=['error']})` → `{signature, count, firstSeen, lastSeen, sample, level, stream, topFrames(≤5), isUserCode}` sorted by count then recency. 1000 lines/3 recurring errors → 3 clusters. |
 | T8.2 | ✅ | d2eecc2 | `src/sre/knowledge/patterns.yaml` (53 patterns: Node/Next/Python/Django/Laravel/Docker + fs/net; each has `platforms` and a `sample`; ordered specific→generic) + `index.ts` (zod schema: allowed actionType/category, regex compiles, flags ⊂ imsu, unique ids; `parseKnowledge`, cached `loadKnowledge`, `matchKnowledge(text, {first?})` filling `{n}` from capture groups). `build` copies the yaml into dist. Test loops over every pattern sample. |
-| T8.3 | ⬜ | - | |
+| T8.3 | ✅ | (see git log `T8.3:`) | `src/sre/log-analyzer.ts` `analyzeLogs(records, {llm?, platform?, maxLlmClusters=20, knowledge?})`:<br>• Clusters (T8.1) → knowledge-base match (T8.2; severity critical when count ≥3, with fixes).<br>• **Unmatched clusters only** go to the LLM (role cheap, top 20 by count, samples redacted again and capped at 800 chars, inside `<data source="log-clusters">`). The LLM may only annotate ids it was sent (unknown/duplicate ids ignored); its category and severity are validated by zod.<br>• Output `{findings[{signature, count, first/lastSeen, sample, interpretationFa, category, severity, source kb/llm, kbMatch?}], clusters, unexplained, llm}`.<br>• Acceptance: without an LLM (or on LlmError) only KB findings, plus a Persian note. `analyzeBuildLog(lines)` uses the same path.<br>`summarize-logs.md` now has an id-based JSON contract. Unit tests with MockLlm. |
 | T8.4 | ⬜ | - | |
 | T8.5 | ⬜ | - | |
 | T8.6 | ⬜ | - | |
@@ -165,6 +165,7 @@ _(none yet)_
 ## Files touched per task
 - **T0.3:** package.json, pnpm-lock.yaml, pnpm-workspace.yaml, tsconfig.json, tsconfig.build.json, .eslintrc.cjs, .prettierrc, vitest.config.ts, vitest.e2e.config.ts, .gitignore, .env.example, src/**/index.ts, tests/unit/placeholder.test.ts, .gitkeep in specs/ fixtures/liara/ scripts/ demo-apps/ tests/{unit,integration,e2e}; docs/PROGRESS.md, docs/OPEN_QUESTIONS.md, docs/liara/BEHAVIOR.md (bootstrap).
 - **T0.4:** src/config/{env,models,index}.ts, src/shared/{errors,result,logger,time,index}.ts, src/ui/cli/i18n/fa.ts, tests/unit/shared/{logger,errors,time}.test.ts, tests/unit/config/env.test.ts, package.json, pnpm-lock.yaml.
+- **T8.3:** src/sre/{log-analyzer,index}.ts, src/llm/prompts/summarize-logs.md, src/ui/cli/i18n/fa.ts (logAnalyzer), tests/unit/sre/log-analyzer.test.ts.
 - **T7.6:** src/sre/{health-score,index}.ts, src/tools/{sre-tools,index}.ts, src/ui/cli/i18n/fa.ts (healthScore), tests/unit/sre/health-score.test.ts.
 - **T7.5:** src/sre/detectors/{types,helpers,availability,resources,config,code,index}.ts, src/sre/{index,metrics}.ts, src/ui/cli/i18n/fa.ts (detectors), tests/unit/sre/{detectors,metrics}.test.ts.
 - **T7.4:** src/sre/{snapshot,index}.ts, tests/integration/snapshot.test.ts.
