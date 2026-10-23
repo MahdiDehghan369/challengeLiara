@@ -7,6 +7,7 @@ import { createLiaraClient, type LiaraClient } from '../../src/liara/index.js';
 import { ScriptedApprover } from '../../src/safety/approval.js';
 import { analyzeBuildFailure, buildFixChanges, runBuildDoctor } from '../../src/sre/index.js';
 import { ScriptedUi } from '../../src/ui/cli/scripted-ui.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const DEMO = join(import.meta.dirname, '..', '..', 'demo-apps', 'node-build-fail');
 const root = mkdtempSync(join(tmpdir(), 'siavash-build-doctor-'));
@@ -16,7 +17,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const BUILD_FAIL = ['Building...', 'Step 1/3 : RUN npm run build', 'Build failed: npm run build exited with code 1'];
 

@@ -9,6 +9,7 @@ import { ScriptedApprover } from '../../src/safety/approval.js';
 import { Risk } from '../../src/safety/risk.js';
 import { deployTools, ToolRegistry } from '../../src/tools/index.js';
 import { ScriptedUi, type ScriptedAnswer } from '../../src/ui/cli/scripted-ui.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const DEMO = join(import.meta.dirname, '..', '..', 'demo-apps', 'node-express-ok');
 const root = mkdtempSync(join(tmpdir(), 'siavash-pipeline-'));
@@ -20,7 +21,6 @@ afterEach(async () => {
   open = [];
 });
 
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 const config = { liara: { token: undefined, teamId: undefined, mode: 'mock' as const }, deployMode: 'cli' as const };
 
 /** A clean copy of the demo app (no node_modules): the pipeline writes liara.json and .siavash/. */

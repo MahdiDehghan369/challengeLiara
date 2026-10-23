@@ -10,6 +10,7 @@ import { AuditLog } from '../../src/safety/audit.js';
 import { LiaraApiError } from '../../src/shared/errors.js';
 import { Secret } from '../../src/shared/secret.js';
 import { takeSnapshot } from '../../src/sre/snapshot.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const root = mkdtempSync(join(tmpdir(), 'siavash-snapshot-'));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -18,8 +19,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
 async function world() {
   const dataDir = join(mkdtempSync(join(root, 'd-')), 'data');

@@ -13,6 +13,7 @@ import { AuditLog } from '../../src/safety/audit.js';
 import { runDoctor, type CodeFixRouter, type DoctorDeps } from '../../src/sre/index.js';
 import { sreTools, ToolRegistry } from '../../src/tools/index.js';
 import { ScriptedUi, type ScriptedAnswer } from '../../src/ui/cli/scripted-ui.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const DEMO = join(import.meta.dirname, '..', '..', 'demo-apps', 'node-http500');
 const root = mkdtempSync(join(tmpdir(), 'siavash-doctor-'));
@@ -22,7 +23,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const GOOD: Patch = {

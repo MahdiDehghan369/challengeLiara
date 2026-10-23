@@ -8,6 +8,7 @@ import { ScriptedApprover } from '../../src/safety/approval.js';
 import { Risk } from '../../src/safety/risk.js';
 import { probe } from '../../src/sre/health.js';
 import { opsTools, ToolRegistry } from '../../src/tools/index.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const root = mkdtempSync(join(tmpdir(), 'siavash-power-'));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -17,7 +18,6 @@ afterEach(async () => {
   open = [];
 });
 
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 // generous budget: under a full parallel test run the restart + probe can take a few seconds
 const wait = { timeoutMs: 5000, intervalMs: 2, sleep: (ms: number) => new Promise<void>((r) => setTimeout(r, ms)) };
 

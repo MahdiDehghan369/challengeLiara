@@ -5,6 +5,7 @@ import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import { createLiaraClient, type LiaraClient, type ScenarioKind } from '../../src/liara/index.js';
 import { takeSnapshot, type SnapshotDeps } from '../../src/sre/snapshot.js';
 import { compareMeasures, verifyFix, type Measures } from '../../src/sre/verify.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const root = mkdtempSync(join(tmpdir(), 'siavash-verifyfix-'));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -13,7 +14,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 const fast = { settleMs: 0, snapshots: 1, sleep: async () => {} };
 
 async function world(kind: ScenarioKind) {

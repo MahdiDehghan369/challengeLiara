@@ -20,6 +20,7 @@ import {
   type ScenarioKind,
 } from '../../src/liara/mock/index.js';
 import { probe } from '../../src/sre/health.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const TOKEN = 'mock-token-123456';
 const tmp = mkdtempSync(join(tmpdir(), 'mock-liara-'));
@@ -53,9 +54,6 @@ function world() {
 }
 
 type World = ReturnType<typeof world>;
-
-/** No pooled sockets: per-test servers close and their ports get reused. */
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
 async function health(w: World, app: string, path = '/') {
   return probe(`${await w.servers.urlFor(app)}${path}`, { count: 2, timeoutMs: 5000, fetchImpl: noKeepAlive });

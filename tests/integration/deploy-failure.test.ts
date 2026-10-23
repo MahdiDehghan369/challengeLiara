@@ -9,6 +9,7 @@ import { ScriptedApprover } from '../../src/safety/approval.js';
 import { AuditLog } from '../../src/safety/audit.js';
 import { Risk } from '../../src/safety/risk.js';
 import { ScriptedUi, type ScriptedAnswer } from '../../src/ui/cli/scripted-ui.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const DEMOS = join(import.meta.dirname, '..', '..', 'demo-apps');
 const root = mkdtempSync(join(tmpdir(), 'siavash-deploy-failure-'));
@@ -18,7 +19,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const SECRET_DB = 'postgres://app:db-pass-123@shop-db.internal:5432/shop';
 

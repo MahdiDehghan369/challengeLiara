@@ -5,6 +5,7 @@ import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import { judgeHealth, runPipeline, verifyStep, type VerifyDeps, type VerifyResult, type VerifyState } from '../../src/deploy/index.js';
 import { createLiaraClient, type LiaraClient, type ScenarioKind } from '../../src/liara/index.js';
 import { ScriptedUi } from '../../src/ui/cli/scripted-ui.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const root = mkdtempSync(join(tmpdir(), 'siavash-verify-'));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -14,9 +15,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-
-/** No pooled sockets: per-test servers close and their ports get reused. */
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
 async function setup(opts: { scenario?: ScenarioKind; stopped?: boolean } = {}) {
   const liara = createLiaraClient({ liara: { token: undefined, teamId: undefined, mode: 'mock' }, dataDir: join(mkdtempSync(join(root, 'd-')), 'data') }, { mockOptions: { asyncDelayMs: 1 } });

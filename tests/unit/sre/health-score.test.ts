@@ -7,6 +7,7 @@ import { ScriptedApprover } from '../../../src/safety/approval.js';
 import type { Signal } from '../../../src/sre/detectors/index.js';
 import { healthScore } from '../../../src/sre/health-score.js';
 import { sreTools, ToolRegistry, type HealthCheckResult } from '../../../src/tools/index.js';
+import { noKeepAlive } from '../../helpers/no-pool-fetch.js';
 
 const sig = (id: string, severity: Signal['severity']): Signal => ({ id, severity, titleFa: `عنوان ${id}`, evidence: {} });
 
@@ -46,7 +47,6 @@ describe('health_check tool (mock, R0)', () => {
     await Promise.all(open.map((c) => c.mock!.servers.close()));
     open = [];
   });
-  const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
   it('healthy app → high score; missing-env app → critical with the right signals; no approval asked', async () => {
     const liara = createLiaraClient({ liara: { token: undefined, teamId: undefined, mode: 'mock' }, dataDir: join(root, 'data') }, { mockOptions: { asyncDelayMs: 1 } });

@@ -8,6 +8,7 @@ import { runDetectors } from '../../src/sre/detectors/index.js';
 import { analyzeLogs } from '../../src/sre/log-analyzer.js';
 import { groundHypothesis, runRca, validEvidence, type EvidenceItem } from '../../src/sre/rca.js';
 import { takeSnapshot } from '../../src/sre/snapshot.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const root = mkdtempSync(join(tmpdir(), 'siavash-rca-'));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -16,7 +17,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
 async function scenario(kind: ScenarioKind) {
   const liara = createLiaraClient({ liara: { token: undefined, teamId: undefined, mode: 'mock' }, dataDir: join(mkdtempSync(join(root, 'd-')), 'data') }, { mockOptions: { asyncDelayMs: 1 } });

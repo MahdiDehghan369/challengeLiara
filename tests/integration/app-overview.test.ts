@@ -8,6 +8,7 @@ import { PlanCatalog } from '../../src/planner/plans.js';
 import { LiaraApiError } from '../../src/shared/errors.js';
 import { ScriptedApprover } from '../../src/safety/approval.js';
 import { opsTools, ToolRegistry } from '../../src/tools/index.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const root = mkdtempSync(join(tmpdir(), 'siavash-overview-'));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
@@ -16,8 +17,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
 async function world() {
   const liara = createLiaraClient({ liara: { token: undefined, teamId: undefined, mode: 'mock' }, dataDir: join(mkdtempSync(join(root, 'd-')), 'data') }, { mockOptions: { asyncDelayMs: 1 } });

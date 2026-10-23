@@ -11,6 +11,7 @@ import { ScriptedApprover } from '../../src/safety/approval.js';
 import { Risk } from '../../src/safety/risk.js';
 import { ValidationError } from '../../src/shared/errors.js';
 import { ScriptedUi } from '../../src/ui/cli/scripted-ui.js';
+import { noKeepAlive } from '../helpers/no-pool-fetch.js';
 
 const DEMO = join(import.meta.dirname, '..', '..', 'demo-apps', 'node-http500');
 const root = mkdtempSync(join(tmpdir(), 'siavash-codepatch-'));
@@ -20,7 +21,6 @@ afterEach(async () => {
   await Promise.all(open.map((c) => c.mock!.servers.close()));
   open = [];
 });
-const noKeepAlive: typeof fetch = (input, init) => fetch(input, { ...init, headers: { ...(init?.headers as Record<string, string>), connection: 'close' } });
 
 const STACK = "TypeError: Cannot read properties of undefined (reading 'length')\n    at summarize (/app/src/orders.js:15:29)\n    at Server.<anonymous> (/app/src/server.js:20:31)";
 
