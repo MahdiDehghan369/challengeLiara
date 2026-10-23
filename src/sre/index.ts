@@ -8,4 +8,5 @@ export * from './health-score.js';
 export * from './log-analyzer.js';
 export * from './rca.js';
 export * from './container-probes.js';
+export * from './remediate.js';
 export * from './knowledge/index.js';

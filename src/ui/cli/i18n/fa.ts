@@ -682,6 +682,28 @@ export const fa = {
     llmUnavailable:
       'تحلیل هوشمند در دسترس نبود؛ فرضیه‌ها فقط از قواعد قطعی و پایگاه دانش ساخته شدند.',
   },
+  remediate: {
+    action: {
+      set_env: (name: string) => `تنظیم متغیر محیطی ${name}`,
+      restart_app: () => 'ری‌استارت اپ',
+      resize_app: (plan: string) => `ارتقای پلن به ${plan}`,
+      rollback_app: () => 'برگشت به آخرین نسخهٔ سالم',
+      redeploy_app: () => 'deploy دوباره از کد فعلی',
+      code_patch: () => 'اصلاح کد و deploy نسخهٔ جدید',
+      config_file: () => 'اصلاح فایل پیکربندی پروژه',
+      set_read_only: () => 'خاموش کردن حالت فقط‌خواندنی فایل‌سیستم',
+      create_disk: () => 'ساخت دیسک پایدار',
+      run_migration: () => 'اجرای migration داخل کانتینر',
+      manual: () => 'اقدام دستی',
+    } as Record<string, (x: string) => string>,
+    quick: 'رفع سریع',
+    root: 'رفع ریشه‌ای',
+    choosePlan: 'پلن جدید باید انتخاب شود.',
+    manualIntro: 'این کار را باید خودتان انجام دهید:',
+    manualStep: (n: number, text: string) => `${n}. ${text}`,
+    manualCheck: (how: string) => `بعد از انجام، بررسی کنید: ${how}`,
+    manualAsk: 'اگر کمک لازم شد، نتیجه را برای من بنویسید تا ادامه دهیم.',
+  },
   containerProbes: {
     notAllowed: (id: string) =>
       `بررسی «${id}» در فهرست دستورات مجاز نیست؛ فقط دستورات فقط‌خواندنی از پیش‌تعریف‌شده اجرا می‌شوند.`,
