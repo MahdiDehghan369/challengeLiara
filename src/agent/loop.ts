@@ -113,6 +113,8 @@ export async function runAgentTurn(deps: AgentDeps, userText: string): Promise<A
   session.addMessage({ role: 'user', content: userText });
 
   for (let step = 1; step <= maxSteps; step++) {
+    // cancelled (Ctrl+C): stop between steps, never in the middle of a tool call
+    if (deps.signal?.aborted) return stop('CANCELLED', fa.agent.cancelled, 'error', step);
     emit({ type: 'thinking', step });
     let res;
     try {
