@@ -312,6 +312,18 @@ export const fa = {
     pythonNoServerFix:
       'gunicorn (برای django/flask) یا uvicorn (برای fastapi) را به requirements.txt اضافه کنید.',
   },
+  planner: {
+    catalogUnavailable:
+      'فهرست پلن‌های لیارا دریافت نشد. مطمئن شوید CLI لیارا نصب است و توکن درست است، سپس دوباره تلاش کنید.',
+    catalogEmpty:
+      'لیارا هیچ پلنی برنگرداند؛ بدون فهرست پلن‌ها نمی‌توان هزینه را محاسبه کرد.',
+    unknownPlan: (id: string) =>
+      `پلن «${id}» در فهرست پلن‌های لیارا پیدا نشد.`,
+    priceUnknown: (what: string) =>
+      `قیمت ${what} از لیارا در دسترس نیست و در جمع هزینه حساب نشده است.`,
+    dbLabel: 'دیتابیس',
+    diskLabel: 'دیسک',
+  },
   report: {
     unknownPlatform:
       'نوع پروژه تشخیص داده نشد؛ نمی‌دانم با چه پلتفرمی روی لیارا اجرا شود.',
