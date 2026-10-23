@@ -585,6 +585,18 @@ export const fa = {
       'مراحل deploy شروع می‌شود. هزینه و ساخت هر منبع جداگانه از شما تأیید گرفته می‌شود.',
     startRollback: 'تا قبل از تأیید برنامهٔ deploy چیزی ساخته نمی‌شود.',
   },
+  resize: {
+    title: (app: string, from: string, to: string) =>
+      `تغییر پلن «${app}» از ${from} به ${to}`,
+    impact: (from: string, to: string, diff: string) =>
+      `پلن از ${from} به ${to} تغییر می‌کند؛ اختلاف هزینه: ${diff} در ماه. اپ هنگام تغییر پلن ری‌استارت می‌شود.`,
+    rollback: (from: string) =>
+      `با تغییر دوباره به پلن ${from} برمی‌گردد.`,
+    defaultReason: 'به درخواست شما',
+    same: (plan: string) =>
+      `اپ همین حالا روی پلن ${plan} است؛ تغییری لازم نیست.`,
+    toolDescription: 'تغییر پلن اپ (ارتقا یا کاهش منابع) با بررسی موجودی و تأیید تغییر',
+  },
   power: {
     restartTitle: (app: string) => `ری‌استارت «${app}»`,
     startTitle: (app: string) => `روشن کردن «${app}»`,

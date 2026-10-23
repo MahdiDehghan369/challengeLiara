@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { execPower, getAppOverview, planPower, type OverviewDeps, type PowerAction, type PowerExecOptions, type PowerOptions } from '../ops/service.js';
+import { execPower, execResize, getAppOverview, planPower, planResize, prepareResize, type OverviewDeps, type PowerAction, type PowerExecOptions, type PowerOptions } from '../ops/service.js';
+import { PlanCatalog } from '../planner/plans.js';
 import { Risk } from '../safety/risk.js';
+import { ValidationError } from '../shared/errors.js';
 import { fa } from '../ui/cli/i18n/fa.js';
 import { defineTool, type ToolDefinition } from './types.js';
 
@@ -54,6 +56,24 @@ export function opsTools(opts: OpsToolsOptions = {}): ToolDefinition[] {
     powerTool('restart', 'restart_app', fa.power.restartTool, 'Restart an app and confirm it is running again (R1).', Risk.R1),
     powerTool('start', 'start_app', fa.power.startTool, 'Start a stopped app (scale=1) and confirm it is running (R1).', Risk.R1),
     powerTool('stop', 'stop_app', fa.power.stopTool, 'Stop an app (scale=0) and confirm it stopped (R2; R3 for production/protected apps).', Risk.R2),
+    defineTool({
+      name: 'resize_app',
+      descriptionFa: fa.resize.toolDescription,
+      descriptionEn: 'Change the plan of an app (R2). Checks the balance first; the card shows current → new plan and the monthly cost difference.',
+      inputSchema: z.object({
+        app: z.string().min(1),
+        planID: z.string().min(1).describe('Target plan id from list_plans'),
+        reason: z.string().optional().describe('Why, e.g. "RAM reached 95% in the last 24h"'),
+      }),
+      risk: Risk.R2,
+      buildPlan: async (a, ctx) => {
+        const catalog = overview.catalog ?? new PlanCatalog(ctx.liara.cli);
+        const prep = await prepareResize({ apps: ctx.liara.apps, billing: ctx.liara.billing, catalog }, a.app, a.planID);
+        if (prep.status === 'no-change') throw new ValidationError('same plan', { messageFa: prep.messageFa });
+        return planResize(a.app, prep.from, prep.to, ctx, a.reason ? { reasonFa: a.reason } : {});
+      },
+      handler: async (a, ctx) => execResize(ctx.liara.apps, a.app, a.planID, power?.wait ? { wait: power.wait } : {}),
+    }),
   ];
   return tools as ToolDefinition[];
 }

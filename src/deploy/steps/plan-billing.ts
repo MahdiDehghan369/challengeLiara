@@ -1,6 +1,6 @@
 import type { LiaraClient } from '../../liara/index.js';
 import { guardOptions, newPlanId, type OpsContext } from '../../ops/context.js';
-import { estimateCost, type CostEstimate } from '../../planner/cost.js';
+import { estimateCost, requiredBalance, type CostEstimate } from '../../planner/cost.js';
 import type { PlanCatalog } from '../../planner/plans.js';
 import { recommendPlans, type PlanOption, type Tier } from '../../planner/recommend.js';
 import { guard, planHash } from '../../safety/approval.js';
@@ -19,7 +19,7 @@ import type { AnalyzeState } from './analyze.js';
  * plan through the Safety Gate. Nothing is created here; T5.5 provisions only after `deployApproval`.
  */
 
-export const BALANCE_FACTOR = 1.2;
+export { BALANCE_FACTOR, requiredBalance } from '../../planner/cost.js';
 export const TOP_UP_POLL_MS = 15_000;
 
 export interface PlanBillingState extends AnalyzeState {
@@ -47,11 +47,6 @@ export interface PlanBillingDeps {
 }
 
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-/** Balance needed: monthly × 1.2, but never below Liara's own minimum-credit threshold. */
-export function requiredBalance(monthlyToman: number, minCreditThreshold = 0): number {
-  return Math.max(Math.ceil(monthlyToman * BALANCE_FACTOR), minCreditThreshold);
-}
 
 function optionLabel(o: PlanOption): string {
   return fa.planBilling.option(fa.planBilling.tier[o.tier] ?? o.tier, o.plan.id, o.plan.ramMb, o.plan.cpu, toman(o.monthlyToman));

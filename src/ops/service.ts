@@ -1,9 +1,11 @@
-import { waitAppRunning, waitAppScale, type App, type AppEvent, type AppsApi, type DeploymentRecord, type Domain, type LiaraClient, type MetricUnit, type WaitOptions } from '../liara/index.js';
+import { waitAppRunning, waitAppScale, waitForState, type App, type AppEvent, type AppsApi, type DeploymentRecord, type Domain, type LiaraClient, type MetricUnit, type WaitOptions } from '../liara/index.js';
 import { guard, type GuardResult } from '../safety/approval.js';
 import { escalate, RISK_TOOLS, Risk, type ActionPlan } from '../safety/risk.js';
 import { guardOptions, newPlanId, type OpsContext } from './context.js';
-import type { PlanCatalog, PlanEntry } from '../planner/plans.js';
-import { isSiavashError } from '../shared/errors.js';
+import { appMonthlyPrice, requiredBalance } from '../planner/cost.js';
+import type { Bundle, PlanCatalog, PlanEntry } from '../planner/plans.js';
+import { isSiavashError, LiaraApiError } from '../shared/errors.js';
+import { toman } from '../ui/cli/format.js';
 import { probe, type ProbeOptions, type ProbeResult } from '../sre/health.js';
 import { percentOfPlan } from '../sre/metrics.js';
 import { fa } from '../ui/cli/i18n/fa.js';
@@ -197,4 +199,88 @@ export function powerApp(
   opts: PowerOptions & PowerExecOptions = {},
 ): Promise<GuardResult<PowerResult>> {
   return guard(planPower(action, app, ctx, opts), ctx.approver, () => execPower(apps, action, app, opts), guardOptions(ctx));
+}
+
+// ---- resize (T6.3) ------------------------------------------------------------
+
+export interface ResizeBackend {
+  apps: Pick<AppsApi, 'getApp' | 'resizeApp' | 'findApp'>;
+  billing: { getBilling(): Promise<{ balanceToman: number; minCreditThreshold?: number | undefined }> };
+  catalog: PlanCatalog;
+}
+
+export interface ResizeOptions {
+  reasonFa?: string;
+  bundle?: Bundle;
+  wait?: Pick<WaitOptions<unknown>, 'timeoutMs' | 'intervalMs' | 'sleep'>;
+}
+
+/** Card for `resize_app` (R2): current → new plan, monthly difference, reason, undo to the old plan. */
+export function planResize(app: string, from: PlanEntry, to: PlanEntry, ctx: Pick<OpsContext, 'risk'>, opts: Pick<ResizeOptions, 'reasonFa' | 'bundle'> = {}): ActionPlan {
+  const r = fa.resize;
+  const diff = appMonthlyPrice(to, opts.bundle) - appMonthlyPrice(from, opts.bundle);
+  const diffText = `${diff >= 0 ? '+' : '−'}${toman(Math.abs(diff))}`;
+  return escalate(
+    {
+      id: newPlanId('resize_app'),
+      toolName: 'resize_app',
+      titleFa: r.title(app, from.id, to.id),
+      reasonFa: opts.reasonFa ?? r.defaultReason,
+      target: { app },
+      risk: Risk.R2,
+      costToman: { monthly: appMonthlyPrice(to, opts.bundle) },
+      impactFa: r.impact(`${from.id} (${from.ramMb}MB, ${from.cpu} CPU)`, `${to.id} (${to.ramMb}MB, ${to.cpu} CPU)`, diffText),
+      rollbackFa: r.rollback(from.id),
+      command: `POST /v1/projects/${app}/resize {planID: ${to.id}}`,
+      params: { app, planID: to.id },
+      undo: { tool: 'resize_app', params: { app, planID: from.id } },
+    },
+    ctx.risk ?? {},
+  );
+}
+
+/**
+ * Loads both plans and checks the balance first (top-up is human-only, like T5.4): insufficient →
+ * `LiaraApiError('INSUFFICIENT_BALANCE')` with the Persian top-up request; same plan → `no-change`.
+ */
+export async function prepareResize(
+  b: ResizeBackend,
+  app: string,
+  targetPlanId: string,
+  opts: Pick<ResizeOptions, 'bundle'> = {},
+): Promise<{ status: 'ready'; from: PlanEntry; to: PlanEntry } | { status: 'no-change'; messageFa: string }> {
+  const current = await b.apps.getApp(app, { fresh: true });
+  const to = await b.catalog.requirePlan(targetPlanId);
+  if (current.planID === to.id) return { status: 'no-change', messageFa: fa.resize.same(to.id) };
+  const from = current.planID ? await b.catalog.planById(current.planID) : undefined;
+  const billing = await b.billing.getBilling();
+  const need = requiredBalance(appMonthlyPrice(to, opts.bundle), billing.minCreditThreshold ?? 0);
+  if (billing.balanceToman < need) {
+    throw new LiaraApiError(`insufficient balance for ${to.id}`, {
+      code: 'INSUFFICIENT_BALANCE',
+      messageFa: fa.planBilling.lowBalance(toman(billing.balanceToman), toman(need)),
+      details: { balanceToman: billing.balanceToman, needToman: need, planID: to.id },
+    });
+  }
+  // an unknown current plan (not in plan:list) still resizes; the card shows its id only
+  return { status: 'ready', from: from ?? { ...to, id: current.planID ?? '?', ramMb: 0, cpu: 0, priceMonthlyToman: 0, bundlePricesToman: {} }, to };
+}
+
+/** Executes the resize and confirms the new plan in the app list (async action). */
+export async function execResize(apps: Pick<AppsApi, 'resizeApp' | 'findApp'>, app: string, planId: string, opts: Pick<ResizeOptions, 'wait'> = {}): Promise<{ app: string; planID: string; confirmed: true }> {
+  await apps.resizeApp(app, planId);
+  await waitForState(() => apps.findApp(app, { fresh: true }), (a) => a?.planID === planId, opts.wait ?? {});
+  return { app, planID: planId, confirmed: true };
+}
+
+export async function resizeApp(
+  b: ResizeBackend,
+  app: string,
+  targetPlanId: string,
+  ctx: OpsContext,
+  opts: ResizeOptions = {},
+): Promise<GuardResult<{ app: string; planID: string; confirmed: true }> | { status: 'no-change'; messageFa: string }> {
+  const prep = await prepareResize(b, app, targetPlanId, opts);
+  if (prep.status === 'no-change') return prep;
+  return guard(planResize(app, prep.from, prep.to, ctx, opts), ctx.approver, (p) => execResize(b.apps, app, String(p.planID ?? targetPlanId), opts), guardOptions(ctx));
 }

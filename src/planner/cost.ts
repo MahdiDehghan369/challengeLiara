@@ -29,6 +29,13 @@ export interface CostEstimate {
   complete: boolean;
 }
 
+export const BALANCE_FACTOR = 1.2;
+
+/** Balance needed before creating/resizing: monthly × 1.2, never below Liara's minimum-credit threshold. */
+export function requiredBalance(monthlyToman: number, minCreditThreshold = 0): number {
+  return Math.max(Math.ceil(monthlyToman * BALANCE_FACTOR), minCreditThreshold);
+}
+
 export function appMonthlyPrice(plan: PlanEntry, bundle?: Bundle): number {
   const b = bundle ? plan.bundlePricesToman[bundle] : undefined;
   return b !== undefined && b > 0 ? b : plan.priceMonthlyToman;
