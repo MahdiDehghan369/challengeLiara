@@ -66,6 +66,8 @@ export function deployPlanApprover(base: Approver, approved: { app: string; plan
       if (plan.target.app === approved.app) {
         if (plan.toolName === 'create_app' && plan.params.planID === approved.planId) return 'approved';
         if (plan.toolName === 'create_disk' && approved.disk) return 'approved';
+        // the card lists `liara deploy --app <app>` as its last command
+        if (plan.toolName === 'deploy_app') return 'approved';
       }
       return base.request(plan, ctx);
     },

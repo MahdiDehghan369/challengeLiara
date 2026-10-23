@@ -490,6 +490,36 @@ export const fa = {
     liaraignoreCreated: 'فایل .liaraignore ساخته شد (node_modules، .env و .git آپلود نمی‌شوند).',
     zeroDowntimeReason: 'برای production، deploy بدون قطعی توصیه می‌شود.',
   },
+  deployStep: {
+    title: 'deploy',
+    stage: {
+      upload: 'آپلود کد',
+      build: 'ساخت (build)',
+      push: 'ارسال image',
+      release: 'انتشار نسخهٔ جدید',
+      done: 'تمام شد',
+      failed: 'شکست خورد',
+    } as Record<string, string>,
+    archiving: 'فشرده‌سازی کد پروژه…',
+    uploadPercent: (p: number) =>
+      `آپلود: ${p}٪`,
+    waitingRelease: 'منتظر آماده شدن نسخهٔ جدید…',
+    approveTitle: (app: string) =>
+      `deploy نسخهٔ جدید روی «${app}»`,
+    approveReason: 'انتشار کد فعلی پروژه',
+    approveImpact: (mode: string) =>
+      `کد فعلی پوشهٔ پروژه با روش ${mode} آپلود و منتشر می‌شود؛ ممکن است اپ چند ثانیه ری‌استارت شود.`,
+    approveRollback: 'با «siavash rollback» به نسخهٔ سالم قبلی برمی‌گردید.',
+    succeeded: (version: string | undefined) =>
+      version ? `deploy موفق بود (نسخهٔ ${version}).` : 'deploy موفق بود.',
+    // TODO(T5.11): replaced by the deploy-failure decision machine.
+    failed: 'deploy شکست خورد.',
+    timeout:
+      'نتیجهٔ deploy در زمان مقرر مشخص نشد؛ وضعیت اپ را بررسی کنید.',
+    tailTitle: 'آخرین خطوط لاگ',
+    noPlatform:
+      'شناسهٔ پلتفرم لیارا برای این پروژه تأیید نشده؛ deploy از راه API ممکن نیست. از حالت CLI یا Dockerfile استفاده کنید.',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
