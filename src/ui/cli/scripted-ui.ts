@@ -9,7 +9,7 @@ import { CANCELLED, type Prompter, type SelectOption } from './approver.js';
 export type ScriptedAnswer = string | typeof CANCELLED | { match: RegExp; answer: string | typeof CANCELLED };
 
 export interface ScriptedPrompt {
-  kind: 'select' | 'text';
+  kind: 'select' | 'text' | 'password';
   message: string;
   options?: string[];
   answer: string | typeof CANCELLED;
@@ -19,7 +19,12 @@ export class ScriptedUi implements Prompter {
   readonly notes: Array<{ title: string; body: string }> = [];
   readonly prompts: ScriptedPrompt[] = [];
 
-  constructor(private readonly answers: ScriptedAnswer[] = []) {}
+  private readonly answers: ScriptedAnswer[];
+
+  /** The answers are copied, so a shared script can be reused across tests. */
+  constructor(answers: readonly ScriptedAnswer[] = []) {
+    this.answers = [...answers];
+  }
 
   get remaining(): number {
     return this.answers.length;
@@ -46,6 +51,13 @@ export class ScriptedUi implements Prompter {
       throw new Error(`ScriptedUi: "${answer}" is not an option of "${message}" (${options.map((o) => o.value).join(', ')})`);
     }
     return answer as V | typeof CANCELLED;
+  }
+
+  /** Hidden input: the prompt log records a mask, never the scripted value. */
+  async password(message: string): Promise<string | typeof CANCELLED> {
+    const answer = this.next('password', message);
+    this.prompts.push({ kind: 'password', message, answer: answer === CANCELLED ? CANCELLED : '••••' });
+    return answer;
   }
 
   async text(message: string, opts: { initialValue?: string; validate?: (v: string) => string | undefined } = {}): Promise<string | typeof CANCELLED> {

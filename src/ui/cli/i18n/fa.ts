@@ -423,6 +423,46 @@ export const fa = {
     rollback:
       'تا این مرحله هیچ منبعی ساخته نشده است. منابع ساخته‌شده را بعداً می‌توانید با دستور حذف پاک کنید.',
   },
+  provision: {
+    title: 'ساخت اپ و منابع',
+    notApproved:
+      'برنامهٔ deploy هنوز تأیید نشده است؛ هیچ منبعی ساخته نمی‌شود.',
+    createAppTitle: (app: string, plan: string) =>
+      `ساخت اپ «${app}» با پلن ${plan}`,
+    createAppImpact: 'یک اپ جدید در لیارا ساخته می‌شود و هزینهٔ ماهانهٔ پلن از موجودی کم می‌شود.',
+    createAppRollback: (app: string) =>
+      `با «siavash delete ${app}» قابل حذف است.`,
+    createDbTitle: (name: string, type: string) =>
+      `ساخت دیتابیس ${type} با نام «${name}»`,
+    createDbReason: 'پروژه به دیتابیس نیاز دارد.',
+    createDbImpact: 'یک دیتابیس جدید ساخته می‌شود و هزینهٔ ماهانهٔ جداگانه دارد.',
+    createDbRollback: (name: string) =>
+      `دیتابیس را می‌توانید با «liara db remove -n ${name}» حذف کنید (همهٔ داده‌ها پاک می‌شود).`,
+    dbPlanQuestion:
+      'شناسهٔ پلن دیتابیس را وارد کنید (از بخش دیتابیس‌های console.liara.ir):',
+    dbPlanNeeded:
+      'شناسهٔ پلن دیتابیس مشخص نیست و در حالت --yes نمی‌توان آن را حدس زد.',
+    dbPlanNeededFix:
+      'یک بار بدون --yes اجرا کنید یا پلن دیتابیس را مشخص کنید.',
+    dbUnsupported: (type: string) =>
+      `ساخت خودکار دیتابیس ${type} پشتیبانی نمی‌شود؛ آن را دستی بسازید و آدرسش را در مرحلهٔ تنظیم env وارد کنید.`,
+    dbManualTitle: 'اطلاعات اتصال دیتابیس',
+    dbHost: 'آدرس (host) دیتابیس:',
+    dbPort: 'پورت دیتابیس:',
+    dbUser: 'نام کاربری دیتابیس:',
+    dbPassword: 'رمز دیتابیس (نمایش داده نمی‌شود):',
+    dbName: 'نام دیتابیس (اختیاری):',
+    dbPortInvalid: 'پورت باید عدد بین ۱ تا ۶۵۵۳۵ باشد.',
+    noHiddenInput:
+      'این رابط کاربری امکان ورود پنهان رمز را ندارد؛ رمز دیتابیس را در مرحلهٔ تنظیم env وارد کنید.',
+    dbFailed: (msg: string) =>
+      `ساخت دیتابیس ناموفق بود: ${msg}. اپ ساخته‌شده حذف نشد.`,
+    cleanupQuestion: (app: string) =>
+      `اپ «${app}» ساخته شده ولی دیتابیس ساخته نشد. با اپ چه کنیم؟`,
+    cleanupKeep: 'نگه دار (بعداً دوباره تلاش می‌کنم)',
+    cleanupDelete: 'حذف اپ (غیرقابل بازگشت)',
+    cleanupReason: 'پاک‌سازی بعد از شکست در ساخت دیتابیس',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,

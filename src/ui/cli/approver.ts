@@ -24,9 +24,16 @@ export interface Prompter {
   note(body: string, title: string): void;
   select<V extends string>(message: string, options: SelectOption<V>[]): Promise<V | typeof CANCELLED>;
   text(message: string, opts?: { initialValue?: string; validate?: (v: string) => string | undefined }): Promise<string | typeof CANCELLED>;
+  /** Hidden input for secrets (never echoed). Optional: callers must not fall back to `text`. */
+  password?(message: string): Promise<string | typeof CANCELLED>;
 }
 
 export class ClackPrompter implements Prompter {
+  async password(message: string): Promise<string | typeof CANCELLED> {
+    const r = await clack.password({ message, mask: '•' });
+    return clack.isCancel(r) ? CANCELLED : r;
+  }
+
   note(body: string, title: string): void {
     clack.note(body, title);
   }
