@@ -585,6 +585,27 @@ export const fa = {
       'مراحل deploy شروع می‌شود. هزینه و ساخت هر منبع جداگانه از شما تأیید گرفته می‌شود.',
     startRollback: 'تا قبل از تأیید برنامهٔ deploy چیزی ساخته نمی‌شود.',
   },
+  power: {
+    restartTitle: (app: string) => `ری‌استارت «${app}»`,
+    startTitle: (app: string) => `روشن کردن «${app}»`,
+    stopTitle: (app: string) => `خاموش کردن «${app}»`,
+    defaultReason: 'به درخواست شما',
+    restartImpact: 'برنامه دوباره اجرا می‌شود.',
+    startImpact: 'برنامه با scale=1 روشن می‌شود و هزینهٔ پلن ادامه دارد.',
+    stopImpact: 'برنامه خاموش می‌شود و تا روشن کردن دوباره در دسترس نیست.',
+    downtime: (sec: number) =>
+      `zero-downtime خاموش است؛ سایت حدود ${sec} ثانیه در دسترس نخواهد بود.`,
+    downtimeUnknown:
+      'اگر zero-downtime خاموش باشد، سایت چند ثانیه در دسترس نخواهد بود.',
+    restartRollback: 'برگشت لازم نیست؛ فقط اجرای فعلی برنامه از نو شروع می‌شود.',
+    startRollback: 'با «stop» دوباره خاموش می‌شود.',
+    stopRollback: 'با «start» دوباره روشن می‌شود.',
+    done: (action: string, sec: number) =>
+      `${action} انجام و تأیید شد (${sec} ثانیه).`,
+    restartTool: 'ری‌استارت اپ و تأیید بالا آمدن آن',
+    startTool: 'روشن کردن اپ (scale=1) و تأیید بالا آمدن آن',
+    stopTool: 'خاموش کردن اپ (scale=0) و تأیید خاموش شدن',
+  },
   overview: {
     sourceFailed: 'این بخش دریافت نشد.',
     probeSkipped: 'بررسی پاسخ‌گویی درخواست نشد.',

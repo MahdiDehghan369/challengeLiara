@@ -1,4 +1,7 @@
-import type { App, AppEvent, DeploymentRecord, Domain, LiaraClient, MetricUnit } from '../liara/index.js';
+import { waitAppRunning, waitAppScale, type App, type AppEvent, type AppsApi, type DeploymentRecord, type Domain, type LiaraClient, type MetricUnit, type WaitOptions } from '../liara/index.js';
+import { guard, type GuardResult } from '../safety/approval.js';
+import { escalate, RISK_TOOLS, Risk, type ActionPlan } from '../safety/risk.js';
+import { guardOptions, newPlanId, type OpsContext } from './context.js';
 import type { PlanCatalog, PlanEntry } from '../planner/plans.js';
 import { isSiavashError } from '../shared/errors.js';
 import { probe, type ProbeOptions, type ProbeResult } from '../sre/health.js';
@@ -108,4 +111,90 @@ export async function getAppOverview(name: string, deps: OverviewDeps): Promise<
     .filter(([, s]) => !s.ok && s.code !== 'SKIPPED')
     .map(([k]) => k);
   return { app: name, ...out, partial: failed.length > 0, failed };
+}
+
+// ---- restart / start / stop (T6.2) ------------------------------------------
+
+export type PowerAction = 'restart' | 'start' | 'stop';
+
+export interface PowerOptions {
+  reasonFa?: string;
+  /** Zero-downtime setting of the app, if known. */
+  zeroDowntime?: boolean | 'unknown';
+  /** Seconds of downtime on restart without zero-downtime. TODO(BEHAVIOR §8, T0.8): measure. */
+  downtimeSec?: number;
+}
+
+export interface PowerExecOptions {
+  /** HTTP readiness check after restart/start (e.g. a probe of the app URL). */
+  probe?: () => Promise<boolean>;
+  wait?: Pick<WaitOptions<unknown>, 'timeoutMs' | 'intervalMs' | 'sleep'>;
+  now?: () => number;
+}
+
+export interface PowerResult {
+  action: PowerAction;
+  app: string;
+  /** Always true when returned: the real state was observed, not just "accepted". */
+  confirmed: true;
+  elapsedMs: number;
+  scale: number | undefined;
+}
+
+const TOOL: Record<PowerAction, string> = { restart: 'restart_app', start: 'start_app', stop: RISK_TOOLS.stopApp };
+
+/** The approval card; `stop` is R2 and escalates to R3 for production / protected apps. */
+export function planPower(action: PowerAction, app: string, ctx: Pick<OpsContext, 'risk'>, opts: PowerOptions = {}): ActionPlan {
+  const p = fa.power;
+  const downtime =
+    action === 'stop' || opts.zeroDowntime === true ? [] : [opts.downtimeSec !== undefined && opts.zeroDowntime === false ? p.downtime(opts.downtimeSec) : p.downtimeUnknown];
+  const by = {
+    restart: { titleFa: p.restartTitle(app), impact: p.restartImpact, rollback: p.restartRollback, risk: Risk.R1, command: `POST /v1/projects/${app}/actions/restart`, params: { app } },
+    start: { titleFa: p.startTitle(app), impact: p.startImpact, rollback: p.startRollback, risk: Risk.R1, command: `POST /v1/projects/${app}/actions/scale {scale: 1}`, params: { app, scale: 1 } },
+    stop: { titleFa: p.stopTitle(app), impact: p.stopImpact, rollback: p.stopRollback, risk: Risk.R2, command: `POST /v1/projects/${app}/actions/scale {scale: 0}`, params: { app, scale: 0 } },
+  }[action];
+  return escalate(
+    {
+      id: newPlanId(TOOL[action]),
+      toolName: TOOL[action],
+      titleFa: by.titleFa,
+      reasonFa: opts.reasonFa ?? p.defaultReason,
+      target: { app },
+      risk: by.risk,
+      impactFa: [by.impact, ...downtime].join('\n'),
+      rollbackFa: by.rollback,
+      command: by.command,
+      params: by.params,
+      undo: action === 'restart' ? undefined : { tool: action === 'stop' ? TOOL.start : TOOL.stop, params: { app } },
+    },
+    ctx.risk ?? {},
+  );
+}
+
+/** Runs the action and confirms the real state (accepted ≠ done, AGENT_RULES §1.10). */
+export async function execPower(apps: AppsApi, action: PowerAction, app: string, opts: PowerExecOptions = {}): Promise<PowerResult> {
+  const now = opts.now ?? Date.now;
+  const started = now();
+  const wait = opts.wait ?? {};
+  let scale: number | undefined;
+  if (action === 'stop') {
+    await apps.setScale(app, 0);
+    scale = (await waitAppScale(apps, app, 0, wait)).scale;
+  } else {
+    if (action === 'restart') await apps.restartApp(app);
+    else await apps.setScale(app, 1);
+    scale = (await waitAppRunning(apps, app, { ...wait, ...(opts.probe ? { probe: opts.probe } : {}) })).scale;
+  }
+  return { action, app, confirmed: true, elapsedMs: now() - started, scale };
+}
+
+/** `restart_app` / `start_app` / `stop_app` through the Safety Gate. */
+export function powerApp(
+  apps: AppsApi,
+  action: PowerAction,
+  app: string,
+  ctx: OpsContext,
+  opts: PowerOptions & PowerExecOptions = {},
+): Promise<GuardResult<PowerResult>> {
+  return guard(planPower(action, app, ctx, opts), ctx.approver, () => execPower(apps, action, app, opts), guardOptions(ctx));
 }
