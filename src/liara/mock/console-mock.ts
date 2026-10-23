@@ -16,6 +16,28 @@ export function fakeShell(state: MockLiaraState, app: MockApp, command: string):
     const v = app.envs.get(printenv[1] as string);
     return v === undefined ? { out: '', code: 1 } : { out: v, code: 0 };
   }
+  // read-only probe commands used by the SRE allowlist (T8.5)
+  if (cmd === 'env | cut -d= -f1') return { out: [...app.envs.keys(), 'NODE_ENV', 'PORT'].join('\n'), code: 0 };
+  if (cmd === 'free -m') {
+    const ram = app.planID.startsWith('medium') ? 1024 : 512;
+    const used = app.scenario === 'oom' ? Math.round(ram * 0.98) : Math.round(ram * 0.35);
+    return { out: `              total        used        free\nMem:          ${ram}         ${used}         ${ram - used}`, code: 0 };
+  }
+  if (/^ps aux\b/.test(cmd)) return { out: 'USER PID %CPU %MEM COMMAND\nnode 1 2.0 35.1 node index.js', code: 0 };
+  if (cmd === 'cat package.json') return { out: JSON.stringify({ name: app.name, scripts: { start: 'node index.js' } }), code: 0 };
+  const getent = /^getent hosts ([\w.-]+)$/.exec(cmd);
+  if (getent) {
+    const host = getent[1] as string;
+    if (host === 'localhost') return { out: '127.0.0.1       localhost', code: 0 };
+    return /internal|-db$/.test(host) ? { out: `10.0.4.7        ${host}`, code: 0 } : { out: '', code: 2 };
+  }
+  const nc = /^nc -zv -w \d+ ([\w.:-]+) (\d+)$/.exec(cmd);
+  if (nc) {
+    const [, host, port] = nc;
+    return /^(localhost|127\.0\.0\.1|::1)$/.test(host as string)
+      ? { out: `nc: connect to ${host} port ${port} (tcp) failed: Connection refused`, code: 1 }
+      : { out: `Connection to ${host} ${port} port [tcp/*] succeeded!`, code: 0 };
+  }
   if (cmd === 'pwd') return { out: '/app', code: 0 };
   if (cmd === 'whoami') return { out: 'node', code: 0 };
   if (/^ls(\s|$)/.test(cmd)) return { out: 'index.js\nnode_modules\npackage.json', code: 0 };
