@@ -47,7 +47,8 @@ function levelFromJson(text: string): LogLevel | undefined {
 }
 
 const ERROR_RE =
-  /\b(ERROR|FATAL|CRITICAL|PANIC)\b|\b\w*(Error|Exception):|Traceback \(most recent call last\)|UnhandledPromiseRejection|Unhandled ?Rejection|uncaughtException|npm ERR!|Segmentation fault|out of memory|\bKilled\b/;
+  // `\w*Error [ERR_CODE]:` is Node's format for errors with a code, e.g. `TypeError [ERR_INVALID_URL]: Invalid URL`
+  /\b(ERROR|FATAL|CRITICAL|PANIC)\b|\b\w*(Error|Exception)( \[[A-Z0-9_]+\])?:|Traceback \(most recent call last\)|UnhandledPromiseRejection|Unhandled ?Rejection|uncaughtException|npm ERR!|Segmentation fault|out of memory|\bKilled\b/;
 const WARN_RE = /\b(WARN|WARNING)\b|DeprecationWarning|\(node:\d+\) Warning/i;
 
 export function detectLevel(text: string): LogLevel {

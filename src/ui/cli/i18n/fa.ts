@@ -520,6 +520,28 @@ export const fa = {
     noPlatform:
       'شناسهٔ پلتفرم لیارا برای این پروژه تأیید نشده؛ deploy از راه API ممکن نیست. از حالت CLI یا Dockerfile استفاده کنید.',
   },
+  verify: {
+    title: 'بررسی سلامت بعد از deploy',
+    waitingRunning: 'منتظر بالا آمدن اپ…',
+    probing: 'بررسی پاسخ‌گویی اپ…',
+    observing: 'بررسی لاگ‌ها و رویدادهای دقیقهٔ اول…',
+    notRunning: 'اپ در زمان مقرر بالا نیامد.',
+    unavailable: (url: string) =>
+      `اپ به هیچ درخواستی روی ${url} پاسخ سالم نداد.`,
+    partial: (pct: number) =>
+      `فقط ${pct}٪ درخواست‌ها پاسخ سالم گرفتند.`,
+    crashEvents: (n: number) =>
+      `${n} رویداد crash یا کمبود حافظه بعد از deploy ثبت شد.`,
+    errorLogs: (n: number) =>
+      `${n} خطای متفاوت در لاگ‌های بعد از deploy دیده شد.`,
+    known: (title: string) =>
+      `الگوی شناخته‌شده: ${title}`,
+    healthy: (url: string) =>
+      `اپ سالم است و روی ${url} پاسخ می‌دهد.`,
+    handoff:
+      'deploy انجام شد ولی برنامه درست بالا نیامد؛ دارم بررسی می‌کنم…',
+    resultTitle: 'نتیجهٔ بررسی سلامت',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,

@@ -50,6 +50,7 @@ describe('detectLevel', () => {
     ['{"level":50,"msg":"db down"}', 'error'],
     ['{"level":40,"msg":"slow"}', 'warn'],
     ['{"level":"info","msg":"ok"}', 'info'],
+    ['TypeError [ERR_INVALID_URL]: Invalid URL', 'error'],
     ['{"severity":"ERROR","message":"x"}', 'error'],
     ['ERROR: something broke', 'error'],
     ["TypeError: Cannot read properties of undefined (reading 'id')", 'error'],
