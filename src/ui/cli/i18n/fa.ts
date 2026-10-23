@@ -512,7 +512,6 @@ export const fa = {
     approveRollback: 'با «siavash rollback» به نسخهٔ سالم قبلی برمی‌گردید.',
     succeeded: (version: string | undefined) =>
       version ? `deploy موفق بود (نسخهٔ ${version}).` : 'deploy موفق بود.',
-    // TODO(T5.11): replaced by the deploy-failure decision machine.
     failed: 'deploy شکست خورد.',
     timeout:
       'نتیجهٔ deploy در زمان مقرر مشخص نشد؛ وضعیت اپ را بررسی کنید.',
@@ -713,6 +712,62 @@ export const fa = {
     skip: 'فعلاً نه',
     diffTitle: 'تغییر پیشنهادی',
     applied: 'اصلاح اعمال شد.',
+  },
+  onFailure: {
+    title: 'شکست deploy',
+    kind: {
+      preflight: 'مشکل پیش از ارسال کد',
+      upload: 'آپلود کد قطع شد',
+      build: 'ساخت (build) شکست خورد',
+      timeout: 'نتیجهٔ deploy در زمان مقرر مشخص نشد',
+      runtime: 'build موفق بود ولی اپ بالا نیامد',
+    } as Record<string, string>,
+    preflightHint: 'این مشکل پیش از ارسال کد است؛ موردی را که بالا گفته شد برطرف کنید و دوباره اجرا کنید.',
+    retryQuestion: (n: number, max: number) =>
+      `آپلود کد قطع شد. دوباره امتحان کنم؟ (تلاش ${n} از ${max} — آپلود دوباره امن است و فقط نسخهٔ جدیدی می‌سازد)`,
+    retry: 'دوباره امتحان کن',
+    notNow: 'نه، فعلاً',
+    retriesExhausted: 'آپلود چند بار قطع شد؛ اتصال اینترنت را بررسی کنید و بعداً دوباره deploy کنید.',
+    timeoutUnknown:
+      'وضعیت deploy نامشخص است. این شکست حساب نمی‌شود و deploy دوباره‌ای هم خودکار انجام نمی‌شود.',
+    timeoutQuestion: 'چه کار کنم؟',
+    waitMore: (min: number) =>
+      `${min} دقیقهٔ دیگر صبر کن`,
+    inspect: 'لاگ و events را بررسی کن',
+    leave: 'فعلاً رها کن',
+    cameUp: 'اپ بالا آمد و پاسخ می‌دهد؛ نسخهٔ جدید فعال است.',
+    stillPending: 'هنوز نتیجه‌ای نیامد.',
+    rollbackQuestion: 'سایت شما الان پایین است؛ اول نسخهٔ سالم را برگردانم؟',
+    rollbackYes: 'بله، اول نسخهٔ سالم را برگردان',
+    rollbackNo: 'نه، مستقیم علت را بررسی کن',
+    rollbackReason: 'نسخهٔ جدید بعد از deploy بالا نیامد',
+    rolledBack: 'نسخهٔ سالم قبلی برگشت؛ حالا علت خرابی نسخهٔ جدید را بررسی می‌کنم.',
+    noCodeFix: 'خطای build در کد است ولی مسیر اصلاح کد در دسترس نیست؛ خطا را در کد برطرف کنید و دوباره deploy کنید.',
+    codeErrorTitle: 'خطای کامپایل در build',
+    capReached: (n: number) =>
+      `بعد از ${n} تلاش «اصلاح و deploy دوباره» متوقف شدم. کارهای امتحان‌شده:`,
+    tried: {
+      retry: 'آپلود دوباره',
+      buildFix: (fix: string) => `اصلاح build: ${fix}`,
+      codeFix: 'اصلاح کد',
+      rollback: 'برگرداندن نسخهٔ سالم قبلی',
+      sre: 'چرخهٔ عیب‌یابی (doctor)',
+    },
+    cleanupQuestion: 'اولین deploy موفق نشد. با منابعی که ساخته شد چه کنم؟',
+    keep: 'نگه دار برای بعد',
+    deleteAll: (cost: string) =>
+      `همه را پاک کن (هزینهٔ روزانهٔ فعلی حدود ${cost})`,
+    cleanupReason: (list: string, cost: string) =>
+      `پاک‌سازی بعد از شکست اولین deploy — منابع ساخته‌شده: ${list} — هزینهٔ روزانه حدود ${cost}`,
+    kept: 'منابع نگه داشته شد؛ هر وقت آماده بودید دوباره deploy کنید.',
+    result: {
+      recovered: 'deploy در نهایت موفق شد.',
+      'rolled-back': 'نسخهٔ سالم قبلی برگشت.',
+      unknown: 'وضعیت deploy هنوز نامشخص است.',
+      stopped: 'deploy متوقف شد.',
+      'gave-up': 'تلاش‌ها به سقف رسید و deploy متوقف شد.',
+      cleaned: 'منابع ساخته‌شده پاک شد.',
+    } as Record<string, string>,
   },
   doctor: {
     steps: {

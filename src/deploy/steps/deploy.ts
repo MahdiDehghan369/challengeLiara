@@ -17,8 +17,8 @@ import { deployPlanApprover } from './provision.js';
 /**
  * Deploy (T5.7): API or CLI strategy with live stages/percent (raw lines only with `--verbose`), a
  * ledger record before and after, and `deploy_app` (R1) through the gate — pre-approved for a new app by
- * the deploy-plan card (T5.4), its own card on redeploy. On failure: last 30 log lines + a short message.
- * TODO(T5.11): hand failures to the deploy-failure decision machine instead.
+ * the deploy-plan card (T5.4), its own card on redeploy. On failure: last 30 log lines + a short message;
+ * the error carries `tail`/`evidence` for the deploy-failure decision machine (T5.11, on-failure.ts).
  */
 
 export const FAILURE_TAIL_LINES = 30;

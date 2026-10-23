@@ -45,6 +45,7 @@ export interface DeployPipelineDeps {
   wait?: { timeoutMs?: number; intervalMs?: number; sleep?: (ms: number) => Promise<void> };
   observeMs?: number;
   pollMs?: number;
+  cliTimeoutMs?: number;
   onUnhealthy?: (result: VerifyResult) => Promise<void> | void;
 }
 
@@ -85,6 +86,7 @@ export function buildDeployPipeline(projectPath: string, deps: DeployPipelineDep
         ...(deps.verbose ? { verbose: true } : {}),
         ...(deps.onLine ? { onLine: deps.onLine } : {}),
         ...(deps.wait ? { wait: deps.wait } : {}),
+        ...(deps.cliTimeoutMs ? { cliTimeoutMs: deps.cliTimeoutMs } : {}),
       }),
       verifyStep({
         liara: deps.liara,

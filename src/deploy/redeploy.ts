@@ -61,6 +61,7 @@ export interface RedeployDeps {
   probe?: Pick<ProbeOptions, 'count' | 'timeoutMs' | 'fetchImpl'>;
   wait?: { timeoutMs?: number; intervalMs?: number; sleep?: (ms: number) => Promise<void> };
   observeMs?: number;
+  cliTimeoutMs?: number;
   onUnhealthy?: (result: VerifyResult) => Promise<void> | void;
 }
 
@@ -80,6 +81,7 @@ export function buildRedeployPipeline(projectPath: string, deps: RedeployDeps): 
         ...(deps.verbose ? { verbose: true } : {}),
         ...(deps.onLine ? { onLine: deps.onLine } : {}),
         ...(deps.wait ? { wait: deps.wait } : {}),
+        ...(deps.cliTimeoutMs ? { cliTimeoutMs: deps.cliTimeoutMs } : {}),
       }),
       verifyStep({
         liara: deps.liara,

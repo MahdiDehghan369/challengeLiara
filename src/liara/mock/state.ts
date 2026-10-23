@@ -17,6 +17,8 @@ export type ScenarioKind =
   | 'db-connection'
   | 'disk-full';
 
+export type DeployFault = 'upload-error' | 'release-timeout' | ScenarioKind;
+
 export const SCENARIOS: readonly ScenarioKind[] = [
   'missing-env',
   'crash-loop',
@@ -141,6 +143,11 @@ export class MockLiaraState {
   billing = { balance: 5_000_000, accountType: 'REAL_PERSON', minCreditAmount: 20_000, isManualMinCredit: false };
   /** Next CLI/API deploy fails at build (to simulate a broken build). */
   nextDeployFails = false;
+  /**
+   * Next CLI deploy (T5.11 scenarios): `upload-error` drops the upload, `release-timeout` never reports
+   * the release back (it still goes live), a scenario kind puts the new release into that failure.
+   */
+  nextDeployFault: DeployFault | undefined;
   readonly asyncDelayMs: number;
   readonly envSemantics: 'replace' | 'merge';
   readonly envUpdateRestarts: boolean;
@@ -300,7 +307,7 @@ export class MockLiaraState {
   }
 
   /** Creates a release; resolves code-level scenarios (a fresh source = a code fix, an old one = rollback). */
-  createRelease(app: MockApp, input: { sourceID: string; port: number; type: string }, via: 'api' | 'cli'): MockRelease {
+  createRelease(app: MockApp, input: { sourceID: string; port: number; type: string }, via: 'api' | 'cli', scenario?: ScenarioKind): MockRelease {
     const source = app.sources.get(input.sourceID);
     const previous = this.currentRelease(app);
     const release: MockRelease = {
@@ -323,7 +330,14 @@ export class MockLiaraState {
         return;
       }
       app.isDeployed = true;
-      if (app.scenario === 'bad-release' && isRollback) this.resolve(app);
+      if (scenario) {
+        // this release brings the failure with it
+        app.scenario = scenario;
+        if (scenario === 'missing-env') {
+          app.requiredEnv = 'DATABASE_URL';
+          app.envs.delete('DATABASE_URL');
+        }
+      } else if (app.scenario === 'bad-release' && isRollback) this.resolve(app);
       else if (['crash-loop', 'http-500', 'slow'].includes(app.scenario ?? '')) this.resolve(app);
       this.event(app, `Release v${release.version} deployed`);
       this.start(app, 'App started with the new release');

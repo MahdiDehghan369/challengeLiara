@@ -4,3 +4,5 @@ export * from './strategies/cli.js';
 export * from './strategies/api.js';
 export * from './pipeline.js';
 export * from './redeploy.js';
+export * from './failure-policy.js';
+export * from './steps/on-failure.js';

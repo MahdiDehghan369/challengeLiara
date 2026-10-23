@@ -106,15 +106,21 @@ export function createCliMock(state: MockLiaraState): Spawner {
       const app = appOf();
       if (!app) return err('App not found.');
       const port = Number(flag(args, '--port') ?? 3000);
+      const fault = state.nextDeployFault;
+      state.nextDeployFault = undefined;
+      if (fault === 'upload-error') return { lines: ['Compressing source...', 'Uploading source 37%', ' »   Error: socket hang up (ECONNRESET)'], code: 2 };
       const lines = ['Compressing source...', 'Uploading source 100%'];
       const sourceID = state.addSource(app, 1024);
       if (app.sources.get(sourceID)?.broken) {
         state.nextDeployFails = false;
         return { lines: [...lines, 'Building...', 'Step 1/3 : RUN npm run build', 'Build failed: npm run build exited with code 1'], code: 1 };
       }
-      const release = state.createRelease(app, { sourceID, port, type: flag(args, '--platform') ?? app.platform }, 'cli');
+      const scenario = fault && fault !== 'release-timeout' ? fault : undefined;
+      const release = state.createRelease(app, { sourceID, port, type: flag(args, '--platform') ?? app.platform }, 'cli', scenario);
       lines.push('Building...', 'Step 1/3 : RUN npm ci', 'Pushing image...', 'Creating release...');
       if (args.includes('--detach')) return { lines: [...lines, `Release v${release.version} created (detached)`], code: 0 };
+      // the release goes live, but the CLI never hears back
+      if (fault === 'release-timeout') return { lines, code: 0, after: () => new Promise<string[]>(() => undefined) };
       return {
         lines,
         code: 0,
@@ -134,6 +140,7 @@ export function createCliMock(state: MockLiaraState): Spawner {
     let resolveResult!: (r: SpawnResult) => void;
     const result = new Promise<SpawnResult>((r) => (resolveResult = r));
     const all: string[] = [];
+    let timedOut = false;
     const lines = (async function* () {
       for (const l of out.lines) {
         if (killed) break;
@@ -141,14 +148,21 @@ export function createCliMock(state: MockLiaraState): Spawner {
         yield l;
       }
       if (out.after && !killed) {
-        const timer = new Promise<string[]>((r) => setTimeout(() => r(['timeout']), opts.timeoutMs));
-        const more = await Promise.race([out.after(), timer]);
+        let timer: NodeJS.Timeout | undefined;
+        const expired = new Promise<string[]>((r) => {
+          timer = setTimeout(() => {
+            timedOut = true;
+            r([]);
+          }, opts.timeoutMs);
+        });
+        const more = await Promise.race([out.after(), expired]);
+        clearTimeout(timer);
         for (const l of more) {
           all.push(l);
           yield l;
         }
       }
-      resolveResult({ exitCode: killed ? undefined : out.code, stdout: all.join('\n'), stderr: '', timedOut: false });
+      resolveResult({ exitCode: killed || timedOut ? undefined : out.code, stdout: all.join('\n'), stderr: '', timedOut });
     })();
     return {
       lines,

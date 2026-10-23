@@ -131,13 +131,13 @@ export class DeploymentLedger {
 
   /**
    * Most recent successful deployment before `beforeId` (default: before the latest one) — the rollback target.
-   * Health verdicts (T7.6) can refine this later; for now `result === 'success'` is the criterion.
+   * `result === 'success'`, minus releases the post-deploy check found down (`healthAfter.verdict === 'failed'`).
    */
   previousHealthy(app: string, beforeId?: string): DeploymentRecord | undefined {
     const all = this.list(app);
     const end = beforeId ? all.findIndex((r) => r.id === beforeId) : all.length - 1;
     const upto = end < 0 ? all : all.slice(0, end);
-    return [...upto].reverse().find((r) => r.result === 'success');
+    return [...upto].reverse().find((r) => r.result === 'success' && r.healthAfter?.verdict !== 'failed');
   }
 
   findByCommit(app: string, commit: string): DeploymentRecord[] {
