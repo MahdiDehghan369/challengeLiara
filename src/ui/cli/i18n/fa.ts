@@ -323,6 +323,32 @@ export const fa = {
       `قیمت ${what} از لیارا در دسترس نیست و در جمع هزینه حساب نشده است.`,
     dbLabel: 'دیتابیس',
     diskLabel: 'دیسک',
+    noAvailablePlan:
+      'هیچ پلن قابل‌استفاده‌ای در فهرست لیارا پیدا نشد.',
+    reasonEconomy: (ramMb: number) =>
+      `ارزان‌ترین پلنی که حداقل حافظهٔ لازم برای این نوع پروژه (${ramMb}MB) را دارد؛ برای تست و دمو مناسب است.`,
+    reasonRecommended: (ramMb: number, why: string) =>
+      `ارزان‌ترین پلنی که نیاز برآوردشده (${ramMb}MB حافظه) را پوشش می‌دهد. ${why}`,
+    reasonPerformance:
+      'یک پله بالاتر از پیشنهاد اصلی؛ برای ترافیک بیشتر یا اطمینان بیشتر در production.',
+    reasonTopPlan:
+      'بزرگ‌ترین پلن موجود؛ نیاز برآوردشده از همهٔ پلن‌ها بیشتر است.',
+    whyGoalProduction: 'برای production حافظهٔ بیشتری در نظر گرفته شد.',
+    whyTraffic: (level: string) =>
+      `ترافیک مورد انتظار «${level}» در نظر گرفته شد.`,
+    whyLargeProject: 'حجم پروژه زیاد است.',
+    whyBase: 'بر اساس نوع پروژه.',
+    upgradeNotNeeded: (mem: string, cpu: string) =>
+      `مصرف فعلی (حافظه ${mem}، CPU ${cpu}) در محدودهٔ پلن فعلی است؛ ارتقا لازم نیست.`,
+    upgradeTo: (plan: string, what: string) =>
+      `پیشنهاد: ارتقا به ${plan}، چون مصرف ${what} از ۸۰٪ پلن فعلی بیشتر است.`,
+    upgradeAtTop: (what: string) =>
+      `مصرف ${what} بالاست اما پلن فعلی بزرگ‌ترین پلن موجود است؛ بهینه‌سازی برنامه یا افزایش scale را بررسی کنید.`,
+    memoryWord: 'حافظه',
+    cpuWord: 'CPU',
+    unknownWord: 'نامعلوم',
+    pct: (v: number) => `${v}٪`,
+    and: ' و ',
   },
   report: {
     unknownPlatform:
