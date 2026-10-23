@@ -12,6 +12,7 @@ export const PROMPT_NAMES = [
   'patch',
   'summarize-logs',
   'build-failure',
+  'intent',
 ] as const;
 export type PromptName = (typeof PROMPT_NAMES)[number];
 
