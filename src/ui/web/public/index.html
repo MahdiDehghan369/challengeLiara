@@ -4,73 +4,150 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>پنل سیاوش</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#667085;--line:#e4e7ec;--pri:#3b5bdb;--ok:#2b8a3e;--warn:#e67700;--bad:#c92a2a;--r1:#1971c2;--r2:#e67700;--r3:#c92a2a}
-@media (prefers-color-scheme:dark){:root{--bg:#11141a;--card:#1a1f29;--ink:#e7eaf0;--mute:#98a2b3;--line:#2a3140}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 Vazirmatn,Tahoma,system-ui,sans-serif}
-header{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:2}
-header h1{font-size:18px;margin:0}.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--line)}
-main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-.card h2{font-size:16px;margin:0 0 10px}
-button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
-button.pri{background:var(--pri);color:#fff;border-color:var(--pri)}button.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
-button:disabled{opacity:.5;cursor:wait}
-input,select,textarea{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>input{flex:1;min-width:200px}
-.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.app{border:1px solid var(--line);border-radius:10px;padding:12px}.app b{font-size:15px}.app .meta{color:var(--mute);font-size:13px}
-.app .row{margin-top:8px}.app button{font-size:13px;padding:4px 8px}
-.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button.on{background:var(--pri);color:#fff}
-.entry{border-top:1px solid var(--line);padding:10px 0}.entry:first-child{border-top:0}
-.st{font-weight:bold}.st.ok{color:var(--ok)}.st.error{color:var(--bad)}.st.approval_required,.st.waiting_human{color:var(--warn)}
-pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);padding:10px;border-radius:8px;font-size:13px;direction:ltr;text-align:left;max-height:420px;overflow:auto}
-pre.fa{direction:rtl;text-align:right;font-family:inherit}
+:root{--bg:#0b1020;--bg2:#121a33;--card:rgba(255,255,255,.04);--card2:rgba(255,255,255,.07);--ink:#e8ecf8;--mute:#97a3c2;--line:rgba(255,255,255,.09);
+--pri:#7c5cff;--pri2:#22d3ee;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--r1:#3b82f6;--r2:#f59e0b;--r3:#ef4444;--shadow:0 10px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.8 Vazirmatn,Tahoma,system-ui,sans-serif;
+background:radial-gradient(1200px 600px at 85% -10%,rgba(124,92,255,.28),transparent 60%),radial-gradient(900px 500px at -10% 10%,rgba(34,211,238,.18),transparent 60%),var(--bg)}
+a{color:var(--pri2)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:5;backdrop-filter:blur(14px);background:rgba(11,16,32,.7);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:12px;height:64px}
+.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:20px;color:#fff;background:linear-gradient(135deg,var(--pri),var(--pri2));box-shadow:0 6px 20px rgba(124,92,255,.45)}
+header h1{font-size:18px;margin:0;font-weight:800}header .sub{color:var(--mute);font-size:12px}
+.grow{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--card)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute);display:inline-block}
+.dot.live{background:var(--ok);box-shadow:0 0 0 0 rgba(34,197,94,.7);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.hero{padding:34px 0 10px}
+.hero h2{font-size:30px;line-height:1.4;margin:0 0 6px;font-weight:800;background:linear-gradient(90deg,#fff,#c4b5fd 50%,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);margin:0 0 18px}
+.ask{display:flex;gap:8px;padding:8px;border-radius:16px;background:var(--card2);border:1px solid var(--line);box-shadow:var(--shadow)}
+.ask input{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;padding:10px 12px;outline:none;min-width:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{font-size:13px;padding:5px 12px;border-radius:99px;border:1px dashed var(--line);background:transparent;color:var(--mute);cursor:pointer}
+.chip:hover{color:var(--ink);border-color:var(--pri)}
+button{font:inherit;cursor:pointer;border-radius:10px;padding:8px 14px;border:1px solid var(--line);background:var(--card2);color:var(--ink);transition:.15s}
+button:hover{border-color:rgba(255,255,255,.25);transform:translateY(-1px)}
+button.pri{border:0;color:#fff;background:linear-gradient(135deg,var(--pri),#5b8cff);box-shadow:0 6px 18px rgba(124,92,255,.35)}
+button.ok{border:0;color:#04130a;background:var(--ok);font-weight:700}
+button.danger{border:0;color:#fff;background:var(--bad)}
+button:disabled{opacity:.5;cursor:wait;transform:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}
+.stat{padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.stat b{display:block;font-size:24px;font-weight:800}.stat span{color:var(--mute);font-size:13px}
+.sec-h{display:flex;align-items:center;gap:10px;margin:8px 0 12px}.sec-h h3{margin:0;font-size:17px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.app{position:relative;padding:16px;border-radius:16px;background:var(--card);border:1px solid var(--line);transition:.2s;overflow:hidden}
+.app:hover{border-color:rgba(124,92,255,.5);box-shadow:var(--shadow)}
+.app .top{display:flex;align-items:center;gap:12px}
+.app .name{font-weight:800;font-size:16px;direction:ltr;text-align:right}
+.app .meta{color:var(--mute);font-size:12.5px}
+.ring{--v:0;--c:var(--mute);width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--v)*1%),rgba(255,255,255,.08) 0)}
+.ring i{width:46px;height:46px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:15px}
+.app .sum{font-size:13px;color:var(--mute);margin:10px 0 0;min-height:22px}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.acts button{font-size:12.5px;padding:5px 10px}
+.panel{margin:26px 0 40px;border-radius:18px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.tabs{display:flex;gap:4px;padding:8px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:transparent;color:var(--mute);white-space:nowrap}
+.tabs button.on{background:var(--card2);color:var(--ink)}
+.tabbody{padding:16px}
+.entry{padding:14px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line);margin-bottom:12px;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.entry .hd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.entry .hd b{font-size:15px}
+.st{font-size:12px;padding:2px 10px;border-radius:99px;background:var(--card2)}
+.st.ok{background:rgba(34,197,94,.15);color:#86efac}.st.error{background:rgba(239,68,68,.15);color:#fca5a5}
+.st.approval_required,.st.waiting_human{background:rgba(245,158,11,.15);color:#fcd34d}
+.time{color:var(--mute);font-size:12px;margin-inline-start:auto}
+.msg{margin:10px 0 0;white-space:pre-wrap}
+.hyp{margin-top:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.hyp .t{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.bar{height:6px;border-radius:9px;background:rgba(255,255,255,.08);margin:8px 0;overflow:hidden}.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--pri),var(--pri2))}
+.ev{font-size:12.5px;direction:ltr;text-align:left;color:#cbd5e1;background:rgba(0,0,0,.25);padding:6px 10px;border-radius:8px;margin-top:4px;font-family:ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.sig{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;margin:6px 0 0 6px;background:var(--card2)}
+.sig.critical{background:rgba(239,68,68,.18);color:#fca5a5}.sig.warn{background:rgba(245,158,11,.18);color:#fcd34d}
+.fixes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.fix{flex:1;min-width:220px;padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.fix small{color:var(--mute);display:block}.fix button{margin-top:8px}
+details{margin-top:10px}summary{cursor:pointer;color:var(--mute);font-size:13px}
+pre{white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.3);padding:12px;border-radius:10px;font-size:12.5px;direction:ltr;text-align:left;max-height:380px;overflow:auto;font-family:ui-monospace,Consolas,monospace}
+pre.fa{direction:rtl;text-align:right;font-family:inherit;font-size:14px}
 .mute{color:var(--mute);font-size:13px}
-dialog{border:0;border-radius:14px;padding:0;max-width:640px;width:calc(100% - 32px);background:var(--card);color:var(--ink)}
-dialog::backdrop{background:#0008}.dlg{padding:18px}.risk{display:inline-block;padding:2px 10px;border-radius:99px;color:#fff;font-weight:bold}
+input.f,select,textarea{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.25);color:var(--ink);width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>select{flex:1}
+.lim h4{margin:16px 0 8px;color:#c4b5fd}.lim .it{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:8px}
+.lim .alt{color:#86efac;font-size:13.5px}
+dialog{border:1px solid var(--line);border-radius:20px;padding:0;max-width:620px;width:calc(100% - 32px);background:var(--bg2);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(5,8,18,.7);backdrop-filter:blur(4px)}
+.dlg{padding:22px}.dlg h2{margin:0 0 4px;font-size:19px}
+.risk{display:inline-block;padding:2px 12px;border-radius:99px;color:#fff;font-weight:800;font-size:13px}
 .R1{background:var(--r1)}.R2{background:var(--r2)}.R3{background:var(--r3)}
-.lim h3{font-size:14px;margin:12px 0 4px;color:var(--warn)}.lim li{margin-bottom:6px}.lim .alt{color:var(--ok)}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--pri);border-radius:50%;animation:s 1s linear infinite;vertical-align:middle}@keyframes s{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--pri2);border-radius:50%;animation:s .8s linear infinite;vertical-align:middle}
+@keyframes s{to{transform:rotate(360deg)}}
+.skel{height:150px;border-radius:16px;background:linear-gradient(90deg,var(--card),var(--card2),var(--card));background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--line);padding:10px 18px;border-radius:12px;box-shadow:var(--shadow);z-index:9;display:none}
+footer{color:var(--mute);font-size:12px;text-align:center;padding:0 0 30px}
+@media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.hero h2{font-size:23px}header .sub{display:none}}
 </style>
 </head>
 <body>
-<header><h1>🛠️ سیاوش — همکار deploy و SRE روی لیارا</h1><span class="badge" id="mode">…</span></header>
-<main>
-  <section class="card">
-    <h2>چه کمکی لازم دارید؟</h2>
-    <div class="row">
-      <input id="ask" placeholder="مثلاً: سایت shop-api کند شده  |  وضعیت shop-api  |  لاگ‌های shop-api  |  محدودیت‌ها">
-      <button class="pri" id="askBtn">برو</button>
+<header><div class="wrap">
+  <div class="logo">س</div>
+  <div><h1>سیاوش</h1><div class="sub">همکار هوشمند deploy و SRE روی لیارا</div></div>
+  <div class="grow"></div>
+  <span class="pill"><span class="dot" id="modeDot"></span><span id="mode">…</span></span>
+</div></header>
+
+<div class="wrap">
+  <section class="hero">
+    <h2>سایتت مشکل دارد؟ فقط بگو.</h2>
+    <p>سیاوش لاگ‌ها، CPU/RAM، رویدادها و پاسخ‌گویی سایت را بررسی می‌کند، علت را با شاهد پیدا می‌کند و راهکار می‌دهد — هیچ تغییری بدون تأیید شما انجام نمی‌شود.</p>
+    <div class="ask">
+      <input id="ask" placeholder="مثلاً: سایت shop-api کند شده" autocomplete="off">
+      <button class="pri" id="askBtn">بررسی کن ←</button>
     </div>
-    <p class="mute">کارهای خواندنی (وضعیت، لاگ، متریک، عیب‌یابی) خودکار انجام می‌شوند. هر تغییری (ری‌استارت، تغییر پلن، env، deploy) قبل از اجرا کارت تأیید نشان می‌دهد.</p>
+    <div class="chips" id="chips"></div>
   </section>
 
-  <section class="card">
-    <div class="row" style="justify-content:space-between"><h2>اپ‌های شما</h2><button id="refresh">به‌روزرسانی</button></div>
-    <div class="apps" id="apps"><span class="mute">در حال خواندن…</span></div>
+  <section class="stats">
+    <div class="stat"><b id="sApps">–</b><span>اپ‌ها</span></div>
+    <div class="stat"><b id="sActive">–</b><span>فعال</span></div>
+    <div class="stat"><b id="sAvg">–</b><span>میانگین سلامت</span></div>
+    <div class="stat"><b id="sIssues">–</b><span>نیاز به توجه</span></div>
   </section>
 
-  <section class="card">
-    <div class="tabs"><button data-tab="activity" class="on">فعالیت‌ها</button><button data-tab="limits">محدودیت‌ها</button><button data-tab="audit">تاریخچهٔ اقدامات</button><button data-tab="adv">ابزار پیشرفته</button></div>
-    <div id="tab-activity"><div id="log"><span class="mute">هنوز کاری انجام نشده.</span></div></div>
-    <div id="tab-limits" hidden class="lim"></div>
-    <div id="tab-audit" hidden></div>
-    <div id="tab-adv" hidden>
-      <div class="row"><select id="tool"></select><button class="pri" id="runTool">اجرا</button></div>
-      <p class="mute" id="toolDesc"></p>
-      <textarea id="args" rows="4" dir="ltr">{}</textarea>
+  <div class="sec-h"><h3>اپ‌های شما</h3><div class="grow"></div><button id="refresh">↻ به‌روزرسانی</button></div>
+  <div class="apps" id="apps"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+
+  <section class="panel">
+    <div class="tabs"><button data-tab="activity" class="on">⚡ فعالیت‌ها</button><button data-tab="limits">🧭 محدودیت‌ها</button><button data-tab="audit">🗂️ تاریخچهٔ اقدامات</button><button data-tab="adv">🛠️ ابزار پیشرفته</button></div>
+    <div class="tabbody">
+      <div id="tab-activity"><div id="log"><p class="mute">هنوز کاری انجام نشده. یکی از اپ‌ها را بررسی کنید یا مشکل را بنویسید.</p></div></div>
+      <div id="tab-limits" hidden class="lim"></div>
+      <div id="tab-audit" hidden></div>
+      <div id="tab-adv" hidden>
+        <div class="row"><select id="tool"></select><button class="pri" id="runTool">اجرا</button></div>
+        <p class="mute" id="toolDesc"></p>
+        <textarea id="args" rows="4" dir="ltr">{}</textarea>
+      </div>
     </div>
   </section>
-</main>
+  <footer>سطوح ریسک: R0 خودکار · R1 تأیید · R2 تأیید با هزینه/اثر · R3 تایپ نام اپ — همهٔ اقدامات ثبت می‌شوند.</footer>
+</div>
 
 <dialog id="approve"><div class="dlg">
-  <h2 style="margin-top:0">تأیید لازم است <span class="risk" id="aRisk"></span></h2>
+  <h2>🔐 تأیید شما لازم است <span class="risk" id="aRisk"></span></h2>
+  <p class="mute" id="aMsg"></p>
   <pre class="fa" id="aPlan"></pre>
-  <p id="aMsg"></p>
-  <div id="aNameWrap" hidden><label>برای تأیید، نام اپ را تایپ کنید: <b id="aName"></b></label><input id="aNameIn" autocomplete="off"></div>
-  <div class="row" style="margin-top:12px;justify-content:flex-end"><button id="aNo">رد</button><button class="pri" id="aYes">تأیید و اجرا</button></div>
+  <div id="aNameWrap" hidden style="margin-top:10px"><label>برای تأیید، نام اپ را تایپ کنید: <b id="aName" dir="ltr"></b></label><input class="f" id="aNameIn" autocomplete="off" dir="ltr"></div>
+  <div class="row" style="margin-top:16px;justify-content:flex-end"><button id="aNo">رد کن</button><button class="ok" id="aYes">✓ تأیید و اجرا</button></div>
 </div></dialog>
+<div class="toast" id="toast"></div>
 
 <script>
 const qs = new URLSearchParams(location.search);
@@ -79,67 +156,97 @@ try { if (token) sessionStorage.setItem('siavash-token', token); else token = se
 if (qs.get('token')) history.replaceState(null, '', location.pathname);
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-let TOOLS = {};
+const faNum = (n) => String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d]);
+let TOOLS = {}, APPS = [];
+const HEALTH = {};
+
+function toast(t) { const el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(el._t); el._t = setTimeout(() => (el.style.display = 'none'), 2600); }
 
 async function api(path, body) {
   const r = await fetch(path, { method: body ? 'POST' : 'GET', headers: { 'x-siavash-token': token, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   const j = await r.json().catch(() => ({}));
-  if (r.status === 401) { $('apps').innerHTML = '<b style="color:var(--bad)">' + esc(j.messageFa || '401') + '</b>'; throw new Error('401'); }
+  if (r.status === 401) { $('apps').innerHTML = '<p style="color:#fca5a5">' + esc(j.messageFa || '401') + '</p>'; throw new Error('401'); }
   return j;
 }
+const run = (name, args) => api('/api/call', { name, args });
 
-const FA_STATUS = { ok: 'انجام شد', error: 'خطا', approval_required: 'منتظر تأیید شما', waiting_human: 'منتظر اقدام شما', dry_run: 'پیش‌نمایش', denied: 'رد شد' };
+const FA_STATUS = { ok: 'انجام شد', error: 'خطا', approval_required: 'منتظر تأیید شما', waiting_human: 'منتظر اقدام شما', dry_run: 'پیش‌نمایش' };
+const scoreColor = (s) => (s >= 85 ? 'var(--ok)' : s >= 60 ? 'var(--warn)' : 'var(--bad)');
 
 function addEntry(title) {
   const log = $('log');
-  if (log.querySelector('.mute')) log.innerHTML = '';
+  if (log.querySelector('p.mute')) log.innerHTML = '';
   const el = document.createElement('div');
   el.className = 'entry';
-  el.innerHTML = '<div><b>' + esc(title) + '</b> <span class="spin"></span></div>';
+  el.innerHTML = '<div class="hd"><b>' + esc(title) + '</b><span class="spin"></span><span class="time">در حال بررسی…</span></div>';
   log.prepend(el);
   return el;
 }
 
 function pickText(a) {
   const out = [];
-  const walk = (o, depth) => {
-    if (!o || typeof o !== 'object' || depth > 3) return;
-    for (const [k, v] of Object.entries(o)) {
-      if (typeof v === 'string' && /Fa$|^summary$|^message$/.test(k) && v.length < 2000) out.push(v);
-      else if (typeof v === 'object') walk(v, depth + 1);
-    }
-  };
+  const walk = (o, d) => { if (!o || typeof o !== 'object' || d > 3) return; for (const [k, v] of Object.entries(o)) { if (typeof v === 'string' && /Fa$|^message$/.test(k) && v.length < 1500) out.push(v); else if (typeof v === 'object') walk(v, d + 1); } };
   walk(a, 0);
-  return [...new Set(out)].slice(0, 12);
+  return [...new Set(out)].slice(0, 8);
 }
 
-function renderAnswer(el, title, res) {
+function renderBody(tool, a, app) {
+  const r = a.result || {};
+  let h = '';
+  if (tool === 'diagnose_app' && r && typeof r === 'object') {
+    if (r.healthy) h += '<p class="msg">✅ اپ سالم است؛ مشکلی پیدا نشد.</p>';
+    if (r.signals && r.signals.length) h += '<div>' + r.signals.map((s) => '<span class="sig ' + esc(s.severity) + '">' + esc(s.id) + (s.detail ? ' · ' + esc(s.detail) : '') + '</span>').join('') + '</div>';
+    for (const x of r.hypotheses || []) {
+      const c = Math.round((x.confidence || 0) * 100);
+      h += '<div class="hyp"><div class="t"><span>🔎 ' + esc(x.titleFa) + '</span><span>' + faNum(c) + '٪</span></div><div class="bar"><i style="width:' + c + '%"></i></div>' +
+        (x.evidence || []).slice(0, 3).map((e) => '<div class="ev">' + esc(e.quote || e.ref) + '</div>').join('') + '</div>';
+    }
+    if (r.quickFix || r.rootFix) {
+      h += '<div class="fixes">';
+      if (r.quickFix) h += '<div class="fix"><small>⚡ راهکار سریع · R' + esc(r.quickFix.risk) + '</small><b>' + esc(r.quickFix.titleFa) + '</b><br><button class="pri" data-fix="quick" data-app="' + esc(app) + '">اجرا (با تأیید)</button></div>';
+      if (r.rootFix) h += '<div class="fix"><small>🧩 راهکار ریشه‌ای · R' + esc(r.rootFix.risk) + '</small><b>' + esc(r.rootFix.titleFa) + '</b><br><button data-fix="root" data-app="' + esc(app) + '">اجرا (با تأیید)</button></div>';
+      h += '</div>';
+    }
+    return h;
+  }
+  if (tool === 'health_check' && typeof r.score === 'number') {
+    h += '<div class="row" style="margin-top:10px"><div class="ring" style="--v:' + r.score + ';--c:' + scoreColor(r.score) + '"><i>' + faNum(r.score) + '</i></div><div class="msg" style="margin:0">' + esc(r.summaryFa || '') + '</div></div>';
+    h += (r.signals || []).map((s) => '<span class="sig ' + esc(s.severity) + '">' + esc(s.id) + '</span>').join('');
+    return h;
+  }
+  const texts = pickText(a);
+  if (texts.length) h += '<p class="msg">' + esc(texts.join('\n')) + '</p>';
+  return h;
+}
+
+function renderAnswer(el, title, res, tool, app) {
   const a = res.answer || res;
   const st = a.status || 'ok';
-  const texts = pickText(a);
-  const notes = (a.notes || []).map((n) => '<pre class="fa">' + esc(n) + '</pre>').join('');
-  el.innerHTML = '<div><b>' + esc(title) + '</b> — <span class="st ' + esc(st) + '">' + esc(FA_STATUS[st] || st) + '</span> <span class="mute">' + (res.ms ? Math.round(res.ms / 100) / 10 + ' ثانیه' : '') + '</span></div>' +
-    (texts.length ? '<pre class="fa">' + esc(texts.join('\n')) + '</pre>' : '') + notes +
-    '<details><summary class="mute">جزئیات فنی</summary><pre>' + esc(JSON.stringify(a.result ?? a, null, 2)) + '</pre></details>';
+  const body = renderBody(tool, a, app);
+  const notes = !body && a.notes ? '<pre class="fa">' + esc(a.notes.join('\n')) + '</pre>' : '';
+  el.innerHTML = '<div class="hd"><b>' + esc(title) + '</b><span class="st ' + esc(st) + '">' + esc(FA_STATUS[st] || st) + '</span><span class="time">' + (res.ms ? faNum((Math.round(res.ms / 100) / 10).toString()) + ' ثانیه' : '') + '</span></div>' +
+    body + notes + '<details><summary>جزئیات فنی</summary><pre>' + esc(JSON.stringify(a.result ?? a, null, 2)) + '</pre></details>';
 }
 
 async function call(name, args, title) {
   title = title || name;
   const el = addEntry(title);
   switchTab('activity');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   try {
-    const res = await api('/api/call', { name, args });
+    const res = await run(name, args);
     const a = res.answer || {};
     if (a.status === 'approval_required') {
-      renderAnswer(el, title, res);
+      renderAnswer(el, title, res, name, args.app);
       const ok = await askApproval(a);
-      if (!ok) { el.querySelector('.st').textContent = 'شما رد کردید — اجرا نشد'; return; }
-      return call(name, { ...args, confirm_token: a.confirm_token, ...(ok.name ? { confirm_app_name: ok.name } : {}) }, title + ' (تأییدشده)');
+      if (!ok) { el.querySelector('.st').textContent = 'رد شد — اجرا نشد'; toast('اقدام رد شد؛ هیچ تغییری انجام نشد.'); return; }
+      return call(name, { ...args, confirm_token: a.confirm_token, ...(ok.name ? { confirm_app_name: ok.name } : {}) }, title + ' ✓');
     }
-    renderAnswer(el, title, res);
+    renderAnswer(el, title, res, name, args.app);
+    if (name === 'health_check' && a.result && typeof a.result.score === 'number') { HEALTH[args.app] = a.result; paintApps(); }
     return a;
   } catch (e) {
-    el.innerHTML = '<b>' + esc(title) + '</b> — <span class="st error">خطا</span> <span class="mute">' + esc(e.message) + '</span>';
+    el.innerHTML = '<div class="hd"><b>' + esc(title) + '</b><span class="st error">خطا</span></div><p class="mute">' + esc(e.message) + '</p>';
   }
 }
 
@@ -149,11 +256,11 @@ function askApproval(a) {
     $('aRisk').textContent = a.risk || '';
     $('aRisk').className = 'risk ' + (a.risk || '');
     $('aPlan').textContent = a.plan || '';
-    $('aMsg').textContent = a.messageFa || '';
+    $('aMsg').textContent = 'این اقدام روی سرویس شما اثر دارد. کارت زیر را بخوانید و تصمیم بگیرید.';
     const needName = !!a.requires_confirm_app_name;
     $('aNameWrap').hidden = !needName;
-    const m = /«([^»]+)»|"([^"]+)"/.exec(a.messageFa || '');
-    $('aName').textContent = m ? (m[1] || m[2]) : '';
+    const m = /«([^»]+)»/.exec(a.messageFa || '');
+    $('aName').textContent = m ? m[1] : '';
     $('aNameIn').value = '';
     const done = (v) => { d.close(); $('aYes').onclick = $('aNo').onclick = null; resolve(v); };
     $('aYes').onclick = () => done(needName ? { name: $('aNameIn').value } : {});
@@ -162,45 +269,60 @@ function askApproval(a) {
   });
 }
 
-function has(t) { return !!TOOLS[t]; }
+const has = (t) => !!TOOLS[t];
+const ACTIONS = [['diagnose_app', '🔎 عیب‌یابی'], ['health_check', '❤️ سلامت'], ['get_metrics_summary', '📊 CPU/RAM'], ['get_logs', '📜 لاگ'], ['app_overview', '🧾 نمای کلی'], ['restart_app', '🔄 ری‌استارت'], ['redeploy_app', '🚀 deploy دوباره']];
+
+function paintApps() {
+  if (!APPS.length) { $('apps').innerHTML = '<p class="mute">اپی پیدا نشد. با <code>siavash deploy</code> اولین اپ را بسازید.</p>'; return; }
+  $('apps').innerHTML = APPS.map((x) => {
+    const h = HEALTH[x.name];
+    const ring = h ? '<div class="ring" style="--v:' + h.score + ';--c:' + scoreColor(h.score) + '"><i>' + faNum(h.score) + '</i></div>' : '<div class="ring"><i><span class="spin"></span></i></div>';
+    const active = /ACTIVE|RUNNING/i.test(x.status || '') && x.scale !== 0;
+    return '<div class="app"><div class="top">' + ring + '<div><div class="name">' + esc(x.name) + '</div><div class="meta"><span class="dot' + (active ? ' live' : '') + '"></span> ' + esc(active ? 'فعال' : x.status || 'متوقف') + ' · ' + esc(x.platform || '') + ' · ' + esc(x.planID || '') + '</div></div></div>' +
+      '<div class="sum">' + esc(h ? h.summaryFa || h.labelFa || '' : 'در حال بررسی سلامت…') + '</div>' +
+      '<div class="acts">' + ACTIONS.filter(([t]) => has(t)).map(([t, l]) => '<button data-tool="' + t + '" data-app="' + esc(x.name) + '">' + l + '</button>').join('') + '</div></div>';
+  }).join('');
+  const scored = APPS.map((a) => HEALTH[a.name]).filter(Boolean);
+  $('sApps').textContent = faNum(APPS.length);
+  $('sActive').textContent = faNum(APPS.filter((x) => /ACTIVE|RUNNING/i.test(x.status || '') && x.scale !== 0).length);
+  $('sAvg').textContent = scored.length ? faNum(Math.round(scored.reduce((s, h) => s + h.score, 0) / scored.length)) : '…';
+  $('sIssues').textContent = scored.length ? faNum(scored.filter((h) => h.score < 85).length) : '…';
+  $('chips').innerHTML = APPS.slice(0, 3).flatMap((x) => ['سایت ' + x.name + ' کند شده', 'لاگ‌های ' + x.name]).slice(0, 4).concat(['محدودیت‌ها']).map((t) => '<button class="chip">' + esc(t) + '</button>').join('');
+}
 
 async function loadApps() {
-  $('apps').innerHTML = '<span class="spin"></span>';
-  const res = await api('/api/call', { name: 'list_apps', args: {} });
-  const apps = (res.answer && res.answer.result && res.answer.result.apps) || [];
-  if (!apps.length) { $('apps').innerHTML = '<span class="mute">اپی پیدا نشد. با <code>siavash deploy</code> اولین اپ را بسازید.</span>'; return; }
-  $('apps').innerHTML = apps.map((x) => '<div class="app"><b>' + esc(x.name) + '</b> <span class="badge">' + esc(x.status || '') + '</span>' +
-    '<div class="meta">' + esc(x.platform || '') + ' · پلن ' + esc(x.planID || '?') + ' · scale ' + esc(x.scale ?? '?') + '</div><div class="row">' +
-    [['health_check', 'سلامت'], ['diagnose_app', 'عیب‌یابی'], ['app_overview', 'نمای کلی'], ['get_logs', 'لاگ‌ها'], ['get_metrics_summary', 'CPU/RAM'], ['restart_app', 'ری‌استارت'], ['redeploy_app', 'deploy دوباره']]
-      .filter(([t]) => has(t)).map(([t, l]) => '<button data-tool="' + t + '" data-app="' + esc(x.name) + '">' + l + '</button>').join('') + '</div></div>').join('');
+  const res = await run('list_apps', {});
+  APPS = (res.answer && res.answer.result && res.answer.result.apps) || [];
+  paintApps();
+  for (const x of APPS) {
+    try {
+      const r = await run('health_check', { app: x.name });
+      if (r.answer && r.answer.result && typeof r.answer.result.score === 'number') { HEALTH[x.name] = r.answer.result; paintApps(); }
+    } catch {}
+  }
 }
 
-$('apps').addEventListener('click', (e) => {
+document.addEventListener('click', (e) => {
   const b = e.target.closest('button[data-tool]');
-  if (!b) return;
-  const t = b.dataset.tool, app = b.dataset.app;
-  call(t, { app }, b.textContent + ' — ' + app);
+  if (b) return call(b.dataset.tool, { app: b.dataset.app }, b.textContent.replace(/^\S+\s/, '') + ' — ' + b.dataset.app);
+  const f = e.target.closest('button[data-fix]');
+  if (f) return call('fix_issue', { app: f.dataset.app, choice: f.dataset.fix }, (f.dataset.fix === 'quick' ? 'راهکار سریع' : 'راهکار ریشه‌ای') + ' — ' + f.dataset.app);
+  const c = e.target.closest('.chip');
+  if (c) { $('ask').value = c.textContent; $('askBtn').click(); }
 });
-$('refresh').onclick = () => loadApps().catch(() => {});
-
-function argsFor(tool, app, text) {
-  const props = (TOOLS[tool] && TOOLS[tool].inputSchema && TOOLS[tool].inputSchema.properties) || {};
-  const a = { app };
-  for (const k of ['userDescription', 'description', 'symptom']) if (props[k]) a[k] = text;
-  return a;
-}
+$('refresh').onclick = () => { for (const k in HEALTH) delete HEALTH[k]; loadApps().catch(() => {}); };
 
 $('askBtn').onclick = async () => {
   const text = $('ask').value.trim();
   if (!text) return;
   if (/محدودیت|limit/i.test(text)) return switchTab('limits');
-  const names = [...document.querySelectorAll('.app b')].map((b) => b.textContent);
-  const app = names.find((n) => text.includes(n)) || (text.match(/[a-z0-9][a-z0-9-]{2,}/i) || [])[0];
-  if (!app) { addEntry('نام اپ را در جمله بیاورید').innerHTML = '<span class="mute">مثلاً: «سایت shop-api کند شده»</span>'; return; }
+  const app = APPS.map((a) => a.name).sort((a, b) => b.length - a.length).find((n) => text.includes(n)) || (text.match(/[a-z0-9][a-z0-9-]{2,}/i) || [])[0];
+  if (!app) return toast('نام اپ را در جمله بیاورید؛ مثلاً «سایت shop-api کند شده»');
   if (/لاگ|log/i.test(text)) return call('get_logs', { app }, 'لاگ‌های ' + app);
   if (/ری.?استارت|restart/i.test(text) && has('restart_app')) return call('restart_app', { app }, 'ری‌استارت ' + app);
   if (/وضعیت|سلامت|health|status/i.test(text) && !/کند|خطا|500|مشکل|خراب|down/i.test(text)) return call('health_check', { app }, 'سلامت ' + app);
-  return call('diagnose_app', argsFor('diagnose_app', app, text), 'عیب‌یابی ' + app);
+  const props = (TOOLS.diagnose_app && TOOLS.diagnose_app.inputSchema && TOOLS.diagnose_app.inputSchema.properties) || {};
+  return call('diagnose_app', { app, ...(props.description ? { description: text } : {}) }, 'عیب‌یابی ' + app);
 };
 $('ask').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('askBtn').click(); });
 
@@ -214,13 +336,13 @@ document.querySelectorAll('.tabs button').forEach((b) => (b.onclick = () => swit
 
 async function loadLimits() {
   const r = await api('/api/limits');
-  $('tab-limits').innerHTML = r.groups.filter((g) => g.items.length).map((g) => '<h3>' + esc(g.titleFa) + '</h3><ul>' +
-    g.items.map((l) => '<li><b>' + esc(l.whatFa) + '</b> — <span class="mute">' + esc(l.whyFa) + '</span><br><span class="alt">راه جایگزین:</span> ' + esc(l.alternativeFa) + '</li>').join('') + '</ul>').join('');
+  $('tab-limits').innerHTML = '<p class="mute">کارهایی که سیاوش خودش نمی‌تواند انجام دهد — و راه جایگزین هر کدام.</p>' + r.groups.filter((g) => g.items.length).map((g) => '<h4>' + esc(g.titleFa) + '</h4>' +
+    g.items.map((l) => '<div class="it"><b>' + esc(l.whatFa) + '</b> <span class="mute">— ' + esc(l.whyFa) + '</span><div class="alt">↳ ' + esc(l.alternativeFa) + '</div></div>').join('')).join('');
 }
 
 async function loadAudit() {
   const r = await api('/api/audit');
-  $('tab-audit').innerHTML = r.entries.length ? '<pre>' + esc(r.entries.map((e) => [e.ts, e.tool, 'R' + e.risk, e.target || '', e.decision, e.result || ''].join('  ')).join('\n')) + '</pre>' : '<span class="mute">هنوز اقدامی ثبت نشده.</span>';
+  $('tab-audit').innerHTML = r.entries.length ? r.entries.map((e) => '<div class="entry"><div class="hd"><b dir="ltr">' + esc(e.tool) + '</b><span class="risk R' + esc(e.risk) + '">R' + esc(e.risk) + '</span><span class="st">' + esc(e.decision) + '</span><span class="mute" dir="ltr">' + esc(e.target || '') + '</span><span class="time" dir="ltr">' + esc(new Date(e.ts).toLocaleString('fa-IR')) + '</span></div></div>').join('') : '<p class="mute">هنوز اقدامی ثبت نشده.</p>';
 }
 
 $('tool').onchange = () => {
@@ -231,14 +353,16 @@ $('tool').onchange = () => {
 };
 $('runTool').onclick = () => {
   let args;
-  try { args = JSON.parse($('args').value || '{}'); } catch { return alert('JSON نامعتبر است'); }
+  try { args = JSON.parse($('args').value || '{}'); } catch { return toast('JSON نامعتبر است'); }
   call($('tool').value, args);
 };
 
 (async () => {
-  if (!token) { $('apps').innerHTML = '<b style="color:var(--bad)">آدرس پنل را همراه با ?token=… باز کنید.</b>'; return; }
+  if (!token) { $('apps').innerHTML = '<p style="color:#fca5a5">آدرس پنل را همراه با ?token=… باز کنید.</p>'; return; }
   const info = await api('/api/info');
-  $('mode').textContent = info.mode === 'live' ? 'لیارای واقعی' : 'حالت دمو (mock)';
+  const live = info.mode === 'live';
+  $('mode').textContent = live ? 'متصل به لیارای واقعی' : 'حالت دمو (mock)';
+  if (live) $('modeDot').classList.add('live');
   const t = await api('/api/tools');
   for (const x of t.tools) TOOLS[x.name] = x;
   $('tool').innerHTML = t.tools.map((x) => '<option>' + esc(x.name) + '</option>').join('');
