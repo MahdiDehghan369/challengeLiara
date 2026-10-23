@@ -463,6 +463,33 @@ export const fa = {
     cleanupDelete: 'حذف اپ (غیرقابل بازگشت)',
     cleanupReason: 'پاک‌سازی بعد از شکست در ساخت دیتابیس',
   },
+  configure: {
+    title: 'تنظیم env و فایل‌های پروژه',
+    envIntro: (n: number) =>
+      `${n} متغیر محیطی برای این پروژه پیدا شد. مقادیر محرمانه نمایش داده نمی‌شوند.`,
+    envTitle: 'متغیرهای محیطی',
+    askValue: (key: string, required: boolean) =>
+      required ? `مقدار ${key}:` : `مقدار ${key} (اختیاری؛ خالی = رد کردن):`,
+    askSecret: (key: string, required: boolean) =>
+      required ? `مقدار ${key} (محرمانه؛ نمایش داده نمی‌شود):` : `مقدار ${key} (محرمانه، اختیاری؛ خالی = رد کردن):`,
+    requiredEmpty: 'این متغیر لازم است؛ مقداری وارد کنید.',
+    fromDatabase: (key: string) =>
+      `${key} از دیتابیس ساخته‌شده پر شد.`,
+    noHiddenInput: (key: string) =>
+      `این رابط امکان ورود پنهان ندارد؛ ${key} را بعداً با «siavash env set» تنظیم کنید.`,
+    envSkipped: (keys: string) =>
+      `این متغیرها تنظیم نشدند: ${keys}`,
+    liaraJsonTitle: 'تغییرات liara.json',
+    liaraJsonQuestion: 'این تغییرات در liara.json نوشته شود؟',
+    write: 'بنویس',
+    skip: 'ننویس',
+    liaraJsonInvalid:
+      'فایل liara.json فعلی JSON معتبر نیست؛ تغییری در آن داده نشد. آن را اصلاح کنید.',
+    diskMountPending: (folders: string) =>
+      `مسیر اتصال دیسک برای ${folders} هنوز مشخص نیست؛ در مرحلهٔ deploy با دستور شما تنظیم می‌شود.`,
+    liaraignoreCreated: 'فایل .liaraignore ساخته شد (node_modules، .env و .git آپلود نمی‌شوند).',
+    zeroDowntimeReason: 'برای production، deploy بدون قطعی توصیه می‌شود.',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
