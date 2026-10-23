@@ -31,6 +31,20 @@ const IncidentSchema = z.object({
   status: z.enum(['open', 'resolved']),
 });
 
+export const STEP_STATUSES = ['pending', 'running', 'waiting-approval', 'waiting-human', 'done', 'skipped', 'failed'] as const;
+
+/** Pipeline checkpoint (T5.1): per-step status and the JSON state, so `--resume` continues where it stopped. */
+const PipelineCheckpointSchema = z.object({
+  pipelineId: z.string(),
+  status: z.enum(['running', 'done', 'failed', 'cancelled', 'waiting-human']),
+  steps: z.record(z.string(), z.enum(STEP_STATUSES)),
+  state: z.record(z.string(), z.unknown()),
+  failedStep: z.string().optional(),
+  updatedAt: z.string(),
+});
+
+export type PipelineCheckpoint = z.infer<typeof PipelineCheckpointSchema>;
+
 export const SessionDataSchema = z.object({
   version: z.literal(1),
   id: z.string(),
@@ -44,6 +58,7 @@ export const SessionDataSchema = z.object({
   facts: z.record(z.string(), z.string()),
   incidents: z.array(IncidentSchema),
   approvedKeys: z.array(z.string()),
+  pipelines: z.record(z.string(), PipelineCheckpointSchema).optional(),
 });
 
 export type SessionData = z.infer<typeof SessionDataSchema>;
@@ -172,6 +187,18 @@ export class Session {
   resolveIncident(id: string): void {
     const inc = this.data.incidents.find((x) => x.id === id);
     if (inc) inc.status = 'resolved';
+  }
+
+  checkpoint(pipelineId: string): PipelineCheckpoint | undefined {
+    return this.data.pipelines?.[pipelineId];
+  }
+
+  setCheckpoint(cp: Omit<PipelineCheckpoint, 'updatedAt'>): void {
+    this.data.pipelines = { ...this.data.pipelines, [cp.pipelineId]: { ...cp, updatedAt: this.now().toISOString() } };
+  }
+
+  clearCheckpoint(pipelineId: string): void {
+    if (this.data.pipelines) delete this.data.pipelines[pipelineId];
   }
 
   /** Messages for the next LLM call: the summary of older turns (if any) + the kept messages. */

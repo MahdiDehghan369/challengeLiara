@@ -312,6 +312,14 @@ export const fa = {
     pythonNoServerFix:
       'gunicorn (برای django/flask) یا uvicorn (برای fastapi) را به requirements.txt اضافه کنید.',
   },
+  pipeline: {
+    stepFailed: (title: string) =>
+      `مرحلهٔ «${title}» با خطا متوقف شد.`,
+    cancelled:
+      'عملیات به درخواست شما بین دو مرحله متوقف شد؛ با --resume از همان‌جا ادامه می‌دهیم.',
+    resumed: (title: string) =>
+      `ادامه از مرحلهٔ «${title}».`,
+  },
   planner: {
     catalogUnavailable:
       'فهرست پلن‌های لیارا دریافت نشد. مطمئن شوید CLI لیارا نصب است و توکن درست است، سپس دوباره تلاش کنید.',
