@@ -312,6 +312,46 @@ export const fa = {
     pythonNoServerFix:
       'gunicorn (برای django/flask) یا uvicorn (برای fastapi) را به requirements.txt اضافه کنید.',
   },
+  preflight: {
+    title: 'بررسی‌های اولیه',
+    tokenOk: (n: number | undefined) =>
+      n === undefined ? 'توکن لیارا معتبر است.' : `توکن لیارا معتبر است (${n} اپ قابل مشاهده).`,
+    tokenMissing: 'توکن API لیارا تنظیم نشده است.',
+    tokenInvalid: 'توکن API لیارا نامعتبر است یا منقضی شده.',
+    tokenFix:
+      'از console.liara.ir بخش API یک توکن بسازید و در فایل .env مقدار LIARA_API_TOKEN را تنظیم کنید.',
+    tokenError: (msg: string) =>
+      `اتصال به لیارا برای بررسی توکن ناموفق بود: ${msg}`,
+    tokenErrorFix: 'اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.',
+    teamSet: (id: string) =>
+      `عملیات روی تیم «${id}» انجام می‌شود.`,
+    teamPersonal:
+      'عملیات روی حساب شخصی انجام می‌شود (LIARA_TEAM_ID تنظیم نشده).',
+    teamFix:
+      'اگر می‌خواهید روی تیم کار کنید، LIARA_TEAM_ID را در .env تنظیم کنید.',
+    cliOk: (version: string | undefined) =>
+      `Liara CLI آماده است${version ? ` (نسخهٔ ${version})` : ''}.`,
+    cliMissing: 'Liara CLI پیدا نشد؛ برای deploy و فهرست پلن‌ها لازم است.',
+    projectMissing: (path: string) =>
+      `پوشهٔ پروژه پیدا نشد: ${path}`,
+    projectFix: 'مسیر پروژه را بررسی کنید یا دستور را داخل پوشهٔ پروژه اجرا کنید.',
+    projectOk: 'پوشهٔ پروژه پیدا شد.',
+    gitDirty: (n: number) =>
+      `${n} فایل تغییر commit‌نشده دارد؛ همین نسخهٔ فعلی پوشه deploy می‌شود.`,
+    gitDirtyFix:
+      'اگر می‌خواهید نسخهٔ مشخصی deploy شود، اول تغییرات را commit کنید.',
+    gitClean: 'مخزن git تمیز است.',
+    gitNone: 'پروژه مخزن git ندارد؛ تاریخچهٔ نسخه‌ها فقط در لیارا نگه داشته می‌شود.',
+    liaraignoreMissing:
+      'فایل .liaraignore وجود ندارد؛ ممکن است فایل‌های اضافه (مثل node_modules یا .env) آپلود شوند.',
+    liaraignoreFix:
+      'یک فایل .liaraignore بسازید و node_modules، .env و .git را در آن بنویسید.',
+    liaraignoreOk: 'فایل .liaraignore وجود دارد.',
+    failed: (lines: string) =>
+      `بررسی‌های اولیه ناموفق بود:\n${lines}`,
+    line: (what: string, fix: string | undefined) =>
+      fix ? `• ${what}\n  چه کار کنید: ${fix}` : `• ${what}`,
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
