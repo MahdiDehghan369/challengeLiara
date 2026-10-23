@@ -50,6 +50,8 @@ export interface Hypothesis {
   proposedFixes: ProposedFix[];
   howToVerifyFa: string;
   source: 'rules' | 'llm' | 'rules+llm';
+  /** Detector signals this hypothesis explains (rule hypotheses); the verify loop checks they are gone. */
+  signalIds?: string[];
 }
 
 export interface TimelineItem {
@@ -219,6 +221,7 @@ export function ruleHypotheses(input: RcaInput, catalog: EvidenceItem[]): Hypoth
       proposedFixes: fixes,
       howToVerifyFa: verifyFor(fixes[0]?.actionType),
       source: 'rules',
+      signalIds: [rule.signal],
     });
   }
 
@@ -240,6 +243,7 @@ export function ruleHypotheses(input: RcaInput, catalog: EvidenceItem[]): Hypoth
         proposedFixes: [{ actionType: 'rollback_app', expectedEffectFa: effect('rollback_app') }, { actionType: 'code_patch', expectedEffectFa: effect('code_patch') }],
         howToVerifyFa: verifyFor('rollback_app'),
         source: 'rules',
+        signalIds: [crashLike.id, 'app-down', 'crash-loop'],
       });
     }
   }
@@ -257,6 +261,7 @@ export function ruleHypotheses(input: RcaInput, catalog: EvidenceItem[]): Hypoth
       proposedFixes: [{ actionType: 'restart_app', expectedEffectFa: effect('restart_app') }],
       howToVerifyFa: verifyFor('restart_app'),
       source: 'rules',
+      signalIds: [sig.id],
     });
   }
   return out;
