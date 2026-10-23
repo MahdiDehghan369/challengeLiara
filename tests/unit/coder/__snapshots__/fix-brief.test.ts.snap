@@ -1,0 +1,59 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fix brief (T8.14) > http-500: all 7 sections, project-mapped location, exact reproduce commands 1`] = `
+"# Fix Brief — shop (incident inc-20261023-080000-abcd)
+
+> خلاصه برای شما: علت محتمل «order.items برای بعضی سفارش‌ها undefined است» (اطمینان 85٪) در src/orders.js:14. این متن را به Agent برنامه‌نویسی خود (Cursor، Claude Code، Copilot…) بدهید؛ همهٔ اطلاعات لازم در آن هست و هیچ secret‌ای ندارد.
+
+## 1. Problem
+
+The app throws \`TypeError: Cannot read properties of undefined (reading 'length')\` while serving \`GET /api/orders/5\`.
+
+Impact on end users: requests to GET /api/orders/5 fail with an error instead of a valid response.
+
+## 2. Evidence
+
+- Failing endpoint: \`GET /api/orders/5\`
+- Started at: 2026-10-23T08:00:00.000Z
+- Related release: v7
+
+\`\`\`text
+TypeError: Cannot read properties of undefined (reading 'length')
+    at summarize (/app/src/orders.js:14:29)
+    at Server.<anonymous> (/app/src/server.js:20:31)
+    connecting with postgres://app:***@shop-db.internal:5432/shop
+    callback https://hooks.example.com/notify?token=[REDACTED]
+\`\`\`
+
+## 3. Suspected location
+
+- File: \`src/orders.js\`, line 14, function \`summarize\`
+- Probable cause (85% confidence): order.items برای بعضی سفارش‌ها undefined است — تابع summarize بدون بررسی items طول آن را می‌خواند.
+
+## 4. Reproduce locally
+
+\`\`\`sh
+PORT=3000 npm start
+curl -i http://localhost:3000/api/orders/5
+npm test
+\`\`\`
+
+## 5. Acceptance criteria
+
+- [ ] \`curl -i http://localhost:3000/api/orders/5\` returns HTTP 200 (not 500)
+- [ ] \`npm test\` passes
+- [ ] A new regression test covers this exact case
+- [ ] \`GET /health\` (or \`/\`) still returns 200 (smoke test)
+
+## 6. Constraints
+
+- Fix only this bug; no refactors or unrelated changes.
+- Do not touch environment variables, \`liara.json\`, lockfiles or deploy settings.
+- Add a test that fails before the fix and passes after it.
+- The app reads these env vars (names only, values are not part of this brief): \`DATABASE_URL\`, \`PORT\`
+
+## 7. When done
+
+Commit with message \`fix: <short description> (siavash incident inc-20261023-080000-abcd)\` and call \`report_fix_done({ incidentId: "inc-20261023-080000-abcd" })\` if connected via MCP, or just tell the user.
+"
+`;

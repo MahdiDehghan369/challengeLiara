@@ -713,6 +713,15 @@ export const fa = {
     diffTitle: 'تغییر پیشنهادی',
     applied: 'اصلاح اعمال شد.',
   },
+  fixBrief: {
+    summary: (cause: string, location: string, pct: number) =>
+      `خلاصه برای شما: علت محتمل «${cause}» (اطمینان ${pct}٪) در ${location}. این متن را به Agent برنامه‌نویسی خود (Cursor، Claude Code، Copilot…) بدهید؛ همهٔ اطلاعات لازم در آن هست و هیچ secret‌ای ندارد.`,
+    unknownLocation: 'محل نامشخص',
+    title: 'Fix Brief',
+    savedTo: (path: string) => `Fix Brief ذخیره شد: ${path}`,
+    copied: 'متن Fix Brief در clipboard کپی شد.',
+    notCopied: 'clipboard در دسترس نبود؛ متن Fix Brief در ادامه آمده است.',
+  },
   onFailure: {
     title: 'شکست deploy',
     kind: {
