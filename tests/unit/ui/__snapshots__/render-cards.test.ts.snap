@@ -1,0 +1,68 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`cards (T9.4) > before/after table 1`] = `
+"قبل و بعد از اصلاح
+شاخص         قبل  بعد
+دسترس‌پذیری  0%   100%   بهتر
+p95          -    120ms  —
+نرخ خطا      2%   5%     بدتر"
+`;
+
+exports[`cards (T9.4) > findings: problem + top card + the other hypotheses in one line each 1`] = `
+"مشکل: اپ مدام ری‌استارت می‌شود
+
+فرضیهٔ 1: متغیر DATABASE_URL تعریف نشده
+اطمینان: ██████████████████░░ ۹۰٪
+به زبان ساده: اپ موقع شروع آدرس دیتابیس را از محیط می‌خواند و چون نیست، بالا نمی‌آید.
+شواهد:
+  • TypeError [ERR_INVALID_URL]: Invalid URL at new URL (node:internal/url:816:29) connecting postgres://app:***@db:5432/x
+  • Back-off restarting failed container
+  • GET / → 502 (2/2)
+راهکارها:
+  [R1] سریع: ری‌استارت اپ
+  [R2] ریشه‌ای: تنظیم DATABASE_URL (لازم: value)
+
+فرضیه‌های دیگر:
+  2. کد اپ ماژول را پیدا نمی‌کند (35%)"
+`;
+
+exports[`cards (T9.4) > hypothesis card: confidence bar, plain words, ≤ 3 redacted evidence lines with time, risk-tagged fixes 1`] = `
+"فرضیهٔ 1: متغیر DATABASE_URL تعریف نشده
+اطمینان: ██████████████████░░ ۹۰٪
+به زبان ساده: اپ موقع شروع آدرس دیتابیس را از محیط می‌خواند و چون نیست، بالا نمی‌آید.
+شواهد:
+  • 11:59:00 TypeError [ERR_INVALID_URL]: Invalid URL at new URL (node:internal/url:816:29) connecting postgres://app:***@db:5432/x
+  • Back-off restarting failed container
+  • GET / → 502 (2/2)
+راهکارها:
+  [R2] ریشه‌ای: تنظیم DATABASE_URL (لازم: value)
+  [R1] سریع: ری‌استارت اپ"
+`;
+
+exports[`cards (T9.4) > limit cards 1`] = `
+"محدودیت
+چه چیزی ممکن نیست: خرید دامنه
+چرا: لیارا API خرید دامنه ندارد
+راه جایگزین:
+  • دامنه را از ثبت‌کننده بخرید
+  • بعد siavash domain add"
+`;
+
+exports[`cards (T9.4) > overview card with health score; failed sources are named 1`] = `
+"اپ «shop»
+سلامت: █████████░░░░░░░░░░░ ۴۵٪ — بحرانی
+در اپ «shop» 1 مشکل پیدا شد؛ مهم‌ترین: اپ مدام ری‌استارت می‌شود.
+وضعیت: ACTIVE — مقیاس 1
+پلن: small-g2 — حافظه ۵۱۲ مگابایت، پردازنده ۰٫۵ هسته
+آخرین deploy: ۲ ساعت پیش — success (v7)
+متغیرهای محیطی: 4
+دامنه‌ها:
+  shop.example.com — SSL: ACTIVE
+دیسک‌ها:
+  data: ██████████░░ ۸۳٪
+مصرف منابع:
+  web: پردازنده ██░░░░░░░░░░ ۲۰٪ · حافظه █████████░░░ ۷۱٪
+رویدادهای اخیر:
+  ۱۰ دقیقه پیش · restart · App restarted
+این بخش‌ها دریافت نشدند: probe"
+`;

@@ -7,6 +7,10 @@ import type { LogRecord } from '../../sre/logs.js';
 import type { ToolResult } from '../../tools/types.js';
 import { renderPlanCard, CANCELLED } from './approver.js';
 import { formatError } from './errors.js';
+import type { AppOverview } from '../../ops/service.js';
+import type { ComparisonRow } from '../../sre/verify.js';
+import { renderKnownLimits } from './render/limit-card.js';
+import { renderComparisonTable, renderOverviewCard } from './render/overview.js';
 import { renderMode, StepsView } from './render/steps.js';
 import { fa } from './i18n/fa.js';
 import { writeCredentials, type CliRuntime } from './runtime.js';
@@ -158,7 +162,9 @@ const run =
     await fn(...a);
   };
 
-const logLine = (x: Pick<LogRecord, 'ts' | 'level' | 'text'>) => redactText(`${new Date(x.ts).toISOString()} [${x.level}] ${x.text}`);
+const cardOpts = (rt: CliRuntime, g: Globals) => ({ ...(g.verbose ? { verbose: true } : {}), color: rt.isTTY });
+
+const logLine = (x:Pick<LogRecord, 'ts' | 'level' | 'text'>) => redactText(`${new Date(x.ts).toISOString()} [${x.level}] ${x.text}`);
 
 // ---- program -----------------------------------------------------------------------
 
@@ -246,7 +252,9 @@ export function buildProgram(rt: CliRuntime, opts: ProgramOptions = {}): Command
   sub(program, 'status [app]', c.status, ['siavash status', 'siavash status shop --json']).action(
     run(rt, async (app: string | undefined, _o: unknown, cmd: Command) => {
       const g = globalsOf(cmd);
-      print(rt, g, await invoke(rt, g, 'app_overview', { app: await appOf(rt, g, app) }));
+      const o = (await invoke(rt, g, 'app_overview', { app: await appOf(rt, g, app) })) as AppOverview | undefined;
+      if (!o || g.json) print(rt, g, o);
+      else rt.out(renderOverviewCard(o, { ...cardOpts(rt, g) }));
     }),
   );
   sub(program, 'logs [app]', c.logs, ['siavash logs shop --since 1h', 'siavash logs -f'])
@@ -291,7 +299,12 @@ export function buildProgram(rt: CliRuntime, opts: ProgramOptions = {}): Command
           { value: 'skip' as const, label: c.doctorSkip },
         ]);
         if (choice === CANCELLED || choice === 'skip') return;
-        const fixed = (await invoke(rt, g, 'fix_issue', { app: name, choice })) as { verification?: { verdictFa?: string }; reportFiles?: { markdown?: string } } | undefined;
+        const fixed = (await invoke(rt, g, 'fix_issue', { app: name, choice })) as { verification?: { verdictFa?: string; table?: ComparisonRow[] }; reportFiles?: { markdown?: string } } | undefined;
+        if (g.json) {
+          print(rt, g, fixed);
+          return;
+        }
+        if (fixed?.verification?.table?.length) rt.out(renderComparisonTable(fixed.verification.table, cardOpts(rt, g)));
         if (fixed?.verification?.verdictFa) rt.out(fixed.verification.verdictFa);
         if (fixed?.reportFiles?.markdown) rt.out(fixed.reportFiles.markdown);
       }),
@@ -461,7 +474,9 @@ export function buildProgram(rt: CliRuntime, opts: ProgramOptions = {}): Command
   sub(program, 'limits', c.limits, ['siavash limits']).action(
     run(rt, async (_o: unknown, cmd: Command) => {
       const g = globalsOf(cmd);
-      print(rt, g, await invoke(rt, g, 'get_limits', {}));
+      const limits = await invoke(rt, g, 'get_limits', {});
+      if (g.json) print(rt, g, limits);
+      else rt.out(renderKnownLimits(cardOpts(rt, g)));
     }),
   );
   const runbook = sub(program, 'runbook', c.runbook, ['siavash runbook list']);
