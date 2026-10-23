@@ -11,4 +11,6 @@ export * from './container-probes.js';
 export * from './remediate.js';
 export * from './verify.js';
 export * from './incident.js';
+export * from './execute-fix.js';
+export * from './doctor.js';
 export * from './knowledge/index.js';

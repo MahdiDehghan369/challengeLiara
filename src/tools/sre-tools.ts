@@ -2,6 +2,11 @@ import { z } from 'zod';
 import { newPlanId } from '../ops/context.js';
 import { Risk } from '../safety/risk.js';
 import { buildProbeCommand, PROBE_IDS, runContainerChecks } from '../sre/container-probes.js';
+import { runPipeline } from '../deploy/pipeline-engine.js';
+import { doctorSteps, runDoctor, type DoctorDeps, type DoctorState } from '../sre/doctor.js';
+import { ValidationError } from '../shared/errors.js';
+import type { Prompter } from '../ui/cli/approver.js';
+import type { ToolContext } from './types.js';
 import { runDetectors, type Signal } from '../sre/detectors/index.js';
 import { healthScore, type HealthScore } from '../sre/health-score.js';
 import { takeSnapshot, type SnapshotDeps } from '../sre/snapshot.js';
@@ -10,7 +15,21 @@ import { defineTool, type ToolDefinition } from './types.js';
 
 /** SRE tools (T7.6). `health_check` (R0): snapshot → detectors → score. */
 
-export type SreToolsOptions = Omit<SnapshotDeps, 'liara'> & { defaultWindowSec?: number };
+export type SreToolsOptions = Omit<SnapshotDeps, 'liara'> & {
+  defaultWindowSec?: number;
+  /** Enables `diagnose_app` / `fix_issue` (T8.12). */
+  doctor?: Omit<DoctorDeps, 'liara' | 'ops' | 'llm'>;
+};
+
+/** Answers the doctor's "which fix" question with the tool argument; everything else goes to the real UI. */
+export function withChoice(ui: Prompter, choice: 'quick' | 'root'): Prompter {
+  return {
+    note: (b, t) => ui.note(b, t),
+    text: (m, o) => ui.text(m, o),
+    ...(ui.password ? { password: (m: string) => ui.password!(m) } : {}),
+    select: async (message, options) => (message === fa.doctor.choose ? ((options.find((o) => o.value === choice)?.value ?? 'skip') as never) : ui.select(message, options)),
+  };
+}
 
 export interface HealthCheckResult extends HealthScore {
   app: string;
@@ -20,7 +39,27 @@ export interface HealthCheckResult extends HealthScore {
 }
 
 export function sreTools(opts: SreToolsOptions = {}): ToolDefinition[] {
-  const { defaultWindowSec, ...snapshotOpts } = opts;
+  const { defaultWindowSec, doctor, ...snapshotOpts } = opts;
+  const diagnoses = new Map<string, DoctorState>();
+  const doctorDeps = (ctx: ToolContext, ui: Prompter): DoctorDeps => ({
+    ...(doctor as NonNullable<typeof doctor>),
+    ui,
+    liara: ctx.liara,
+    ops: ctx,
+    ...(ctx.llm ? { llm: ctx.llm } : {}),
+    snapshot: { ...snapshotOpts, ...doctor?.snapshot },
+  });
+  const summarizeDoctor = (s: DoctorState) => ({
+    app: s.app,
+    healthy: s.healthy,
+    signals: s.signals?.map((x) => ({ id: x.id, severity: x.severity, detail: x.detail })),
+    hypotheses: s.rca?.hypotheses.map((h) => ({ id: h.id, titleFa: h.titleFa, category: h.category, confidence: h.confidence, evidence: h.evidence })),
+    quickFix: s.remediation?.quickFix && { tool: s.remediation.quickFix.tool, titleFa: s.remediation.quickFix.titleFa, risk: s.remediation.quickFix.risk },
+    rootFix: s.remediation?.rootFix && { tool: s.remediation.rootFix.tool, titleFa: s.remediation.rootFix.titleFa, risk: s.remediation.rootFix.risk },
+    rounds: s.rounds,
+    verdict: s.verification?.verdict,
+    incident: s.incident && { id: s.incident.id, status: s.incident.status },
+  });
   const tools = [
     defineTool({
       name: 'health_check',
@@ -83,5 +122,52 @@ export function sreTools(opts: SreToolsOptions = {}): ToolDefinition[] {
       handler: async (a, ctx) => runContainerChecks(ctx.liara.console, a.app, a.checks),
     }),
   ];
+  if (doctor) {
+    tools.push(
+      defineTool({
+        name: 'diagnose_app',
+        descriptionFa: fa.doctor.diagnoseTool,
+        descriptionEn:
+          'Full SRE diagnosis without changing anything: snapshot, detectors, log analysis, root-cause hypotheses with evidence, and a quick fix and a root fix proposal. Optionally pass the user\'s own description.',
+        inputSchema: z.object({ app: z.string().min(1), description: z.string().max(2000).optional() }),
+        risk: Risk.R0,
+        handler: async (a, ctx) => {
+          const r = await runDoctor(a.app, doctorDeps(ctx, doctor.ui), { mode: 'diagnose', ...(a.description ? { userDescription: a.description } : {}) });
+          diagnoses.set(a.app, r.state);
+          return r.state;
+        },
+        summarizeForLlm: summarizeDoctor,
+      }) as unknown as (typeof tools)[number],
+      defineTool({
+        name: 'fix_issue',
+        descriptionFa: fa.doctor.fixTool,
+        descriptionEn: 'Execute the quick or root fix from the last diagnose_app of this app (each change asks for its own approval), then verify and write the incident report.',
+        inputSchema: z.object({ app: z.string().min(1), choice: z.enum(['quick', 'root']) }),
+        risk: Risk.R1,
+        buildPlan: async (a) => ({
+          id: newPlanId('fix_issue'),
+          toolName: 'fix_issue',
+          titleFa: fa.doctor.fixTool,
+          reasonFa: fa.tools.defaultReason,
+          target: { app: a.app },
+          risk: Risk.R1,
+          impactFa: fa.doctor.fixTool,
+          rollbackFa: fa.verifyFix.nextUndo,
+          command: `fix_issue ${a.app} ${a.choice}`,
+          params: { app: a.app, choice: a.choice },
+        }),
+        handler: async (a, ctx) => {
+          const last = diagnoses.get(a.app);
+          if (!last || !last.rca) throw new ValidationError('no diagnosis', { messageFa: fa.doctor.noDiagnosis });
+          const deps = doctorDeps(ctx, withChoice(doctor.ui, a.choice));
+          const steps = doctorSteps(deps, 'full').filter((s) => s.id === 'fix' || s.id === 'report');
+          const r = await runPipeline({ id: `doctor-fix:${a.app}`, steps }, { state: { ...last } });
+          diagnoses.set(a.app, r.state);
+          return r.state;
+        },
+        summarizeForLlm: summarizeDoctor,
+      }) as unknown as (typeof tools)[number],
+    );
+  }
   return tools as ToolDefinition[];
 }
