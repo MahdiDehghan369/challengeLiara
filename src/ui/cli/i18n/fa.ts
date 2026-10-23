@@ -722,6 +722,32 @@ export const fa = {
     copied: 'متن Fix Brief در clipboard کپی شد.',
     notCopied: 'clipboard در دسترس نبود؛ متن Fix Brief در ادامه آمده است.',
   },
+  handoff: {
+    title: 'اصلاح کد',
+    mode: {
+      self: 'خودت درستش کن (پیشنهاد اصلاح، تست و deploy با تأیید من)',
+      handoff: 'بده به Agent من (Fix Brief می‌گیرم و خودم/Agentم اصلاح می‌کنیم)',
+      report: 'فقط گزارش بده',
+    } as Record<string, string>,
+    choose: 'علت مشکل در کد است. چطور اصلاح شود؟',
+    confirmSaved: (mode: string) =>
+      `مثل دفعهٔ قبل؟ «${mode}»`,
+    yes: 'بله',
+    change: 'نه، روش دیگری انتخاب می‌کنم',
+    waiting: 'منتظر commit اصلاح هستم (یا فراخوانی report_fix_done)…',
+    pressEnter: 'وقتی اصلاح تمام شد Enter بزنید.',
+    noChange: 'تغییری در فایل‌های پروژه ندیدم.',
+    stillWaiting: 'incident باز می‌ماند تا اصلاح انجام شود.',
+    newCommit: (message: string) =>
+      `یک commit جدید دیدم: «${message}». بررسی و deploy کنم؟`,
+    checkAndDeploy: 'بله، بررسی و deploy کن',
+    later: 'فعلاً نه',
+    validationFailed: (round: number) =>
+      `اصلاح دور ${round} در بررسی محلی رد شد؛ Fix Brief جدید با خطای جدید آماده شد.`,
+    capReached: (n: number) =>
+      `بعد از ${n} دور اصلاح، مشکل هنوز حل نشده؛ گزارش incident را ببینید.`,
+    reportOnly: 'فقط گزارش: تغییری در کد داده نمی‌شود؛ گزارش incident نوشته می‌شود.',
+  },
   onFailure: {
     title: 'شکست deploy',
     kind: {

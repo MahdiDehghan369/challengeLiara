@@ -13,6 +13,8 @@ export const ProjectStateSchema = z.object({
   planID: z.string().optional(),
   deployMode: z.enum(['cli', 'api']).optional(),
   lastDeploymentId: z.string().optional(),
+  /** How code fixes are made (T8.15); remembered so next time only a confirmation is asked. */
+  fixMode: z.enum(['self', 'handoff', 'report']).optional(),
   updatedAt: z.string().optional(),
 });
 

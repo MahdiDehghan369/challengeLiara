@@ -91,7 +91,11 @@ export async function executeRemediation(
     case 'code_patch': {
       if (!deps.codeFix) return manual(option, hypothesis, ui, fa.doctor.noCodeFix);
       const r = await deps.codeFix.fix({ app, hypothesis, error: ctx.error, incidentId: ctx.incidentId });
-      return ['deployed', 'applied'].includes(r.status) ? { status: 'executed' } : { status: 'failed', ...(r.messageFa ? { messageFa: r.messageFa } : {}) };
+      if (['deployed', 'applied'].includes(r.status)) return { status: 'executed' };
+      // handed off to the user's agent / report only: the incident stays open (waiting-fix), not failed
+      if (['waiting-fix', 'reported', 'gave-up'].includes(r.status)) return { status: 'manual', ...(r.messageFa ? { messageFa: r.messageFa } : {}) };
+      if (r.status === 'skipped') return { status: 'skipped' };
+      return { status: 'failed', ...(r.messageFa ? { messageFa: r.messageFa } : {}) };
     }
     case 'manual':
       return manual(option, hypothesis, ui);
