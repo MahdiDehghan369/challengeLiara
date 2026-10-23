@@ -542,6 +542,49 @@ export const fa = {
       'deploy انجام شد ولی برنامه درست بالا نیامد؛ دارم بررسی می‌کنم…',
     resultTitle: 'نتیجهٔ بررسی سلامت',
   },
+  summary: {
+    title: 'خلاصه',
+    cardTitle: (app: string) =>
+      `اپ «${app}» روی لیارا`,
+    url: (url: string) =>
+      `آدرس: ${url}`,
+    plan: (plan: string, cost: string) =>
+      `پلن: ${plan} — ${cost} در ماه`,
+    resources: (list: string) =>
+      `منابع ساخته‌شده: ${list}`,
+    resApp: (name: string) => `اپ ${name}`,
+    resDb: (name: string, type: string) => `دیتابیس ${type} (${name})`,
+    resDisk: (name: string, gb: number) => `دیسک ${name} (${gb}GB)`,
+    envs: (list: string) =>
+      `متغیرهای محیطی: ${list}`,
+    noEnvs: 'متغیرهای محیطی: —',
+    listSep: '، ',
+    health: (verdict: string, score: number) =>
+      `سلامت: ${verdict} (امتیاز ${score} از ۱۰۰)`,
+    verdict: { healthy: 'سالم', degraded: 'ناقص', failed: 'ناسالم' } as Record<string, string>,
+    next: (app: string) =>
+      [
+        'دستورهای بعدی:',
+        `  siavash status ${app}    وضعیت و سلامت`,
+        `  siavash logs ${app}      لاگ‌ها`,
+        `  siavash redeploy ${app}  deploy دوباره از کد فعلی`,
+        `  siavash rollback ${app}  برگشت به نسخهٔ سالم قبلی`,
+      ].join('\n'),
+  },
+  redeploy: {
+    loadTitle: 'بارگذاری اطلاعات پروژه',
+    noApp:
+      'این پروژه هنوز به هیچ اپی deploy نشده است؛ اول «siavash deploy» را اجرا کنید.',
+  },
+  deployTools: {
+    deployProject: 'deploy کامل پروژه روی لیارا (تحلیل، انتخاب پلن، ساخت منابع، تنظیم، deploy و بررسی سلامت)',
+    redeployApp: 'deploy دوبارهٔ کد فعلی روی اپ موجود (بررسی اولیه، deploy، بررسی سلامت)',
+    startTitle: (path: string) =>
+      `شروع deploy پروژهٔ «${path}»`,
+    startImpact:
+      'مراحل deploy شروع می‌شود. هزینه و ساخت هر منبع جداگانه از شما تأیید گرفته می‌شود.',
+    startRollback: 'تا قبل از تأیید برنامهٔ deploy چیزی ساخته نمی‌شود.',
+  },
   pipeline: {
     stepFailed: (title: string) =>
       `مرحلهٔ «${title}» با خطا متوقف شد.`,
